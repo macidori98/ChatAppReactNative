@@ -5,7 +5,7 @@
       {
         "envName": "APP_ENV",
         "moduleName": "react-native-dotenv",
-        "path": ".env",
+        "path": "./config/.env",
         "blocklist": null,
         "allowlist": null,
         "safe": false,
