@@ -12,6 +12,6 @@ const styles = StyleSheet.create({
   separator: {
     backgroundColor: Theme.colors.lightGrey,
     height: 1,
-    width: '90%',
+    marginHorizontal: Theme.values.margins.marginLarge,
   },
 });

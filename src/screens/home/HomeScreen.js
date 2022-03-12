@@ -1,25 +1,19 @@
-import ChatRoomListItem from 'components/ChatRoomListItem';
+import ChatRooms from 'assets/dummy-data/ChatRooms';
+import ChatRoomList from 'components/chatRoom/ChatRoomList';
 import React from 'react';
+import {PreviewChat} from 'types/ChatTypes';
 
 /**
  * @param {any} props
  * @returns {JSX.Element}
  */
 const HomeScreen = props => {
-  /** @type {number[]} */
-  const testArray = [1, 2, 3, 4, 5];
+  /** @type {PreviewChat[]} */
+  const data = ChatRooms;
 
   return (
     <>
-      {testArray.map(item => (
-        <ChatRoomListItem
-          newMessageCount={5}
-          date="11:11 AM"
-          name="Mosolyorszag"
-          message="Hello there, how are you? what have you done this weekend?"
-          imageUri="https://i.pinimg.com/474x/3e/84/29/3e842975de402e7cd78f528e87ee8e32--cross-stitch-charts-cross-stitch-patterns.jpg"
-        />
-      ))}
+      <ChatRoomList data={data} />
     </>
   );
 };
