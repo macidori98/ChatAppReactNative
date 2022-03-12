@@ -1,6 +1,10 @@
 import ChatRoomListItem from 'components/ChatRoomListItem';
 import React from 'react';
 
+/**
+ * @param {any} props
+ * @returns {JSX.Element}
+ */
 const HomeScreen = props => {
   /** @type {number[]} */
   const testArray = [1, 2, 3, 4, 5];
@@ -9,6 +13,7 @@ const HomeScreen = props => {
     <>
       {testArray.map(item => (
         <ChatRoomListItem
+          newMessageCount={5}
           date="11:11 AM"
           name="Mosolyorszag"
           message="Hello there, how are you? what have you done this weekend?"

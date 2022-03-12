@@ -1,10 +1,11 @@
 import ConversationPersonImage from 'components/ConversationPersonImage';
+import MessageBadge from 'components/MessageBadge';
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Theme from 'theme/Theme';
 
 /**
- * @param {{imageUri: string, name: string, date: string, message: string}} props
+ * @param {{imageUri: string, name: string, date: string, message: string, newMessageCount: number}} props
  * @returns {JSX.Element}
  */
 const ChatRoomListItem = props => {
@@ -14,6 +15,9 @@ const ChatRoomListItem = props => {
         imageSource={props.imageUri}
         imageStyle={styles.image}
       />
+
+      <MessageBadge count={props.newMessageCount} />
+
       <View style={styles.fullSpace}>
         <View style={styles.textContainer}>
           <Text style={styles.name}>{props.name}</Text>
@@ -57,5 +61,6 @@ const styles = StyleSheet.create({
     fontSize: Theme.values.fontSize.normal,
     color: Theme.colors.black,
     fontWeight: '700',
+    marginBottom: Theme.values.margins.marginSmall,
   },
 });
