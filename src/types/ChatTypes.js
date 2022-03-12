@@ -10,7 +10,8 @@
  * @typedef {Object} User
  * @property {string} id
  * @property {string} name
- * @property {string} imageUri
+ * @property {string} [imageUri]
+ * @property {string} [status]
  */
 
 /**
@@ -18,6 +19,7 @@
  * @property {string} id
  * @property {string} content
  * @property {string} createdAt
+ * @property {User} [user]
  */
 
 export {};

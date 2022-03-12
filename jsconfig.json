@@ -11,7 +11,13 @@
       "components/*": ["components/*"],
       "navigation/*": ["navigation/*"],
       "screens/*": ["screens/*"],
-      "theme/*": ["theme/*"]
+      "theme/*": ["theme/*"],
+      "assets/*": ["assets/*"],
+      "colors/*": ["colors/*"],
+      "common/*": ["common/*"],
+      "styles/*": ["styles/*"],
+      "types/*": ["types/*"],
+      "values/*": ["values/*"]
     }
   },
   "exclude": ["node_modules"]
