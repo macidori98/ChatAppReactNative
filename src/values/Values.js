@@ -3,6 +3,7 @@ const Values = {
     marginSmall: 5,
     marginMedium: 10,
     marginLarge: 15,
+    marginExtraLarge: 55,
   },
 
   paddings: {
@@ -12,6 +13,7 @@ const Values = {
   },
 
   fontSize: {
+    messageBadge: 12,
     small: 13,
     normal: 15,
     large: 20,
@@ -21,6 +23,17 @@ const Values = {
     small: 10,
     normal: 60,
     large: 100,
+  },
+
+  badgeContainer: {
+    width: 20,
+    height: 20,
+  },
+
+  borderWidth: {
+    small: 1,
+    normal: 2,
+    large: 3,
   },
 };
 
