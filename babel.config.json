@@ -10,7 +10,13 @@
           "components": "./src/components",
           "screens": "./src/screens",
           "navigation": "./src/navigation",
-          "theme": "./src/theme"
+          "theme": "./src/theme",
+          "assets": "./src/assets",
+          "colors": "./src/colors",
+          "common": "./src/common",
+          "styles": "./src/styles",
+          "types": "./src/types",
+          "values": "./src/values"
         }
       }
     ]
