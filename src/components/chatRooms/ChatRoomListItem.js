@@ -1,36 +1,38 @@
 import ConversationPersonImage from 'components/ConversationPersonImage';
 import MessageBadge from 'components/MessageBadge';
 import React from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Theme from 'theme/Theme';
 import {PreviewChat} from 'types/ChatTypes';
 
 /**
- * @param {{data: PreviewChat}} props
+ * @param {{data: PreviewChat, onPress: () => void}} props
  * @returns {JSX.Element}
  */
 const ChatRoomListItem = props => {
   const roomData = props.data;
 
   return (
-    <View style={styles.container}>
-      <ConversationPersonImage
-        imageSource={roomData.users[1].imageUri}
-        imageStyle={styles.image}
-      />
+    <TouchableOpacity onPress={props.onPress}>
+      <View style={styles.container}>
+        <ConversationPersonImage
+          imageSource={roomData.users[1].imageUri}
+          imageStyle={styles.image}
+        />
 
-      {roomData.newMessages && <MessageBadge count={roomData.newMessages} />}
+        {roomData.newMessages && <MessageBadge count={roomData.newMessages} />}
 
-      <View style={styles.fullSpace}>
-        <View style={styles.textContainer}>
-          <Text style={styles.name}>{roomData.users[1].name}</Text>
-          <Text style={styles.text}>{roomData.lastMessage.createdAt}</Text>
+        <View style={styles.fullSpace}>
+          <View style={styles.textContainer}>
+            <Text style={styles.name}>{roomData.users[1].name}</Text>
+            <Text style={styles.text}>{roomData.lastMessage.createdAt}</Text>
+          </View>
+          <Text numberOfLines={1} style={styles.text}>
+            {roomData.lastMessage.content}
+          </Text>
         </View>
-        <Text numberOfLines={1} style={styles.text}>
-          {roomData.lastMessage.content}
-        </Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
