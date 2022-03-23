@@ -1,10 +1,10 @@
-import ChatRoomListItem from 'components/chatRoom/ChatRoomListItem';
+import ChatRoomListItem from 'components/chatRooms/ChatRoomListItem';
 import React from 'react';
 import {FlatList, View} from 'react-native';
 import {PreviewChat} from 'types/ChatTypes';
 
 /**
- * @param {{data: PreviewChat[]}} props
+ * @param {{data: PreviewChat[], onPress: () => void}} props
  * @returns {JSX.Element}
  */
 const ChatRoomList = props => {
@@ -12,7 +12,9 @@ const ChatRoomList = props => {
     <View>
       <FlatList
         data={props.data}
-        renderItem={({item}) => <ChatRoomListItem data={item} />}
+        renderItem={({item}) => (
+          <ChatRoomListItem onPress={props.onPress} data={item} />
+        )}
         showsVerticalScrollIndicator={false}
         onEndReached={info => {
           console.log(info);

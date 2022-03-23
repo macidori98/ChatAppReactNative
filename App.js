@@ -1,9 +1,12 @@
 import {NavigationContainer} from '@react-navigation/native';
-import BottomNavigation from 'navigation/MainBottomNavigation';
+import MainStackNavigation from 'navigation/MainNavigation';
 import React from 'react';
+// @ts-ignore
+import {PROBA} from 'react-native-dotenv';
 import Theme from 'theme/Theme';
 
 const App = () => {
+  console.log(PROBA);
   return (
     <NavigationContainer
       theme={{
@@ -17,7 +20,7 @@ const App = () => {
           primary: Theme.colors.messageBadgeColor,
         },
       }}>
-      <BottomNavigation />
+      <MainStackNavigation />
     </NavigationContainer>
   );
 };

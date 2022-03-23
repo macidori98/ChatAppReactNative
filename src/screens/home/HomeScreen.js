@@ -1,5 +1,6 @@
 import ChatRooms from 'assets/dummy-data/ChatRooms';
-import ChatRoomList from 'components/chatRoom/ChatRoomList';
+import Chats from 'assets/dummy-data/Chats';
+import ChatRoomList from 'components/chatRooms/ChatRoomList';
 import React from 'react';
 import {PreviewChat} from 'types/ChatTypes';
 
@@ -13,7 +14,12 @@ const HomeScreen = props => {
 
   return (
     <>
-      <ChatRoomList data={data} />
+      <ChatRoomList
+        onPress={user => {
+          props.navigation.navigate('ChatScreen', {messages: Chats.messages});
+        }}
+        data={data}
+      />
     </>
   );
 };

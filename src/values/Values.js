@@ -35,6 +35,17 @@ const Values = {
     normal: 2,
     large: 3,
   },
+  radius: {
+    small: 5,
+    medium: 10,
+    large: 15,
+    extraLarge: 20,
+  },
+
+  roundButton: {
+    width: 40,
+    height: 40,
+  },
 };
 
 export default Values;
