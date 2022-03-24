@@ -4,7 +4,7 @@ import {FlatList, View} from 'react-native';
 import {PreviewChat} from 'types/ChatTypes';
 
 /**
- * @param {{data: PreviewChat[], onPress: () => void}} props
+ * @param {{data: PreviewChat[], onPress: (id: string) => void}} props
  * @returns {JSX.Element}
  */
 const ChatRoomList = props => {
