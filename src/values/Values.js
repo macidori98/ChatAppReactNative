@@ -35,11 +35,17 @@ const Values = {
     normal: 2,
     large: 3,
   },
+
   radius: {
     small: 5,
     medium: 10,
     large: 15,
     extraLarge: 20,
+  },
+
+  headerIcon: {
+    width: 25,
+    height: 25,
   },
 
   roundButton: {

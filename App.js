@@ -1,12 +1,11 @@
 import {NavigationContainer} from '@react-navigation/native';
 import MainStackNavigation from 'navigation/MainNavigation';
 import React from 'react';
-// @ts-ignore
-import {PROBA} from 'react-native-dotenv';
 import Theme from 'theme/Theme';
+import {Translations} from 'translations/Translations';
 
 const App = () => {
-  console.log(PROBA);
+  Translations.initializeTranslations();
   return (
     <NavigationContainer
       theme={{

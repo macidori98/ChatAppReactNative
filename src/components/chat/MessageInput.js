@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Theme from 'theme/Theme';
+import {Translations} from 'translations/Translations';
 
 /** @param {{onAddFile: () => void, onSend: (text: string) => void, onMic: () => void, onEmoji: () => void, onCamera: () => void}} props */
 const MessageInput = props => {
@@ -40,7 +41,7 @@ const MessageInput = props => {
             setMessage(text);
           }}
           multiline={true}
-          placeholder="Enter message..."
+          placeholder={Translations.strings.enterMessage()}
         />
         {!message && (
           <TouchableOpacity style={styles.icon} onPress={props.onCamera}>
@@ -74,7 +75,8 @@ export default MessageInput;
 const styles = StyleSheet.create({
   textInput: {
     ...Theme.styles.screen,
-    marginBottom: Theme.values.margins.marginSmall,
+    marginBottom:
+      Platform.OS === 'ios' ? Theme.values.margins.marginSmall : undefined,
     marginHorizontal: Theme.values.margins.marginMedium,
   },
   icon: {

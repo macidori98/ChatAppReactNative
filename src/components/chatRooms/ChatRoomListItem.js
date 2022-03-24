@@ -6,14 +6,14 @@ import Theme from 'theme/Theme';
 import {PreviewChat} from 'types/ChatTypes';
 
 /**
- * @param {{data: PreviewChat, onPress: () => void}} props
+ * @param {{data: PreviewChat, onPress: (id: String) => void}} props
  * @returns {JSX.Element}
  */
 const ChatRoomListItem = props => {
   const roomData = props.data;
 
   return (
-    <TouchableOpacity onPress={props.onPress}>
+    <TouchableOpacity onPress={() => props.onPress(roomData.id)}>
       <View style={styles.container}>
         <ConversationPersonImage
           imageSource={roomData.users[1].imageUri}
