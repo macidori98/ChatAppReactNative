@@ -1,8 +1,9 @@
 import ChatRooms from 'assets/dummy-data/ChatRooms';
+import {Auth} from 'aws-amplify';
 import ChatRoomList from 'components/chatRooms/ChatRoomList';
 import ConversationPersonImage from 'components/ConversationPersonImage';
 import React, {useLayoutEffect} from 'react';
-import {StyleSheet, TouchableOpacity} from 'react-native';
+import {Button, StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Theme from 'theme/Theme';
 import {PreviewChat} from 'types/ChatTypes';
@@ -65,7 +66,19 @@ const HomeScreen = props => {
     props.navigation.navigate('ChatScreen', {id: chatRoomId});
   };
 
-  return <ChatRoomList onPress={onPress} data={data} />;
+  return (
+    <>
+      <Button
+        title="log out"
+        onPress={async () => {
+          Auth.signOut();
+          // const a = await Auth.currentUserInfo();
+          // console.log(a);
+        }}
+      />
+      <ChatRoomList onPress={onPress} data={data} />
+    </>
+  );
 };
 
 export default HomeScreen;
