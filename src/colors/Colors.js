@@ -8,6 +8,7 @@ const Colors = {
   black: 'black',
   border: '#E8E8E8',
   icon: '#909090',
+  focused: primary,
   messageBadgeColor: primary,
   white: 'white',
   primary: primary,
@@ -15,6 +16,8 @@ const Colors = {
     mine: '#E8E8E8',
     other: primary,
   },
+  unfocused: '#B9C4CA',
+  error: '#B00020',
 };
 
 export default Colors;

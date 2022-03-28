@@ -13,7 +13,7 @@ import {HomeScreenProps} from 'types/NavigationTypes';
  * @returns {JSX.Element}
  */
 const HomeScreen = props => {
-  const {navigation, route} = props;
+  const {navigation} = props;
 
   /** @type {PreviewChat[]} */
   const data = ChatRooms;

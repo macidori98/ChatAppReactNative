@@ -10,10 +10,15 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
+import {UseState} from 'types/CommonTypes';
+import {MessageInputProps} from 'types/ComponentPropsTypes';
 
-/** @param {{onAddFile: () => void, onSend: (text: string) => void, onMic: () => void, onEmoji: () => void, onCamera: () => void}} props */
+/**
+ * @param {MessageInputProps} props
+ * @returns {JSX.Element}
+ */
 const MessageInput = props => {
-  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
+  /** @type {UseState<string>} */
   const [message, setMessage] = useState();
 
   const sendMessage = () => {

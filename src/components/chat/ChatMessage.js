@@ -1,15 +1,16 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Theme from 'theme/Theme';
-import {Message} from 'types/ChatTypes';
+import {ChatMessageProps} from 'types/ComponentPropsTypes';
 
 /**
- * @param {{message: Message}} props
+ * @param {ChatMessageProps} props
  * @returns {JSX.Element}
  */
 const ChatMessage = props => {
   const {message} = props;
   const myId = 'u1';
+
   return (
     <View
       style={

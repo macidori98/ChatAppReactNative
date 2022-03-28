@@ -10,10 +10,11 @@ const Values = {
     paddingSmall: 5,
     paddingMedium: 10,
     paddingLarge: 15,
+    paddingExtraLarge: 25,
   },
 
   fontSize: {
-    messageBadge: 12,
+    extraSmall: 12,
     small: 13,
     normal: 15,
     large: 20,
@@ -52,6 +53,13 @@ const Values = {
     width: 40,
     height: 40,
   },
+
+  defaultRoundImage: {
+    width: 55,
+    height: 55,
+  },
+
+  marginError: 12,
 };
 
 export default Values;

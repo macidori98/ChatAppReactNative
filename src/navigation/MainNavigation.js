@@ -1,4 +1,5 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import AuthNavigation from 'navigation/AuthenticationNavigation';
 import React from 'react';
 import ChatRoomScreen from 'screens/chat/ChatRoomScreen';
 import HomeScreen from 'screens/home/HomeScreen';
@@ -15,6 +16,11 @@ const Stack = createNativeStackNavigator();
 
 const MainStackNavigation = () => (
   <Stack.Navigator>
+    <Stack.Screen
+      name="Auth"
+      component={AuthNavigation}
+      options={{headerShown: false}}
+    />
     <Stack.Screen
       name="Home"
       initialParams={{title: 'Home'}}

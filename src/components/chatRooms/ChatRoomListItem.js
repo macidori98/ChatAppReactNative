@@ -3,10 +3,10 @@ import MessageBadge from 'components/MessageBadge';
 import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Theme from 'theme/Theme';
-import {PreviewChat} from 'types/ChatTypes';
+import {ChatRoomListItemProps} from 'types/ComponentPropsTypes';
 
 /**
- * @param {{data: PreviewChat, onPress: (id: String) => void}} props
+ * @param {ChatRoomListItemProps} props
  * @returns {JSX.Element}
  */
 const ChatRoomListItem = props => {

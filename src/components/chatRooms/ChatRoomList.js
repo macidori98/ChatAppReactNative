@@ -1,10 +1,10 @@
 import ChatRoomListItem from 'components/chatRooms/ChatRoomListItem';
 import React from 'react';
 import {FlatList, View} from 'react-native';
-import {PreviewChat} from 'types/ChatTypes';
+import {ChatRoomListProps} from 'types/ComponentPropsTypes';
 
 /**
- * @param {{data: PreviewChat[], onPress: (id: string) => void}} props
+ * @param {ChatRoomListProps} props
  * @returns {JSX.Element}
  */
 const ChatRoomList = props => {
