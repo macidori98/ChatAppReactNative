@@ -1,5 +1,6 @@
 import {NavigationContainer} from '@react-navigation/native';
 import {Amplify} from 'aws-amplify';
+import {withAuthenticator} from 'aws-amplify-react-native/dist/Auth';
 import MainStackNavigation from 'navigation/MainNavigation';
 import React from 'react';
 import Theme from 'theme/Theme';
@@ -56,4 +57,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default withAuthenticator(App);
