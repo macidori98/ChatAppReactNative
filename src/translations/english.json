@@ -9,5 +9,6 @@
   "email": "Email",
   "password": "Password",
   "invalidEmail": "Invalid email",
-  "invalidPassword": "Invalid password"
+  "invalidPassword": "Invalid password",
+  "users": "Users"
 }

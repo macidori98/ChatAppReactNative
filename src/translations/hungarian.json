@@ -9,5 +9,6 @@
   "email": "Email",
   "password": "Jelszó",
   "invalidEmail": "Helytelen email",
-  "invalidPassword": "Helytelen jelszó"
+  "invalidPassword": "Helytelen jelszó",
+  "users": "Felhasználók"
 }

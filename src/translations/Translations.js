@@ -22,5 +22,6 @@ export const Translations = {
     password: () => getText('password'),
     invalidEmail: () => getText('invalidEmail'),
     invalidPassword: () => getText('invalidPassword'),
+    users: () => getText('users'),
   },
 };
