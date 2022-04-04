@@ -1,3 +1,7 @@
+import {User} from 'types/ChatTypes';
+/**
+ * @type {User[]}
+ */
 export default [
   {
     id: 'u1',
