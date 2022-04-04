@@ -9,11 +9,18 @@
       "UnauthRoleName": "amplify-chatappreactnative-staging-185259-unauthRole",
       "StackName": "amplify-chatappreactnative-staging-185259",
       "StackId": "arn:aws:cloudformation:us-east-1:780535466812:stack/amplify-chatappreactnative-staging-185259/a09ee6b0-aba3-11ec-8f8c-0a9cf2ff020b",
-      "AmplifyAppId": "d19zz0bo4l05xa"
+      "AmplifyAppId": "d19zz0bo4l05xa",
+      "AuthTriggerTemplateURL": "https://s3.amazonaws.com/amplify-chatappreactnative-staging-185259-deployment/amplify-cfn-templates/auth/auth-trigger-cloudformation-template.json"
     },
     "categories": {
       "auth": {
         "ChatAppReactNative": {}
+      },
+      "function": {
+        "ChatAppReactNativePostConfirmation": {
+          "deploymentBucketName": "amplify-chatappreactnative-staging-185259-deployment",
+          "s3Key": "amplify-builds/ChatAppReactNativePostConfirmation-7544384f363867694c78-build.zip"
+        }
       }
     }
   }

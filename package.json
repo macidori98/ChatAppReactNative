@@ -19,6 +19,7 @@
     "amazon-cognito-identity-js": "^5.2.8",
     "aws-amplify": "^4.3.17",
     "aws-amplify-react-native": "^6.0.3",
+    "aws-lambda": "^1.0.7",
     "react": "17.0.2",
     "react-native": "0.67.4",
     "react-native-dotenv": "^3.3.1",
