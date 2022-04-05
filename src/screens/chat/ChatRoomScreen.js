@@ -23,15 +23,16 @@ const ChatRoomScreen = props => {
             <ConversationPersonImage
               imageStyle={styles.icon}
               imageSource={
+                route.params.otherData.imageUri ??
                 'https://kutyubazar.hu/media/catalog/product/cache/1/image/5f7b60b58668a14927e0229ce4c846ab/m/a/maci_borito.jpg'
               }
             />
-            <Text style={styles.text}>Mosolyorszag</Text>
+            <Text style={styles.text}>{route.params.otherData.name}</Text>
           </View>
         );
       },
     });
-  }, [navigation]);
+  }, [navigation, route.params.otherData]);
 
   return (
     <SafeAreaView style={styles.page}>

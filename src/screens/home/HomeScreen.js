@@ -14,6 +14,8 @@ import {HomeScreenProps} from 'types/NavigationTypes';
 const HomeScreen = props => {
   const {navigation} = props;
 
+  //use focus effect to fetch dthe needed data!!!!!
+
   /** @type {PreviewChat[]} */
   const data = ChatRooms;
 
@@ -31,6 +33,9 @@ const HomeScreen = props => {
               />
             </TouchableOpacity>
             <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('UsersScreen');
+              }}
               style={{marginHorizontal: Theme.values.margins.marginSmall}}>
               <Icon
                 name="pencil-outline"
@@ -62,7 +67,10 @@ const HomeScreen = props => {
    */
   const onPress = chatRoomId => {
     //search for corresponding chat
-    props.navigation.navigate('ChatScreen', {id: chatRoomId});
+    props.navigation.navigate('ChatScreen', {
+      id: chatRoomId,
+      otherData: data.find(item => item.id === chatRoomId).users[1],
+    });
   };
 
   return (

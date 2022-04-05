@@ -1,6 +1,7 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
 import ChatRoomScreen from 'screens/chat/ChatRoomScreen';
+import UsersScreen from 'screens/chat/UsersScreen';
 import HomeScreen from 'screens/home/HomeScreen';
 import {Translations} from 'translations/Translations';
 import {
@@ -30,6 +31,14 @@ const MainStackNavigation = () => (
       name="ChatScreen"
       component={ChatRoomScreen}
       options={{headerBackTitleVisible: false}}
+    />
+    <Stack.Screen
+      name="UsersScreen"
+      component={UsersScreen}
+      options={{
+        headerBackTitleVisible: false,
+        title: Translations.strings.users(),
+      }}
     />
   </Stack.Navigator>
 );

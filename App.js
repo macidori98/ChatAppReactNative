@@ -1,5 +1,5 @@
 import {NavigationContainer} from '@react-navigation/native';
-import {Amplify, Auth} from 'aws-amplify';
+import {Amplify} from 'aws-amplify';
 import {withAuthenticator} from 'aws-amplify-react-native/dist/Auth';
 import MainStackNavigation from 'navigation/MainNavigation';
 import React from 'react';
@@ -35,8 +35,6 @@ const App = () => {
   //     },
   //   ],
   // };
-
-  Auth.currentAuthenticatedUser().then(console.log);
 
   return (
     <NavigationContainer

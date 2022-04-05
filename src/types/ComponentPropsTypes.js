@@ -1,3 +1,4 @@
+import {User} from 'models';
 import {
   ImageStyle,
   KeyboardTypeOptions,
@@ -57,6 +58,18 @@ import {Message, PreviewChat} from 'types/ChatTypes';
 /**
  * @typedef {Object} MessageBadgeProps
  * @property {number} count
+ */
+
+/**
+ * @typedef {Object} UsersListItemProps
+ * @property {User} user
+ * @property {{(user: User): void}} onPress
+ */
+
+/**
+ * @typedef {Object} UsersListProps
+ * @property {User[]} users
+ * @property {{(user: User): void}} onPress
  */
 
 export {};
