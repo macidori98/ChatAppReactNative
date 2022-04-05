@@ -7,7 +7,12 @@ import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
 import config from './src/aws-exports';
 
-Amplify.configure(config);
+Amplify.configure({
+  ...config,
+  Analytics: {
+    disabled: true,
+  },
+});
 
 const App = () => {
   Translations.initializeTranslations();
