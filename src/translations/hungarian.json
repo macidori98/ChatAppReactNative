@@ -10,5 +10,6 @@
   "password": "Jelszó",
   "invalidEmail": "Helytelen email",
   "invalidPassword": "Helytelen jelszó",
-  "users": "Felhasználók"
+  "users": "Felhasználók",
+  "emptyList": "Üres lista"
 }

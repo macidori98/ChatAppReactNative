@@ -10,5 +10,6 @@
   "password": "Parola",
   "invalidEmail": "Email incorect",
   "invalidPassword": "Parola incorecta",
-  "users": "Utilizatori"
+  "users": "Utilizatori",
+  "emptyList": "Lista goală"
 }

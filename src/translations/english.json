@@ -10,5 +10,6 @@
   "password": "Password",
   "invalidEmail": "Invalid email",
   "invalidPassword": "Invalid password",
-  "users": "Users"
+  "users": "Users",
+  "emptyList": "Empty list"
 }
