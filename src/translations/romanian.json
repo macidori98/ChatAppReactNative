@@ -1,5 +1,15 @@
 {
   "homeScreenTitle": "Chat",
   "emptyChat": "Nu sunt mesaje trimise",
-  "enterMessage": "Mesaj..."
+  "enterMessage": "Mesaj...",
+  "signInTitle": "Logheaza-te în contul tau",
+  "signIn": "Conectare",
+  "signUp": "Înregistrare",
+  "forgotPassword": "Ați uitat parola",
+  "email": "Email",
+  "password": "Parola",
+  "invalidEmail": "Email incorect",
+  "invalidPassword": "Parola incorecta",
+  "users": "Utilizatori",
+  "emptyList": "Lista goală"
 }

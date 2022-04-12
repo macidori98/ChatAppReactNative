@@ -1,9 +1,10 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Theme from 'theme/Theme';
+import {MessageBadgeProps} from 'types/ComponentPropsTypes';
 
 /**
- * @param {{count: number}} props
+ * @param {MessageBadgeProps} props
  * @returns {JSX.Element}
  */
 const MessageBadge = props => {
@@ -30,7 +31,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     justifyContent: 'flex-end',
-    fontSize: Theme.values.fontSize.messageBadge,
+    fontSize: Theme.values.fontSize.extraSmall,
     color: Theme.colors.white,
   },
 });

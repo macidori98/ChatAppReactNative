@@ -1,5 +1,15 @@
 {
   "homeScreenTitle": "Home",
   "emptyChat": "No messages",
-  "enterMessage": "Enter message..."
+  "enterMessage": "Enter message...",
+  "signInTitle": "Sign in to your account",
+  "signIn": "Sign In",
+  "signUp": "Sign Up",
+  "forgotPassword": "Forgot Password",
+  "email": "Email",
+  "password": "Password",
+  "invalidEmail": "Invalid email",
+  "invalidPassword": "Invalid password",
+  "users": "Users",
+  "emptyList": "Empty list"
 }

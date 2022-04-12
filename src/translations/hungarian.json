@@ -1,5 +1,15 @@
 {
   "homeScreenTitle": "Chatek",
   "emptyChat": "Nincsenek üzenetek",
-  "enterMessage": "Kezdjen el gépelni..."
+  "enterMessage": "Kezdjen el gépelni...",
+  "signInTitle": "Jelentkezz be a fiókodba",
+  "signIn": "Bejelentkezés",
+  "signUp": "Regisztráció",
+  "forgotPassword": "Elfelejtett jelszó",
+  "email": "Email",
+  "password": "Jelszó",
+  "invalidEmail": "Helytelen email",
+  "invalidPassword": "Helytelen jelszó",
+  "users": "Felhasználók",
+  "emptyList": "Üres lista"
 }

@@ -1,22 +1,51 @@
-import ChatRooms from 'assets/dummy-data/ChatRooms';
-import {Auth} from 'aws-amplify';
+import {DataStore} from 'aws-amplify';
 import ChatRoomList from 'components/chatRooms/ChatRoomList';
+import LoadingIndicator from 'components/common/LoadingIndicator';
 import ConversationPersonImage from 'components/ConversationPersonImage';
-import React, {useLayoutEffect} from 'react';
-import {Button, StyleSheet, TouchableOpacity} from 'react-native';
+import {ChatRoom, ChatRoomUser} from 'models';
+import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
-import {PreviewChat} from 'types/ChatTypes';
+import {UseState} from 'types/CommonTypes';
 import {HomeScreenProps} from 'types/NavigationTypes';
+import {AuthenticateState} from 'types/StoreTypes';
+
 /**
  * @param {HomeScreenProps} props
  * @returns {JSX.Element}
  */
 const HomeScreen = props => {
-  const {navigation, route} = props;
+  const {navigation} = props;
 
-  /** @type {PreviewChat[]} */
-  const data = ChatRooms;
+  /** @type {UseState<boolean>} */
+  const [isLoading, setIsLoading] = useState(true);
+  /** @type {UseState<ChatRoom[]>} */
+  const [chatRooms, setChatRooms] = useState();
+
+  const authedUserState = useSelector(
+    /** @param {{auth: AuthenticateState}} state */ state => {
+      return state.auth;
+    },
+  );
+
+  const fetchChatRooms = useCallback(async () => {
+    const chatRoomUsers = await DataStore.query(ChatRoomUser);
+    setChatRooms(
+      chatRoomUsers
+        .filter(
+          chatRoomUser =>
+            chatRoomUser.user.id === authedUserState.authedUser.id,
+        )
+        .map(chatRoomUser => chatRoomUser.chatRoom),
+    );
+    setIsLoading(false);
+  }, [authedUserState.authedUser]);
+
+  useEffect(() => {
+    fetchChatRooms();
+  }, [fetchChatRooms]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -32,6 +61,9 @@ const HomeScreen = props => {
               />
             </TouchableOpacity>
             <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('UsersScreen');
+              }}
               style={{marginHorizontal: Theme.values.margins.marginSmall}}>
               <Icon
                 name="pencil-outline"
@@ -44,44 +76,38 @@ const HomeScreen = props => {
       },
       headerLeft: prop => {
         return (
-          <TouchableOpacity
-            style={{marginHorizontal: Theme.values.margins.marginSmall}}>
-            <ConversationPersonImage
-              imageStyle={styles.icon}
-              imageSource={
-                'https://kutyubazar.hu/media/catalog/product/cache/1/image/5f7b60b58668a14927e0229ce4c846ab/m/a/maci_borito.jpg'
-              }
-            />
-          </TouchableOpacity>
+          <>
+            {authedUserState.authedUser && (
+              <TouchableOpacity
+                style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+                <ConversationPersonImage
+                  imageStyle={styles.icon}
+                  imageSource={authedUserState.authedUser?.imageUri}
+                />
+              </TouchableOpacity>
+            )}
+          </>
         );
       },
     });
-  }, [navigation]);
+  }, [authedUserState.authedUser, navigation]);
 
   /**
    * @param {string} chatRoomId
    */
   const onPress = chatRoomId => {
-    //search for corresponding chat
-    props.navigation.navigate('ChatScreen', {id: chatRoomId});
+    props.navigation.navigate('ChatScreen', {
+      id: chatRoomId,
+    });
   };
 
   return (
     <>
-      <Button
-        title="log out"
-        onPress={async () => {
-          Auth.signOut();
-          // const a = await Auth.currentUserInfo();
-          // console.log(a);
-        }}
-      />
-      <ChatRoomList onPress={onPress} data={data} />
+      {isLoading && <LoadingIndicator />}
+      {!isLoading && <ChatRoomList onPress={onPress} data={chatRooms} />}
     </>
   );
 };
-
-export default HomeScreen;
 
 const styles = StyleSheet.create({
   icon: {
@@ -89,3 +115,5 @@ const styles = StyleSheet.create({
     height: Theme.values.headerIcon.height,
   },
 });
+
+export default HomeScreen;

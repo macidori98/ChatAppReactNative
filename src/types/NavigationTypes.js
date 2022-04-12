@@ -8,11 +8,16 @@
  * import('@react-navigation/core').DefaultNavigatorOptions<import('@react-navigation/routers').ParamListBase,
  * import('@react-navigation/routers').StackNavigationState<import('@react-navigation/routers').ParamListBase>,
  * import('@react-navigation/native-stack').NativeStackNavigationOptions, import('@react-navigation/native-stack').NativeStackNavigationEventMap>
- * & import('@react-navigation/routers').StackRouterOptions & import('@react-navigation/native-stack/lib/typescript/src/types').NativeStackNavigationConfig) => JSX.Element>} CreateNativeStackNavigatorType
+ * & import('@react-navigation/routers').StackRouterOptions &
+ * import('@react-navigation/native-stack/lib/typescript/src/types').NativeStackNavigationConfig) => JSX.Element>} CreateNativeStackNavigatorType
  */
 
 /**
- * @typedef {{Home: {title: string}, ChatScreen: {id: string}}} MainNavigationParamList
+ * @typedef {{SplashScreen: undefined, Home: {title: string}, ChatScreen: {id: string}, Auth: import('@react-navigation/native').NavigatorScreenParams<AuthenticationNavigationParamList>, UsersScreen: {}}} MainNavigationParamList
+ */
+
+/**
+ * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<MainNavigationParamList, 'SplashScreen'>} SplashScreenProps
  */
 
 /**
@@ -21,6 +26,28 @@
 
 /**
  * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<MainNavigationParamList, 'ChatScreen'>} ChatScreenProps
+ */
+
+/**
+ * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<MainNavigationParamList, 'UsersScreen'>} UsersScreenProps
+ */
+
+/**
+ * @typedef {{Login: undefined, SignUp: undefined, ForgotPassword: undefined}} AuthenticationNavigationParamList
+ */
+
+/**
+ * @typedef {import('@react-navigation/core').CompositeScreenProps<
+ *            import('@react-navigation/native-stack').NativeStackScreenProps<import('types/NavigationTypes').AuthenticationNavigationParamList, 'Login'>,
+ *            import('@react-navigation/native-stack').NativeStackScreenProps<import('types/NavigationTypes').MainNavigationParamList>>} LoginScreenProps
+ */
+
+/**
+ * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<AuthenticationNavigationParamList, 'SignUp'>} SignUpScreenProps
+ */
+
+/**
+ * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<AuthenticationNavigationParamList, 'ForgotPassword'>} ForgotPasswordScreenProps
  */
 
 export {};

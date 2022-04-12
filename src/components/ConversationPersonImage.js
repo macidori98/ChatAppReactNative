@@ -2,22 +2,28 @@ import Images from 'common/Images';
 import React from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 import Theme from 'theme/Theme';
+import {ConversationPersonImageProps} from 'types/ComponentPropsTypes';
 
 /**
- * @param {{imageSource: string, imageStyle?: object}} props
+ * @param {ConversationPersonImageProps} props
  * @returns {JSX.Element}
  */
 const ConversationPersonImage = props => {
   const styles = StyleSheet.create({
     image: {
-      width: props.imageStyle?.width ?? 55,
-      height: props.imageStyle?.height ?? 55,
+      width: props.imageStyle?.width ?? Theme.values.defaultRoundImage.width,
+      height: props.imageStyle?.height ?? Theme.values.defaultRoundImage.height,
       borderRadius:
         props.imageStyle?.width && props.imageStyle?.height
-          ? (props.imageStyle?.width + props.imageStyle?.height) / 2
-          : 55 / 2,
+          ? typeof props.imageStyle?.width === 'number' &&
+            typeof props.imageStyle?.height === 'number'
+            ? (props.imageStyle?.width + props.imageStyle?.height) / 2
+            : 0
+          : (Theme.values.defaultRoundImage.height +
+              Theme.values.defaultRoundImage.width) /
+            2,
       overflow: 'hidden',
-      borderWidth: 1,
+      borderWidth: Theme.values.borderWidth.small,
       borderColor: Theme.colors.lightGrey,
     },
   });

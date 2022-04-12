@@ -16,7 +16,10 @@
           "common": "./src/common",
           "styles": "./src/styles",
           "types": "./src/types",
-          "values": "./src/values"
+          "values": "./src/values",
+          "helpers": "./src/helpers",
+          "store": "./src/store",
+          "translations": "./src/translations"
         }
       }
     ]
