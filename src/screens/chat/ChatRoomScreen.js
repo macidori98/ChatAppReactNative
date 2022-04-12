@@ -10,7 +10,16 @@ import {
   User,
 } from 'models';
 import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
-import {FlatList, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {
+  FlatList,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
@@ -46,8 +55,41 @@ const ChatRoomScreen = props => {
               imageStyle={styles.icon}
               imageSource={otherUser?.imageUri}
             />
-            <Text style={styles.text}>{otherUser?.name}</Text>
+            <Text style={{...styles.text, color: prop.tintColor}}>
+              {otherUser?.name}
+            </Text>
           </View>
+        );
+      },
+      headerRight: prop => {
+        return (
+          <>
+            <TouchableOpacity
+              style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+              <Icon
+                name="call-outline"
+                color={
+                  Platform.OS === 'ios'
+                    ? Theme.colors.black
+                    : Theme.colors.white
+                }
+                size={Theme.values.headerIcon.height}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {}}
+              style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+              <Icon
+                name="videocam-outline"
+                color={
+                  Platform.OS === 'ios'
+                    ? Theme.colors.black
+                    : Theme.colors.white
+                }
+                size={Theme.values.headerIcon.height}
+              />
+            </TouchableOpacity>
+          </>
         );
       },
     });

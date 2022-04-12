@@ -79,7 +79,10 @@ const HomeScreen = props => {
           <>
             {authedUserState.authedUser && (
               <TouchableOpacity
-                style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+                style={{marginHorizontal: Theme.values.margins.marginSmall}}
+                onPress={() => {
+                  navigation.navigate('Profile');
+                }}>
                 <ConversationPersonImage
                   imageStyle={styles.icon}
                   imageSource={authedUserState.authedUser?.imageUri}

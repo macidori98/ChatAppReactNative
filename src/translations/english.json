@@ -11,5 +11,7 @@
   "invalidEmail": "Invalid email",
   "invalidPassword": "Invalid password",
   "users": "Users",
-  "emptyList": "Empty list"
+  "emptyList": "Empty list",
+  "profile": "Profile",
+  "logout": "Log out"
 }

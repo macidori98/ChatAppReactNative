@@ -24,5 +24,7 @@ export const Translations = {
     invalidPassword: () => getText('invalidPassword'),
     users: () => getText('users'),
     emptyList: () => getText('emptyList'),
+    profile: () => getText('profile'),
+    logout: () => getText('logout'),
   },
 };
