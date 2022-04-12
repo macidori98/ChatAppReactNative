@@ -3,6 +3,7 @@ import React from 'react';
 import ChatRoomScreen from 'screens/chat/ChatRoomScreen';
 import UsersScreen from 'screens/chat/UsersScreen';
 import HomeScreen from 'screens/home/HomeScreen';
+import SplashScreen from 'screens/splash/SplashScreen';
 import {Translations} from 'translations/Translations';
 import {
   CreateNativeStackNavigatorType,
@@ -21,6 +22,11 @@ const MainStackNavigation = () => (
       component={AuthNavigation}
       options={{headerShown: false}}
     /> */}
+    <Stack.Screen
+      name="SplashScreen"
+      component={SplashScreen}
+      options={() => ({headerShown: false})}
+    />
     <Stack.Screen
       name="Home"
       initialParams={{title: 'Home'}}

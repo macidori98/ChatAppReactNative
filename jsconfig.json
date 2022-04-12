@@ -17,7 +17,10 @@
       "common/*": ["common/*"],
       "styles/*": ["styles/*"],
       "types/*": ["types/*"],
-      "values/*": ["values/*"]
+      "values/*": ["values/*"],
+      "helpers/*": ["helpers/*"],
+      "store/*": ["store/*"],
+      "translations/*": ["translations/*"]
     }
   },
   "exclude": ["node_modules"]

@@ -1,4 +1,4 @@
-import {User} from 'models';
+import {ChatRoom, Message, User} from 'models';
 import {
   ImageStyle,
   KeyboardTypeOptions,
@@ -6,7 +6,6 @@ import {
   TextInputFocusEventData,
   ViewStyle,
 } from 'react-native';
-import {Message, PreviewChat} from 'types/ChatTypes';
 
 /**
  * @typedef {Object} AnimatedTextInputProps
@@ -26,6 +25,7 @@ import {Message, PreviewChat} from 'types/ChatTypes';
 /**
  * @typedef {Object} ChatMessageProps
  * @property {Message} message
+ * @property {boolean} isMine
  */
 
 /**
@@ -39,13 +39,13 @@ import {Message, PreviewChat} from 'types/ChatTypes';
 
 /**
  * @typedef {Object} ChatRoomListProps
- * @property {PreviewChat[]} data
+ * @property {ChatRoom[]} data
  * @property {(id: string) => void} onPress
  */
 
 /**
  * @typedef {Object} ChatRoomListItemProps
- * @property {PreviewChat} data
+ * @property {ChatRoom} data
  * @property {(id: string) => void} onPress
  */
 

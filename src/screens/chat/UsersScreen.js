@@ -1,26 +1,28 @@
 import {DataStore} from '@aws-amplify/datastore';
-import {Auth} from 'aws-amplify';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersList from 'components/users/UsersList';
 import {ChatRoom, ChatRoomUser, User} from 'models';
 import React, {useCallback, useEffect, useState} from 'react';
+import {useSelector} from 'react-redux';
 import {UseState} from 'types/CommonTypes';
 import {UsersScreenProps} from 'types/NavigationTypes';
+import {AuthenticateState} from 'types/StoreTypes';
 
 /**
  * @param {UsersScreenProps} props
  * @returns {JSX.Element}
  */
 const UsersScreen = props => {
-  /**
-   * @type {UseState<User[]>}
-   */
+  /** @type {UseState<User[]>} */
   const [users, setUsers] = useState([]);
-
-  /**
-   * @type {UseState<boolean>}
-   */
+  /** @type {UseState<boolean>} */
   const [isLoading, setIsLoading] = useState(true);
+
+  const authedUserState = useSelector(
+    /** @param {{auth: AuthenticateState}} state */ state => {
+      return state.auth;
+    },
+  );
 
   const fetchUsers = useCallback(async () => {
     const fetchedUsers = await DataStore.query(User);
@@ -39,8 +41,7 @@ const UsersScreen = props => {
     //create corresponding chat, and transfer that id
 
     //connect authenticated user with the chatroom
-    const authedUser = await Auth.currentAuthenticatedUser();
-    const dbUser = await DataStore.query(User, authedUser.attributes.sub);
+    const dbUser = await DataStore.query(User, authedUserState.authedUser.id);
 
     //TODO: if there is already a chatroom with these users then direct to the existing chatroom
 
@@ -69,7 +70,6 @@ const UsersScreen = props => {
     // //navigate to chattroom
     props.navigation.replace('ChatScreen', {
       id: roomChatRoom.id,
-      otherData: user,
     });
   };
 

@@ -13,6 +13,5 @@
   "triggerEventPath": "PostConfirmation.event.json",
   "roleName": "ChatAppReactNativePostConfirmation",
   "skipEdit": true,
-  "enableCors": false,
-  "permissions": {}
+  "enableCors": false
 }

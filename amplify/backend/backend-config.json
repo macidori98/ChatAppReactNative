@@ -68,8 +68,7 @@
     "ChatAppReactNativePostConfirmation": {
       "build": true,
       "providerPlugin": "awscloudformation",
-      "service": "Lambda",
-      "dependsOn": []
+      "service": "Lambda"
     }
   }
 }

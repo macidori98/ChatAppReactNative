@@ -9,17 +9,10 @@ import {ChatMessageProps} from 'types/ComponentPropsTypes';
  */
 const ChatMessage = props => {
   const {message} = props;
-  const myId = 'u1';
 
   return (
-    <View
-      style={
-        myId === message.user.id
-          ? styles.isMeContainer
-          : styles.isOtherContainer
-      }>
-      <Text
-        style={myId === message.user.id ? styles.textIsMe : styles.textIsOther}>
+    <View style={props.isMine ? styles.isMeContainer : styles.isOtherContainer}>
+      <Text style={props.isMine ? styles.textIsMe : styles.textIsOther}>
         {message.content}
       </Text>
     </View>

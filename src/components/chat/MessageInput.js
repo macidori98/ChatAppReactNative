@@ -29,7 +29,7 @@ const MessageInput = props => {
   return (
     <KeyboardAvoidingView
       style={styles.root}
-      keyboardVerticalOffset={100}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.inputContainer}>
         {!message && (

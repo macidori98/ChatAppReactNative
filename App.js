@@ -3,6 +3,10 @@ import {Amplify} from 'aws-amplify';
 import {withAuthenticator} from 'aws-amplify-react-native/dist/Auth';
 import MainStackNavigation from 'navigation/MainNavigation';
 import React from 'react';
+import {Provider} from 'react-redux';
+import {applyMiddleware, combineReducers, createStore} from 'redux';
+import ReduxThunk from 'redux-thunk';
+import authReducer from 'store/reducers/auth';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
 import config from './src/aws-exports';
@@ -14,51 +18,32 @@ Amplify.configure({
   },
 });
 
-const App = () => {
+const rootReducer = combineReducers({
+  auth: authReducer,
+});
+
+const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
+
+const App = props => {
   Translations.initializeTranslations();
-  // const signUpConfig = {
-  //   hideAllDefaults: true,
-  //   signUpFields: [
-  //     {
-  //       label: 'Email',
-  //       key: 'email',
-  //       required: true,
-  //       displayOrder: 1,
-  //       type: 'string',
-  //     },
-  //     {
-  //       label: 'Password',
-  //       key: 'password',
-  //       required: true,
-  //       displayOrder: 2,
-  //       type: 'password',
-  //     },
-  //   ],
-  // };
 
   return (
-    <NavigationContainer
-      theme={{
-        dark: true,
-        colors: {
-          background: Theme.colors.white,
-          text: Theme.colors.black,
-          border: Theme.colors.white,
-          card: Theme.colors.white,
-          notification: Theme.colors.white,
-          primary: Theme.colors.messageBadgeColor,
-        },
-      }}>
-      <MainStackNavigation />
-    </NavigationContainer>
-    // <>
-    //   <StatusBar barStyle="dark-content" />
-    //   <Authenticator
-    //     usernameAttributes="email"
-    //     signUpConfig={signUpConfig}
-    //     theme={AmplifyTheme}
-    //   />
-    // </>
+    <Provider store={store}>
+      <NavigationContainer
+        theme={{
+          dark: true,
+          colors: {
+            background: Theme.colors.white,
+            text: Theme.colors.black,
+            border: Theme.colors.white,
+            card: Theme.colors.white,
+            notification: Theme.colors.white,
+            primary: Theme.colors.messageBadgeColor,
+          },
+        }}>
+        <MainStackNavigation />
+      </NavigationContainer>
+    </Provider>
   );
 };
 

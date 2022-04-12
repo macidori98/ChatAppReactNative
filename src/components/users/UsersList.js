@@ -20,7 +20,7 @@ const UsersList = props => {
           )}
           showsVerticalScrollIndicator={false}
           onEndReached={info => {
-            console.log(info);
+            //console.log(info);
           }}
         />
       )}

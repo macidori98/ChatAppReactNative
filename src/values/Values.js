@@ -45,8 +45,8 @@ const Values = {
   },
 
   headerIcon: {
-    width: 25,
-    height: 25,
+    width: 33,
+    height: 33,
   },
 
   roundButton: {

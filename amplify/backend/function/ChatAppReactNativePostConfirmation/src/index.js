@@ -1,7 +1,4 @@
-/* Amplify Params - DO NOT EDIT
-	ENV
-	REGION
-Amplify Params - DO NOT EDIT *//**
+/**
  * @fileoverview
  *
  * This CloudFormation Trigger creates a handler which awaits the other handlers
@@ -23,7 +20,7 @@ const modules = moduleNames.map(name => require(`./${name}`));
  *
  * @see https://docs.aws.amazon.com/lambda/latest/dg/nodejs-handler.html#nodejs-handler-async
  * @type {import('@types/aws-lambda').APIGatewayProxyHandler}
- * 
+ *
  */
 exports.handler = async (event, context) => {
   /**

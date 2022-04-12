@@ -1,5 +1,3 @@
-import {User} from 'types/ChatTypes';
-
 /**
  * @template T
  * @typedef {import('@react-navigation/native').TypedNavigator<T,
@@ -15,7 +13,11 @@ import {User} from 'types/ChatTypes';
  */
 
 /**
- * @typedef {{Home: {title: string}, ChatScreen: {id: string, otherData: User}, Auth: import('@react-navigation/native').NavigatorScreenParams<AuthenticationNavigationParamList>, UsersScreen: {}}} MainNavigationParamList
+ * @typedef {{SplashScreen: undefined, Home: {title: string}, ChatScreen: {id: string}, Auth: import('@react-navigation/native').NavigatorScreenParams<AuthenticationNavigationParamList>, UsersScreen: {}}} MainNavigationParamList
+ */
+
+/**
+ * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<MainNavigationParamList, 'SplashScreen'>} SplashScreenProps
  */
 
 /**
