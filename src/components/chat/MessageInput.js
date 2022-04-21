@@ -1,4 +1,10 @@
-import {getPermissions} from 'helpers/CameraHelper';
+import {
+  androidCameraPermissions,
+  androidMicPermission,
+  getPermissions,
+  IOSCameraPermissions,
+  iosMicPermission,
+} from 'helpers/PermissionsHelper';
 import React, {useState} from 'react';
 import {
   Dimensions,
@@ -90,11 +96,32 @@ const MessageInput = props => {
   };
 
   const onOpenCamera = async () => {
-    await getPermissions(openCamera, onImageRecieved);
+    await getPermissions(
+      openCamera,
+      Platform.OS === 'android'
+        ? androidCameraPermissions
+        : IOSCameraPermissions,
+      onImageRecieved,
+    );
   };
 
   const onAddFile = async () => {
-    await getPermissions(openGallery, onFileRecieved);
+    await getPermissions(
+      openGallery,
+      Platform.OS === 'android'
+        ? androidCameraPermissions
+        : IOSCameraPermissions,
+      onFileRecieved,
+    );
+  };
+
+  const onMic = async () => {
+    await getPermissions(
+      () => {
+        props.onSendMessage('mic');
+      },
+      Platform.OS === 'android' ? androidMicPermission : iosMicPermission,
+    );
   };
 
   return (
@@ -153,7 +180,7 @@ const MessageInput = props => {
                 </TouchableOpacity>
               )}
               {!message && (
-                <TouchableOpacity style={styles.icon} onPress={props.onMic}>
+                <TouchableOpacity style={styles.icon} onPress={onMic}>
                   <Icon
                     name="mic-outline"
                     color={Theme.colors.icon}
