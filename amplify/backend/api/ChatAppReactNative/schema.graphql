@@ -3,6 +3,7 @@ type Message @model @auth(rules: [{allow: public}]) {
   content: String!
   userID: ID! @index(name: "byUser")
   chatroomID: ID! @index(name: "byChatRoom")
+  messageType: String!
 }
 
 type ChatRoom @model @auth(rules: [{allow: public}]) {
@@ -20,4 +21,5 @@ type User @model @auth(rules: [{allow: public}]) {
   status: String
   Messages: [Message] @hasMany(indexName: "byUser", fields: ["id"])
   chatrooms: [ChatRoom] @manyToMany(relationName: "ChatRoomUser")
-} 
+}
+ 

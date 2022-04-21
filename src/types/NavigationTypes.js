@@ -15,11 +15,15 @@
 /**
  * @typedef {{SplashScreen: undefined, Home: {title: string}, ChatScreen: {id: string},
  * Auth: import('@react-navigation/native').NavigatorScreenParams<AuthenticationNavigationParamList>,
- * UsersScreen: {}, Profile: undefined}} MainNavigationParamList
+ * UsersScreen: {}, Profile: undefined, FullScreen: {imageId: string}}} MainNavigationParamList
  */
 
 /**
  * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<MainNavigationParamList, 'SplashScreen'>} SplashScreenProps
+ */
+
+/**
+ * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<MainNavigationParamList, 'FullScreen'>} FullScreenProps
  */
 
 /**

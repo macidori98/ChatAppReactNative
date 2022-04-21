@@ -13,5 +13,6 @@
   "users": "Felhasználók",
   "emptyList": "Üres lista",
   "profile": "Profil",
-  "logout": "Kijelentkezés"
+  "logout": "Kijelentkezés",
+  "back": "Vissza"
 }

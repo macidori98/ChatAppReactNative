@@ -1,4 +1,5 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import FullScreenViewer from 'components/common/FullScreenViewer';
 import React from 'react';
 import {Platform} from 'react-native';
 import ChatRoomScreen from 'screens/chat/ChatRoomScreen';
@@ -48,6 +49,14 @@ const MainStackNavigation = () => (
         headerTintColor:
           Platform.OS === 'android' ? Theme.colors.white : Theme.colors.black,
       }}
+    />
+    <Stack.Screen
+      options={{
+        presentation: 'fullScreenModal',
+        headerShown: false,
+      }}
+      component={FullScreenViewer}
+      name="FullScreen"
     />
     <Stack.Screen
       name="UsersScreen"

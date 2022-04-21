@@ -13,5 +13,6 @@
   "users": "Users",
   "emptyList": "Empty list",
   "profile": "Profile",
-  "logout": "Log out"
+  "logout": "Log out",
+  "back": "Back"
 }

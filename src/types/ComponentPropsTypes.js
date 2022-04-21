@@ -6,6 +6,7 @@ import {
   TextInputFocusEventData,
   ViewStyle,
 } from 'react-native';
+import {Asset} from 'react-native-image-picker';
 
 /**
  * @typedef {Object} AnimatedTextInputProps
@@ -26,26 +27,27 @@ import {
  * @typedef {Object} ChatMessageProps
  * @property {Message} message
  * @property {boolean} isMine
+ * @property {()=>void} onImageFullScreen
  */
 
 /**
  * @typedef {Object} MessageInputProps
- * @property {() => void} onAddFile
- * @property {(text: string) => void} onSend
+ * @property {(data: Asset[]) => void} onAddFile
+ * @property {(text: string) => void} onSendMessage
  * @property {() => void} onMic
- * @property {() => void} onEmoji
- * @property {() => void} onCamera
+ * @property {(data:Asset[]) => void} onCamera
  */
 
 /**
  * @typedef {Object} ChatRoomListProps
- * @property {ChatRoom[]} data
+ * @property {{chatRoom: ChatRoom, lastMessage: Message, user: User}[]} data
  * @property {(id: string) => void} onPress
+ * @property {() => void} onRefresh
  */
 
 /**
  * @typedef {Object} ChatRoomListItemProps
- * @property {ChatRoom} data
+ * @property {{chatRoom: ChatRoom, lastMessage: Message, user: User}} data
  * @property {(id: string) => void} onPress
  */
 

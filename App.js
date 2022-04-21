@@ -3,6 +3,7 @@ import {Amplify} from 'aws-amplify';
 import {withAuthenticator} from 'aws-amplify-react-native/dist/Auth';
 import MainStackNavigation from 'navigation/MainNavigation';
 import React from 'react';
+import Toast from 'react-native-toast-message';
 import {Provider} from 'react-redux';
 import {applyMiddleware, combineReducers, createStore} from 'redux';
 import ReduxThunk from 'redux-thunk';
@@ -42,6 +43,12 @@ const App = props => {
           },
         }}>
         <MainStackNavigation />
+        <Toast
+          position="top"
+          ref={ref => {
+            Toast.setRef(ref);
+          }}
+        />
       </NavigationContainer>
     </Provider>
   );

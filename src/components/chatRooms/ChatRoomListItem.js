@@ -1,16 +1,10 @@
-import {DataStore} from 'aws-amplify';
-import LoadingIndicator from 'components/common/LoadingIndicator';
 import ConversationPersonImage from 'components/ConversationPersonImage';
 import MessageBadge from 'components/MessageBadge';
 import {formatDate} from 'helpers/FormattingFunctions';
-import {ChatRoomUser, Message, User} from 'models';
-import React, {useCallback, useEffect, useState} from 'react';
+import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
-import {UseState} from 'types/CommonTypes';
 import {ChatRoomListItemProps} from 'types/ComponentPropsTypes';
-import {AuthenticateState} from 'types/StoreTypes';
 
 /**
  * @param {ChatRoomListItemProps} props
@@ -19,82 +13,34 @@ import {AuthenticateState} from 'types/StoreTypes';
 const ChatRoomListItem = props => {
   const roomData = props.data;
 
-  // /**
-  //  * @type {UseState<User[]>}
-  //  */
-  // const [users, setUsers] = useState([]);
-
-  /** @type {UseState<User>} */
-  const [user, setUser] = useState();
-  /** @type {UseState<boolean>} */
-  const [isLoading, setIsLoading] = useState(false);
-  /** @type {UseState<Message>} */
-  const [lastMessage, setLastMessage] = useState();
-
-  const authedUserState = useSelector(
-    /** @param {{auth: AuthenticateState}} state */ state => {
-      return state.auth;
-    },
-  );
-
-  const fetchChatRoomData = useCallback(async () => {
-    setIsLoading(true);
-    const chatRoomUsers = (await DataStore.query(ChatRoomUser)).filter(
-      item => item.chatRoom.id === roomData.id,
-    );
-
-    if (roomData.chatRoomLastMessageId) {
-      const message = await DataStore.query(
-        Message,
-        roomData.chatRoomLastMessageId,
-      );
-      setLastMessage(message);
-    }
-
-    //setUsers(chatRoomUsers.map(item => item.user));
-    setUser(
-      chatRoomUsers.filter(
-        item => item.user.id !== authedUserState.authedUser.id,
-      )[0].user,
-    );
-    setIsLoading(false);
-  }, [authedUserState, roomData.chatRoomLastMessageId, roomData.id]);
-
-  useEffect(() => {
-    fetchChatRoomData();
-  }, [fetchChatRoomData]);
-
   return (
     <>
-      {isLoading && <LoadingIndicator />}
-      {!isLoading && (
-        <TouchableOpacity onPress={() => props.onPress(roomData.id)}>
-          <View style={styles.container}>
-            <ConversationPersonImage
-              imageSource={user?.imageUri}
-              imageStyle={styles.image}
-            />
+      <TouchableOpacity onPress={() => props.onPress(roomData.chatRoom.id)}>
+        <View style={styles.container}>
+          <ConversationPersonImage
+            imageSource={roomData.user.imageUri}
+            imageStyle={styles.image}
+          />
 
-            {roomData?.newMessages > 0 && (
-              <MessageBadge count={roomData.newMessages} />
-            )}
+          {roomData.chatRoom?.newMessages > 0 && (
+            <MessageBadge count={roomData.chatRoom.newMessages} />
+          )}
 
-            <View style={styles.fullSpace}>
-              <View style={styles.textContainer}>
-                <Text style={styles.name}>{user?.name}</Text>
-                {lastMessage && (
-                  <Text style={styles.text}>
-                    {formatDate(lastMessage.createdAt)}
-                  </Text>
-                )}
-              </View>
-              <Text numberOfLines={1} style={styles.text}>
-                {lastMessage?.content}
-              </Text>
+          <View style={styles.fullSpace}>
+            <View style={styles.textContainer}>
+              <Text style={styles.name}>{roomData.user.name}</Text>
+              {roomData.lastMessage && (
+                <Text style={styles.text}>
+                  {formatDate(roomData.lastMessage.createdAt)}
+                </Text>
+              )}
             </View>
+            <Text numberOfLines={1} style={styles.text}>
+              {roomData.lastMessage.content ?? ''}
+            </Text>
           </View>
-        </TouchableOpacity>
-      )}
+        </View>
+      </TouchableOpacity>
     </>
   );
 };

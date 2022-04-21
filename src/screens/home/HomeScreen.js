@@ -2,7 +2,7 @@ import {DataStore} from 'aws-amplify';
 import ChatRoomList from 'components/chatRooms/ChatRoomList';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import ConversationPersonImage from 'components/ConversationPersonImage';
-import {ChatRoom, ChatRoomUser} from 'models';
+import {ChatRoom, ChatRoomUser, Message, User} from 'models';
 import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -21,7 +21,7 @@ const HomeScreen = props => {
 
   /** @type {UseState<boolean>} */
   const [isLoading, setIsLoading] = useState(true);
-  /** @type {UseState<ChatRoom[]>} */
+  /** @type {UseState<{chatRoom: ChatRoom, lastMessage: Message, user: User}[]>} */
   const [chatRooms, setChatRooms] = useState();
 
   const authedUserState = useSelector(
@@ -30,18 +30,55 @@ const HomeScreen = props => {
     },
   );
 
+  const fetchChatRoomData = useCallback(
+    /** @param {ChatRoom} room */ async room => {
+      const chatRoomUsers = (await DataStore.query(ChatRoomUser)).filter(
+        item => item.chatRoom.id === room.id,
+      );
+
+      /** @type {Message} */
+      let lastMessage;
+      /** @type {User} */
+      let user;
+
+      if (room.chatRoomLastMessageId) {
+        const message = await DataStore.query(
+          Message,
+          room.chatRoomLastMessageId,
+        );
+        lastMessage = message;
+      }
+
+      //setUsers(chatRoomUsers.map(item => item.user));
+      user = chatRoomUsers.filter(
+        item => item.user.id !== authedUserState.authedUser.id,
+      )[0].user;
+
+      return {user: user, lastMessage: lastMessage};
+    },
+    [authedUserState],
+  );
+
   const fetchChatRooms = useCallback(async () => {
     const chatRoomUsers = await DataStore.query(ChatRoomUser);
-    setChatRooms(
-      chatRoomUsers
-        .filter(
-          chatRoomUser =>
-            chatRoomUser.user.id === authedUserState.authedUser.id,
-        )
-        .map(chatRoomUser => chatRoomUser.chatRoom),
-    );
+    const rooms = chatRoomUsers
+      .filter(
+        chatRoomUser => chatRoomUser.user.id === authedUserState.authedUser.id,
+      )
+      .map(chatRoomUser => chatRoomUser.chatRoom);
+
+    /** @type {{chatRoom: ChatRoom, lastMessage: Message, user: User}[]} */
+    const chatRoomsData = [];
+    for (const room of rooms) {
+      const data = await fetchChatRoomData(room);
+      chatRoomsData.push({
+        ...data,
+        chatRoom: room,
+      });
+    }
+    setChatRooms(chatRoomsData);
     setIsLoading(false);
-  }, [authedUserState.authedUser]);
+  }, [authedUserState.authedUser, fetchChatRoomData]);
 
   useEffect(() => {
     fetchChatRooms();
@@ -104,10 +141,26 @@ const HomeScreen = props => {
     });
   };
 
+  const refreshData = async () => {
+    setIsLoading(true);
+    await fetchChatRooms();
+    return true;
+  };
+
+  const getContent = () => {
+    return (
+      <ChatRoomList
+        onPress={onPress}
+        data={chatRooms}
+        onRefresh={refreshData}
+      />
+    );
+  };
+
   return (
     <>
       {isLoading && <LoadingIndicator />}
-      {!isLoading && <ChatRoomList onPress={onPress} data={chatRooms} />}
+      {!isLoading && getContent()}
     </>
   );
 };

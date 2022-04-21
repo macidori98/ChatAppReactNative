@@ -1,5 +1,9 @@
 let _translations = null;
 
+/**
+ * @param {string} textId
+ * @returns {string}
+ */
 const getText = textId => {
   return _translations[textId] ?? textId;
 };
@@ -26,5 +30,6 @@ export const Translations = {
     emptyList: () => getText('emptyList'),
     profile: () => getText('profile'),
     logout: () => getText('logout'),
+    back: () => getText('back'),
   },
 };
