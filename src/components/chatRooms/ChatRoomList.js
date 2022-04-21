@@ -25,8 +25,9 @@ const ChatRoomList = props => {
   };
 
   return (
-    <View>
+    <View style={Theme.styles.screen}>
       <FlatList
+        style={Theme.styles.screen}
         refreshing={isRefreshing}
         onRefresh={() => {
           setIsRefreshing(true);
