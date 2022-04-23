@@ -80,3 +80,7 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+
+debuggerWorker.js
+index.bundle
+index.map

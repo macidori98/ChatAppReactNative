@@ -11,5 +11,8 @@
   "invalidEmail": "Helytelen email",
   "invalidPassword": "Helytelen jelszó",
   "users": "Felhasználók",
-  "emptyList": "Üres lista"
+  "emptyList": "Üres lista",
+  "profile": "Profil",
+  "logout": "Kijelentkezés",
+  "back": "Vissza"
 }

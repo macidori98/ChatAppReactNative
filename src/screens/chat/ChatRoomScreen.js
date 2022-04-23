@@ -1,6 +1,8 @@
-import {DataStore, SortDirection} from 'aws-amplify';
+import {useHeaderHeight} from '@react-navigation/elements';
+import {DataStore, SortDirection, Storage} from 'aws-amplify';
 import ChatMessage from 'components/chat/ChatMessage';
 import MessageInput from 'components/chat/MessageInput';
+import LoadingIndicator from 'components/common/LoadingIndicator';
 import ConversationPersonImage from 'components/ConversationPersonImage';
 import {
   ChatRoom,
@@ -9,14 +11,34 @@ import {
   Message as MessageModel,
   User,
 } from 'models';
-import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
-import {FlatList, SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import {
+  Dimensions,
+  FlatList,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import 'react-native-get-random-values';
+import {Asset} from 'react-native-image-picker';
+import Toast from 'react-native-toast-message';
+import Icon from 'react-native-vector-icons/Ionicons';
 import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
 import {UseState} from 'types/CommonTypes';
 import {ChatScreenProps} from 'types/NavigationTypes';
 import {AuthenticateState} from 'types/StoreTypes';
+import {v4 as uuidv4} from 'uuid';
 
 /**
  * @param {ChatScreenProps} props
@@ -30,6 +52,15 @@ const ChatRoomScreen = props => {
   const [chatRoom, setChatRoom] = useState();
   /** @type {UseState<User>} */
   const [otherUser, setOtherUSer] = useState();
+  /** @type {UseState<boolean>} */
+  const [isLoading, setIsLoading] = useState(true);
+  /** @type {UseState<number>} */
+  const [sending, setSending] = useState(undefined);
+  /** @type {React.MutableRefObject<FlatList<Message>>} */
+  const flatListRef = useRef();
+
+  const screenHeaderHeight = useHeaderHeight();
+  const screenDimensions = Dimensions.get('screen');
 
   const authedUserState = useSelector(
     /** @param {{auth: AuthenticateState}} state */ state => {
@@ -46,8 +77,41 @@ const ChatRoomScreen = props => {
               imageStyle={styles.icon}
               imageSource={otherUser?.imageUri}
             />
-            <Text style={styles.text}>{otherUser?.name}</Text>
+            <Text style={{...styles.text, color: prop.tintColor}}>
+              {otherUser?.name}
+            </Text>
           </View>
+        );
+      },
+      headerRight: prop => {
+        return (
+          <>
+            <TouchableOpacity
+              style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+              <Icon
+                name="call-outline"
+                color={
+                  Platform.OS === 'ios'
+                    ? Theme.colors.black
+                    : Theme.colors.white
+                }
+                size={Theme.values.headerIcon.height}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {}}
+              style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+              <Icon
+                name="videocam-outline"
+                color={
+                  Platform.OS === 'ios'
+                    ? Theme.colors.black
+                    : Theme.colors.white
+                }
+                size={Theme.values.headerIcon.height}
+              />
+            </TouchableOpacity>
+          </>
         );
       },
     });
@@ -68,6 +132,7 @@ const ChatRoomScreen = props => {
     );
 
     setMessages(fetchedMessages);
+    setIsLoading(false);
   }, [chatRoom]);
 
   const fetchOtherUserData = useCallback(async () => {
@@ -103,6 +168,16 @@ const ChatRoomScreen = props => {
     }
   }, [chatRoom, fetchMessages, fetchOtherUserData]);
 
+  const getFileBlob = async uri => {
+    if (!uri) {
+      return null;
+    }
+
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return blob;
+  };
+
   /**
    * @param {Message} newMessage
    */
@@ -114,44 +189,128 @@ const ChatRoomScreen = props => {
     );
   };
 
+  /**
+   * @param {import('react-native-document-picker').DocumentPickerResponse[]} data
+   */
+  const sendFile2 = async data => {
+    const blob = await getFileBlob(data[0].uri);
+    const index = data[0].type.indexOf('/');
+    const messageType = data[0].type.substring(0, index);
+    const extenstion = data[0].type.substring(index + 1);
+    const {key} = await Storage.put(`${uuidv4()}.${extenstion}`, blob, {
+      progressCallback: progress => {
+        setSending(
+          Number(((progress.loaded / progress.total) * 100).toFixed(1)),
+        );
+      },
+    }); // file name is the result
+    const response = await DataStore.save(
+      new MessageModel({
+        userID: authedUserState.authedUser.id,
+        chatroomID: chatRoom.id,
+        content: key,
+        messageType: messageType,
+        base64type: data[0].type,
+      }),
+    );
+    setSending(undefined);
+    updateLastMessage(response);
+  };
+
+  /**
+   * @param {Asset[]} data
+   */
+  const sendFile = async data => {
+    const blob = await getFileBlob(data[0].uri);
+    const index = data[0].type.indexOf('/');
+    const messageType = data[0].type.substring(0, index);
+    const extenstion = data[0].type.substring(index + 1);
+    const {key} = await Storage.put(`${uuidv4()}.${extenstion}`, blob, {
+      progressCallback: progress => {
+        setSending(
+          Number(((progress.loaded / progress.total) * 100).toFixed(1)),
+        );
+      },
+    }); // file name is the result
+    const response = await DataStore.save(
+      new MessageModel({
+        userID: authedUserState.authedUser.id,
+        chatroomID: chatRoom.id,
+        content: key,
+        messageType: messageType,
+        base64type: data[0].type,
+      }),
+    );
+    setSending(undefined);
+    updateLastMessage(response);
+  };
+
   return (
     <SafeAreaView style={styles.page}>
-      <FlatList
-        ListEmptyComponent={
-          <View
-            style={{
-              ...Theme.styles.center,
-            }}>
-            <Text>{Translations.strings.emptyChat()}</Text>
-          </View>
-        }
-        style={styles.list}
-        data={messages}
-        renderItem={
-          /** @param {{item: MessageModel}} param0 */ ({item}) => (
-            <ChatMessage
-              message={item}
-              isMine={item.userID === authedUserState.authedUser.id}
-            />
-          )
-        }
-        keyExtractor={(item, index) => `${item.createdAt}${index}`}
-      />
+      {isLoading && <LoadingIndicator />}
+      {!isLoading && (
+        <>
+          {sending && (
+            <View style={{...styles.loadingIndicator, width: `${sending}%`}} />
+          )}
+          <FlatList
+            ListEmptyComponent={
+              <View
+                style={{
+                  ...Theme.styles.center,
+                  height: screenDimensions.height - screenHeaderHeight,
+                }}>
+                <Text>{Translations.strings.emptyChat()}</Text>
+              </View>
+            }
+            style={styles.list}
+            data={messages}
+            ref={ref => (flatListRef.current = ref)}
+            onContentSizeChange={() => {
+              flatListRef.current.scrollToEnd();
+            }}
+            renderItem={
+              /** @param {{item: MessageModel}} param0 */ ({item}) => (
+                <ChatMessage
+                  message={item}
+                  isMine={item.userID === authedUserState.authedUser.id}
+                  onImageFullScreen={() => {
+                    navigation.navigate('FullScreen', {
+                      imageId: item.content,
+                    });
+                  }}
+                />
+              )
+            }
+            keyExtractor={(item, index) => `${item.createdAt}${index}`}
+          />
+        </>
+      )}
       <MessageInput
-        onAddFile={() => {}}
-        onSend={async text => {
+        onAddFile={data => {
+          sendFile2(data);
+        }}
+        onSendMessage={async text => {
           const response = await DataStore.save(
             new MessageModel({
               userID: authedUserState.authedUser.id,
               chatroomID: chatRoom.id,
               content: text,
+              messageType: 'text',
             }),
           );
           updateLastMessage(response);
         }}
-        onEmoji={() => {}}
-        onMic={() => {}}
-        onCamera={() => {}}
+        onMic={() => {
+          Toast.show({
+            type: 'success',
+            text1: 'Hello',
+            text2: 'This is some something 👋',
+          });
+        }}
+        onCamera={data => {
+          sendFile(data);
+        }}
       />
     </SafeAreaView>
   );
@@ -161,12 +320,16 @@ export default ChatRoomScreen;
 
 const styles = StyleSheet.create({
   page: {
-    backgroundColor: Theme.colors.white,
+    // backgroundColor: Theme.colors.white,
     ...Theme.styles.screen,
   },
   list: {
-    flexDirection: 'column-reverse',
+    //flexDirection: 'column-reverse',
     ...Theme.styles.screen,
+  },
+  loadingIndicator: {
+    height: 2,
+    backgroundColor: Theme.colors.grey,
   },
   icon: {
     width: Theme.values.headerIcon.width,

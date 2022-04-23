@@ -19,7 +19,7 @@
       "function": {
         "ChatAppReactNativePostConfirmation": {
           "deploymentBucketName": "amplify-chatappreactnative-staging-185259-deployment",
-          "s3Key": "amplify-builds/ChatAppReactNativePostConfirmation-7544384f363867694c78-build.zip"
+          "s3Key": "amplify-builds/ChatAppReactNativePostConfirmation-636955345535794c6478-build.zip"
         }
       }
     }

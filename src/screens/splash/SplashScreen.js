@@ -5,6 +5,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {useDispatch} from 'react-redux';
 import {authenticateUser} from 'store/actions/auth';
+import Theme from 'theme/Theme';
 import {UseState} from 'types/CommonTypes';
 import {SplashScreenProps} from 'types/NavigationTypes';
 
@@ -44,7 +45,11 @@ const SplashScreen = props => {
     };
   }, [getAuthedUserData]);
 
-  return <View>{isLoading && <LoadingIndicator />}</View>;
+  return (
+    <View style={{...Theme.styles.screen}}>
+      {isLoading && <LoadingIndicator />}
+    </View>
+  );
 };
 
 export default SplashScreen;

@@ -11,5 +11,8 @@
   "invalidEmail": "Email incorect",
   "invalidPassword": "Parola incorecta",
   "users": "Utilizatori",
-  "emptyList": "Lista goală"
+  "emptyList": "Lista goală",
+  "profile": "Profil",
+  "logout": "Deconectați-vă",
+  "back": "Înapoi"
 }
