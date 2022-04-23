@@ -86,7 +86,7 @@ const ChatMessage = props => {
         return (
           <TouchableOpacity onLongPress={onShare}>
             <View>
-              <View style={{flexDirection: 'row', width: '75%'}}>
+              <View style={styles.docsContainer}>
                 <View style={{...Theme.styles.center}}>
                   <Icon
                     name="document-outline"
@@ -144,5 +144,9 @@ const styles = StyleSheet.create({
     margin: Theme.values.margins.marginMedium,
     borderRadius: Theme.values.radius.large,
     ...Theme.styles.messageOther,
+  },
+  docsContainer: {
+    flexDirection: 'row',
+    width: '75%',
   },
 });
