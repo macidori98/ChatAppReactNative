@@ -1,8 +1,9 @@
 import {NavigationContainer} from '@react-navigation/native';
-import {Amplify} from 'aws-amplify';
+import {Amplify, DataStore, Hub} from 'aws-amplify';
 import {withAuthenticator} from 'aws-amplify-react-native/dist/Auth';
+import {Message} from 'models';
 import MainStackNavigation from 'navigation/MainNavigation';
-import React from 'react';
+import React, {useEffect} from 'react';
 import Toast from 'react-native-toast-message';
 import {Provider} from 'react-redux';
 import {applyMiddleware, combineReducers, createStore} from 'redux';
@@ -27,6 +28,25 @@ const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
 const App = props => {
   Translations.initializeTranslations();
+
+  useEffect(() => {
+    const listener = Hub.listen('datastore', async hubData => {
+      const {event, data} = hubData.payload;
+
+      if (
+        event === 'outboxMutationProcessed' &&
+        data.model === Message &&
+        data.element.status === 'SENT'
+      ) {
+        DataStore.save(
+          Message.copyOf(data.element, update => {
+            update.status = 'DELIVERED';
+          }),
+        );
+      }
+    });
+    return () => listener();
+  }, []);
 
   return (
     <Provider store={store}>

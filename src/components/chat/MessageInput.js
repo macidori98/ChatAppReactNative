@@ -127,7 +127,6 @@ const MessageInput = props => {
         const response = await reactNativeDocumentPicker.pick({
           presentationStyle: 'fullScreen',
         });
-        console.log(response);
         onResultRecieved(response);
         //setFileResponse(response);
       } catch (err) {

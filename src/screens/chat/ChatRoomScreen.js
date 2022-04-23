@@ -211,6 +211,7 @@ const ChatRoomScreen = props => {
         content: key,
         messageType: messageType,
         base64type: data[0].type,
+        status: 'SENT',
       }),
     );
     setSending(undefined);
@@ -239,6 +240,7 @@ const ChatRoomScreen = props => {
         content: key,
         messageType: messageType,
         base64type: data[0].type,
+        status: 'SENT',
       }),
     );
     setSending(undefined);
@@ -297,6 +299,7 @@ const ChatRoomScreen = props => {
               chatroomID: chatRoom.id,
               content: text,
               messageType: 'text',
+              status: 'SENT',
             }),
           );
           updateLastMessage(response);
