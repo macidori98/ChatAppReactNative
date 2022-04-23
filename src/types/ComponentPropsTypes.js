@@ -6,6 +6,7 @@ import {
   TextInputFocusEventData,
   ViewStyle,
 } from 'react-native';
+import {DocumentPickerResponse} from 'react-native-document-picker';
 import {Asset} from 'react-native-image-picker';
 
 /**
@@ -32,7 +33,7 @@ import {Asset} from 'react-native-image-picker';
 
 /**
  * @typedef {Object} MessageInputProps
- * @property {(data: Asset[]) => void} onAddFile
+ * @property {(data: DocumentPickerResponse[]) => void} onAddFile
  * @property {(text: string) => void} onSendMessage
  * @property {() => void} onMic
  * @property {(data:Asset[]) => void} onCamera

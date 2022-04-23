@@ -26,6 +26,7 @@ export declare class Message {
   readonly userID: string;
   readonly chatroomID: string;
   readonly messageType: string;
+  readonly base64type?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Message, MessageMetaData>);

@@ -190,6 +190,34 @@ const ChatRoomScreen = props => {
   };
 
   /**
+   * @param {import('react-native-document-picker').DocumentPickerResponse[]} data
+   */
+  const sendFile2 = async data => {
+    const blob = await getFileBlob(data[0].uri);
+    const index = data[0].type.indexOf('/');
+    const messageType = data[0].type.substring(0, index);
+    const extenstion = data[0].type.substring(index + 1);
+    const {key} = await Storage.put(`${uuidv4()}.${extenstion}`, blob, {
+      progressCallback: progress => {
+        setSending(
+          Number(((progress.loaded / progress.total) * 100).toFixed(1)),
+        );
+      },
+    }); // file name is the result
+    const response = await DataStore.save(
+      new MessageModel({
+        userID: authedUserState.authedUser.id,
+        chatroomID: chatRoom.id,
+        content: key,
+        messageType: messageType,
+        base64type: data[0].type,
+      }),
+    );
+    setSending(undefined);
+    updateLastMessage(response);
+  };
+
+  /**
    * @param {Asset[]} data
    */
   const sendFile = async data => {
@@ -210,6 +238,7 @@ const ChatRoomScreen = props => {
         chatroomID: chatRoom.id,
         content: key,
         messageType: messageType,
+        base64type: data[0].type,
       }),
     );
     setSending(undefined);
@@ -259,7 +288,7 @@ const ChatRoomScreen = props => {
       )}
       <MessageInput
         onAddFile={data => {
-          sendFile(data);
+          sendFile2(data);
         }}
         onSendMessage={async text => {
           const response = await DataStore.save(

@@ -1,11 +1,11 @@
 import {
   androidCameraPermissions,
-  androidMicPermission,
+  androidStoragePermissions,
   getPermissions,
   IOSCameraPermissions,
-  iosMicPermission,
+  IOSStoragePermissions,
 } from 'helpers/PermissionsHelper';
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   Dimensions,
   Keyboard,
@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as reactNativeDocumentPicker from 'react-native-document-picker';
 import EmojiSelector from 'react-native-emoji-selector';
 import {
   Asset,
@@ -82,7 +83,7 @@ const MessageInput = props => {
   };
 
   /**
-   * @param {Asset[]} data
+   * @param {reactNativeDocumentPicker.DocumentPickerResponse[]} data
    */
   const onFileRecieved = data => {
     props.onAddFile(data);
@@ -105,22 +106,44 @@ const MessageInput = props => {
     );
   };
 
-  const onAddFile = async () => {
+  const onOpenGallery = async () => {
     await getPermissions(
       openGallery,
       Platform.OS === 'android'
         ? androidCameraPermissions
         : IOSCameraPermissions,
-      onFileRecieved,
+      onImageRecieved,
     );
   };
 
-  const onMic = async () => {
+  /**
+   * @param {reactNativeDocumentPicker.DocumentPickerResponse[]} onResultRecieved
+   */
+  const handleDocumentSelection = useCallback(
+    /**
+     * @param {(data: reactNativeDocumentPicker.DocumentPickerResponse[]) => void} onResultRecieved
+     */ async onResultRecieved => {
+      try {
+        const response = await reactNativeDocumentPicker.pick({
+          presentationStyle: 'fullScreen',
+        });
+        console.log(response);
+        onResultRecieved(response);
+        //setFileResponse(response);
+      } catch (err) {
+        console.warn(err);
+      }
+    },
+    [],
+  );
+
+  const onAddFile = async () => {
     await getPermissions(
-      () => {
-        props.onSendMessage('mic');
-      },
-      Platform.OS === 'android' ? androidMicPermission : iosMicPermission,
+      handleDocumentSelection,
+      Platform.OS === 'android'
+        ? androidStoragePermissions
+        : IOSStoragePermissions,
+      onFileRecieved,
     );
   };
 
@@ -179,10 +202,19 @@ const MessageInput = props => {
                   />
                 </TouchableOpacity>
               )}
-              {!message && (
+              {/* {!message && (
                 <TouchableOpacity style={styles.icon} onPress={onMic}>
                   <Icon
                     name="mic-outline"
+                    color={Theme.colors.icon}
+                    size={25}
+                  />
+                </TouchableOpacity>
+              )} */}
+              {!message && (
+                <TouchableOpacity style={styles.icon} onPress={onOpenGallery}>
+                  <Icon
+                    name="image-outline"
                     color={Theme.colors.icon}
                     size={25}
                   />

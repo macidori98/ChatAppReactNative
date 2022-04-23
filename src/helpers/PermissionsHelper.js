@@ -1,3 +1,4 @@
+import {DocumentPickerResponse} from 'react-native-document-picker';
 import {Asset} from 'react-native-image-picker';
 import {
   checkMultiple,
@@ -19,6 +20,13 @@ export const androidCameraPermissions = [
   PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
 ];
 
+export const IOSStoragePermissions = [PERMISSIONS.IOS.PHOTO_LIBRARY];
+
+export const androidStoragePermissions = [
+  PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
+  PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,
+];
+
 export const androidMicPermission = [
   PERMISSIONS.ANDROID.RECORD_AUDIO,
   PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE,
@@ -30,7 +38,7 @@ export const iosMicPermission = [PERMISSIONS.IOS.MICROPHONE];
 /**
  * @param {(onDataRecievedAction?: (data: Asset[]) => void) => void} action
  * @param {Permission[]} permissions
- * @param {(data: Asset[]) => void} [onDataRecievedAction]
+ * @param {(data: Asset[]|DocumentPickerResponse[]) => void} [onDataRecievedAction]
  */
 export const getPermissions = async (
   action,
