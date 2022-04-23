@@ -11,6 +11,7 @@ import {
   Message as MessageModel,
   User,
 } from 'models';
+import moment from 'moment';
 import React, {
   useCallback,
   useEffect,
@@ -71,15 +72,32 @@ const ChatRoomScreen = props => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: prop => {
+        var lastOnline = moment.unix(otherUser?.lastOnlineAt);
+
+        var now = moment.unix(moment().unix());
+        var duration = moment.duration(now.diff(lastOnline));
+        var minutes = Math.floor(duration.asMinutes());
         return (
           <View style={styles.headerContainer}>
             <ConversationPersonImage
               imageStyle={styles.icon}
               imageSource={otherUser?.imageUri}
             />
-            <Text style={{...styles.text, color: prop.tintColor}}>
-              {otherUser?.name}
-            </Text>
+
+            <View>
+              <Text style={{...styles.text, color: prop.tintColor}}>
+                {otherUser?.name}
+              </Text>
+              {minutes < 10 ? (
+                <Text style={{...styles.text, color: prop.tintColor}}>
+                  Online
+                </Text>
+              ) : (
+                <Text style={{...styles.text, color: prop.tintColor}}>
+                  Online {minutes} minutes ago
+                </Text>
+              )}
+            </View>
           </View>
         );
       },
@@ -115,7 +133,12 @@ const ChatRoomScreen = props => {
         );
       },
     });
-  }, [navigation, otherUser?.imageUri, otherUser?.name]);
+  }, [
+    navigation,
+    otherUser?.imageUri,
+    otherUser?.lastOnlineAt,
+    otherUser?.name,
+  ]);
 
   const fetchChatRoom = useCallback(async () => {
     const room = await DataStore.query(ChatRoom, route.params.id);
