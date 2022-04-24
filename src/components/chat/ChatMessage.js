@@ -23,6 +23,8 @@ import {ChatMessageProps} from 'types/ComponentPropsTypes';
 const ChatMessage = props => {
   /** @type {UseState<Message>} */
   const [message, setMessage] = useState(props.message);
+  /** @type {UseState<string>} */
+  const [repliedTo, setRepliedTo] = useState();
 
   useEffect(() => {
     const subscription = DataStore.observe(Message, message.id).subscribe(
@@ -52,12 +54,29 @@ const ChatMessage = props => {
     setAsRead();
   }, [setAsRead]);
 
+  const fetchReplyTo = useCallback(async () => {
+    if (message.replyToMessageId) {
+      const fetchedMessage = await DataStore.query(
+        Message,
+        message.replyToMessageId,
+      );
+      setRepliedTo(fetchedMessage.content);
+    }
+  }, [message.replyToMessageId]);
+
+  useEffect(() => {
+    fetchReplyTo();
+  }, [fetchReplyTo]);
+
   const getContent = () => {
     switch (message.messageType) {
       case 'image':
         //DataStore.delete(Message, message.id);
         return (
           <TouchableOpacity
+            onLongPress={() => {
+              props.onLongPress(message);
+            }}
             onPress={props.onImageFullScreen}
             style={styles.imageContainer}>
             <S3Image style={styles.image} imgKey={message.content} />
@@ -80,68 +99,97 @@ const ChatMessage = props => {
         );
       case 'video':
         return (
-          <View>
-            <Text>{message.content ?? ''}</Text>
-            {props.isMine && message.status !== 'SENT' && (
-              <View style={styles.readStatusContainer}>
-                <Icon
-                  name="checkmark-done-outline"
-                  size={20}
-                  color={
-                    message.status === 'DELIVERED'
-                      ? Theme.colors.white
-                      : message.status === 'READ'
-                      ? Theme.colors.primary
-                      : undefined
-                  }
-                />
-              </View>
-            )}
-          </View>
+          <TouchableOpacity
+            onLongPress={() => {
+              props.onLongPress(message);
+            }}>
+            <View>
+              <Text>{message.content ?? ''}</Text>
+              {props.isMine && message.status !== 'SENT' && (
+                <View style={styles.readStatusContainer}>
+                  <Icon
+                    name="checkmark-done-outline"
+                    size={20}
+                    color={
+                      message.status === 'DELIVERED'
+                        ? Theme.colors.white
+                        : message.status === 'READ'
+                        ? Theme.colors.primary
+                        : undefined
+                    }
+                  />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         );
       case 'text':
         return (
-          <View>
-            <Text style={props.isMine ? styles.textIsMe : styles.textIsOther}>
-              {message.content ?? ''}
-            </Text>
-            {props.isMine && message.status !== 'SENT' && (
-              <View style={styles.readStatusContainer}>
-                <Icon
-                  name="checkmark-done-outline"
-                  size={20}
-                  color={
-                    message.status === 'DELIVERED'
-                      ? Theme.colors.white
-                      : message.status === 'READ'
-                      ? Theme.colors.primary
-                      : undefined
-                  }
-                />
-              </View>
-            )}
-          </View>
+          <TouchableOpacity
+            onLongPress={() => {
+              props.onLongPress(message);
+            }}>
+            <View>
+              {repliedTo && (
+                <View
+                  style={{
+                    backgroundColor: 'rgba(0,0,0, 0.5)',
+                    padding: 4,
+                    marginBottom: 5,
+                    borderRadius: 5,
+                  }}>
+                  <Text
+                    style={props.isMine ? styles.textIsMe : styles.textIsOther}>
+                    {repliedTo}
+                  </Text>
+                </View>
+              )}
+              <Text style={props.isMine ? styles.textIsMe : styles.textIsOther}>
+                {message.content ?? ''}
+              </Text>
+              {props.isMine && message.status !== 'SENT' && (
+                <View style={styles.readStatusContainer}>
+                  <Icon
+                    name="checkmark-done-outline"
+                    size={20}
+                    color={
+                      message.status === 'DELIVERED'
+                        ? Theme.colors.white
+                        : message.status === 'READ'
+                        ? Theme.colors.primary
+                        : undefined
+                    }
+                  />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         );
       case 'voice':
         return (
-          <View>
-            <Text>voice</Text>
-            {props.isMine && message.status !== 'SENT' && (
-              <View style={styles.readStatusContainer}>
-                <Icon
-                  name="checkmark-done-outline"
-                  size={20}
-                  color={
-                    message.status === 'DELIVERED'
-                      ? Theme.colors.white
-                      : message.status === 'READ'
-                      ? Theme.colors.primary
-                      : undefined
-                  }
-                />
-              </View>
-            )}
-          </View>
+          <TouchableOpacity
+            onLongPress={() => {
+              props.onLongPress(message);
+            }}>
+            <View>
+              <Text>voice</Text>
+              {props.isMine && message.status !== 'SENT' && (
+                <View style={styles.readStatusContainer}>
+                  <Icon
+                    name="checkmark-done-outline"
+                    size={20}
+                    color={
+                      message.status === 'DELIVERED'
+                        ? Theme.colors.white
+                        : message.status === 'READ'
+                        ? Theme.colors.primary
+                        : undefined
+                    }
+                  />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         );
       case 'application':
         const onShare = async () => {
@@ -174,7 +222,7 @@ const ChatMessage = props => {
           : Theme.colors.white;
 
         return (
-          <TouchableOpacity onLongPress={onShare}>
+          <TouchableOpacity onPress={onShare}>
             <View>
               <View style={styles.docsContainer}>
                 <View style={{...Theme.styles.center}}>
@@ -207,27 +255,6 @@ const ChatMessage = props => {
               </View>
             )}
           </TouchableOpacity>
-        );
-      default:
-        return (
-          <View>
-            <Text>{message.messageType}</Text>
-            {props.isMine && message.status !== 'SENT' && (
-              <View>
-                <Icon
-                  name="checkmark-done-outline"
-                  size={20}
-                  color={
-                    message.status === 'DELIVERED'
-                      ? Theme.colors.white
-                      : message.status === 'READ'
-                      ? Theme.colors.primary
-                      : undefined
-                  }
-                />
-              </View>
-            )}
-          </View>
         );
     }
   };

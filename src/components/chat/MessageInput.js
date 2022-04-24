@@ -13,6 +13,7 @@ import {
   Platform,
   SafeAreaView,
   StyleSheet,
+  Text,
   TextInput,
   TouchableOpacity,
   View,
@@ -169,6 +170,18 @@ const MessageInput = props => {
               </TouchableOpacity>
             </View>
           )} */}
+          {props.replyToMessage && (
+            <View style={styles.imageContainer}>
+              <Text>{props.replyToMessage.content}</Text>
+              <TouchableOpacity
+                style={styles.cancelContainer}
+                onPress={() => {
+                  props.onCancelReply();
+                }}>
+                <Text style={{color: Theme.colors.primary}}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          )}
           <View style={styles.inputRootContainer}>
             <View style={styles.inputContainer}>
               {!message && (

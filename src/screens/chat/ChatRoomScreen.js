@@ -49,6 +49,8 @@ const ChatRoomScreen = props => {
   const {route, navigation} = props;
   /** @type {UseState<MessageModel[]>} */
   const [messages, setMessages] = useState([]);
+  /** @type {UseState<MessageModel>} */
+  const [replyToMessage, setReplyToMessage] = useState();
   /** @type {UseState<ChatRoom>} */
   const [chatRoom, setChatRoom] = useState();
   /** @type {UseState<User>} */
@@ -68,6 +70,28 @@ const ChatRoomScreen = props => {
       return state.auth;
     },
   );
+
+  /**
+   * @param {number} minutes
+   * @returns {string}
+   */
+  const getStatusText = minutes => {
+    if (minutes < 60) {
+      return `Online ${minutes} minutes ago`;
+    }
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return `Online ${hours} hours ago`;
+    }
+    const days = Math.floor(hours / 24);
+    if (days < 24) {
+      return `Online ${days} days ago`;
+    }
+    const months = Math.floor(days / 30);
+    if (months < 12) {
+      return `Online ${months} months ago`;
+    }
+  };
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -94,7 +118,7 @@ const ChatRoomScreen = props => {
                 </Text>
               ) : (
                 <Text style={{...styles.text, color: prop.tintColor}}>
-                  Online {minutes} minutes ago
+                  {getStatusText(minutes)}
                 </Text>
               )}
             </View>
@@ -297,6 +321,9 @@ const ChatRoomScreen = props => {
             renderItem={
               /** @param {{item: MessageModel}} param0 */ ({item}) => (
                 <ChatMessage
+                  onLongPress={message => {
+                    setReplyToMessage(message);
+                  }}
                   message={item}
                   isMine={item.userID === authedUserState.authedUser.id}
                   onImageFullScreen={() => {
@@ -312,6 +339,10 @@ const ChatRoomScreen = props => {
         </>
       )}
       <MessageInput
+        onCancelReply={() => {
+          setReplyToMessage(undefined);
+        }}
+        replyToMessage={replyToMessage}
         onAddFile={data => {
           sendFile2(data);
         }}
@@ -323,8 +354,10 @@ const ChatRoomScreen = props => {
               content: text,
               messageType: 'text',
               status: 'SENT',
+              replyToMessageId: replyToMessage ? replyToMessage.id : null,
             }),
           );
+          setReplyToMessage(undefined);
           updateLastMessage(response);
         }}
         onMic={() => {
