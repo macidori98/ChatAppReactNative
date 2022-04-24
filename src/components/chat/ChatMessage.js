@@ -1,6 +1,7 @@
-import {Storage} from 'aws-amplify';
+import {DataStore, Storage} from 'aws-amplify';
 import {S3Image} from 'aws-amplify-react-native/dist/Storage';
-import React from 'react';
+import {Message} from 'models';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Dimensions,
   StyleSheet,
@@ -12,6 +13,7 @@ import Share from 'react-native-share';
 import Icon from 'react-native-vector-icons/Ionicons';
 import RNFetchBlob from 'rn-fetch-blob';
 import Theme from 'theme/Theme';
+import {UseState} from 'types/CommonTypes';
 import {ChatMessageProps} from 'types/ComponentPropsTypes';
 
 /**
@@ -19,7 +21,52 @@ import {ChatMessageProps} from 'types/ComponentPropsTypes';
  * @returns {JSX.Element}
  */
 const ChatMessage = props => {
-  const {message} = props;
+  /** @type {UseState<Message>} */
+  const [message, setMessage] = useState(props.message);
+  /** @type {UseState<string>} */
+  const [repliedTo, setRepliedTo] = useState();
+
+  useEffect(() => {
+    const subscription = DataStore.observe(Message, message.id).subscribe(
+      msg => {
+        if (msg.opType === 'UPDATE' && msg.model === Message) {
+          setMessage(existingMessage => {
+            return {...existingMessage, ...msg.element};
+          });
+        }
+      },
+    );
+
+    return () => subscription.unsubscribe();
+  }, [message.id]);
+
+  const setAsRead = useCallback(() => {
+    if (!props.isMine && message.status !== 'READ') {
+      DataStore.save(
+        Message.copyOf(props.message, update => {
+          update.status = 'READ';
+        }),
+      );
+    }
+  }, [message, props]);
+
+  useEffect(() => {
+    setAsRead();
+  }, [setAsRead]);
+
+  const fetchReplyTo = useCallback(async () => {
+    if (message.replyToMessageId) {
+      const fetchedMessage = await DataStore.query(
+        Message,
+        message.replyToMessageId,
+      );
+      setRepliedTo(fetchedMessage.content);
+    }
+  }, [message.replyToMessageId]);
+
+  useEffect(() => {
+    fetchReplyTo();
+  }, [fetchReplyTo]);
 
   const getContent = () => {
     switch (message.messageType) {
@@ -27,31 +74,122 @@ const ChatMessage = props => {
         //DataStore.delete(Message, message.id);
         return (
           <TouchableOpacity
+            onLongPress={() => {
+              props.onLongPress(message);
+            }}
             onPress={props.onImageFullScreen}
-            style={{
-              width: Dimensions.get('screen').width * 0.7,
-              height: Dimensions.get('screen').width * 0.5,
-            }}>
+            style={styles.imageContainer}>
             <S3Image style={styles.image} imgKey={message.content} />
+            {props.isMine && message.status !== 'SENT' && (
+              <View style={styles.readStatusContainer}>
+                <Icon
+                  name="checkmark-done-outline"
+                  size={20}
+                  color={
+                    message.status === 'DELIVERED'
+                      ? Theme.colors.white
+                      : message.status === 'READ'
+                      ? Theme.colors.primary
+                      : undefined
+                  }
+                />
+              </View>
+            )}
           </TouchableOpacity>
         );
       case 'video':
         return (
-          <View>
-            <Text>{message.content ?? ''}</Text>
-          </View>
+          <TouchableOpacity
+            onLongPress={() => {
+              props.onLongPress(message);
+            }}>
+            <View>
+              <Text>{message.content ?? ''}</Text>
+              {props.isMine && message.status !== 'SENT' && (
+                <View style={styles.readStatusContainer}>
+                  <Icon
+                    name="checkmark-done-outline"
+                    size={20}
+                    color={
+                      message.status === 'DELIVERED'
+                        ? Theme.colors.white
+                        : message.status === 'READ'
+                        ? Theme.colors.primary
+                        : undefined
+                    }
+                  />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         );
       case 'text':
         return (
-          <Text style={props.isMine ? styles.textIsMe : styles.textIsOther}>
-            {message.content ?? ''}
-          </Text>
+          <TouchableOpacity
+            onLongPress={() => {
+              props.onLongPress(message);
+            }}>
+            <View>
+              {repliedTo && (
+                <View
+                  style={{
+                    backgroundColor: 'rgba(0,0,0, 0.5)',
+                    padding: 4,
+                    marginBottom: 5,
+                    borderRadius: 5,
+                  }}>
+                  <Text
+                    style={props.isMine ? styles.textIsMe : styles.textIsOther}>
+                    {repliedTo}
+                  </Text>
+                </View>
+              )}
+              <Text style={props.isMine ? styles.textIsMe : styles.textIsOther}>
+                {message.content ?? ''}
+              </Text>
+              {props.isMine && message.status !== 'SENT' && (
+                <View style={styles.readStatusContainer}>
+                  <Icon
+                    name="checkmark-done-outline"
+                    size={20}
+                    color={
+                      message.status === 'DELIVERED'
+                        ? Theme.colors.white
+                        : message.status === 'READ'
+                        ? Theme.colors.primary
+                        : undefined
+                    }
+                  />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         );
       case 'voice':
         return (
-          <View>
-            <Text>voice</Text>
-          </View>
+          <TouchableOpacity
+            onLongPress={() => {
+              props.onLongPress(message);
+            }}>
+            <View>
+              <Text>voice</Text>
+              {props.isMine && message.status !== 'SENT' && (
+                <View style={styles.readStatusContainer}>
+                  <Icon
+                    name="checkmark-done-outline"
+                    size={20}
+                    color={
+                      message.status === 'DELIVERED'
+                        ? Theme.colors.white
+                        : message.status === 'READ'
+                        ? Theme.colors.primary
+                        : undefined
+                    }
+                  />
+                </View>
+              )}
+            </View>
+          </TouchableOpacity>
         );
       case 'application':
         const onShare = async () => {
@@ -84,7 +222,7 @@ const ChatMessage = props => {
           : Theme.colors.white;
 
         return (
-          <TouchableOpacity onLongPress={onShare}>
+          <TouchableOpacity onPress={onShare}>
             <View>
               <View style={styles.docsContainer}>
                 <View style={{...Theme.styles.center}}>
@@ -96,16 +234,27 @@ const ChatMessage = props => {
                     size={25}
                   />
                 </View>
-                <Text style={{color: textColor}}>{message.content ?? ''}</Text>
+                <Text style={{color: textColor}}>
+                  {message.content ?? undefined}
+                </Text>
               </View>
             </View>
+            {props.isMine && message.status !== 'SENT' && (
+              <View style={styles.readStatusContainer}>
+                <Icon
+                  name="checkmark-done-outline"
+                  size={20}
+                  color={
+                    message.status === 'DELIVERED'
+                      ? Theme.colors.white
+                      : message.status === 'READ'
+                      ? Theme.colors.primary
+                      : undefined
+                  }
+                />
+              </View>
+            )}
           </TouchableOpacity>
-        );
-      default:
-        return (
-          <View>
-            <Text>{message.messageType}</Text>
-          </View>
         );
     }
   };
@@ -148,5 +297,15 @@ const styles = StyleSheet.create({
   docsContainer: {
     flexDirection: 'row',
     width: '75%',
+  },
+  readStatusContainer: {
+    position: 'relative',
+    alignItems: 'flex-end',
+    justifyContent: 'flex-end',
+  },
+  imageContainer: {
+    width: Dimensions.get('screen').width * 0.7,
+    height: Dimensions.get('screen').width * 0.5,
+    flexDirection: 'row',
   },
 });

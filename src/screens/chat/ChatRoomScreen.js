@@ -11,6 +11,7 @@ import {
   Message as MessageModel,
   User,
 } from 'models';
+import moment from 'moment';
 import React, {
   useCallback,
   useEffect,
@@ -48,6 +49,8 @@ const ChatRoomScreen = props => {
   const {route, navigation} = props;
   /** @type {UseState<MessageModel[]>} */
   const [messages, setMessages] = useState([]);
+  /** @type {UseState<MessageModel>} */
+  const [replyToMessage, setReplyToMessage] = useState();
   /** @type {UseState<ChatRoom>} */
   const [chatRoom, setChatRoom] = useState();
   /** @type {UseState<User>} */
@@ -68,18 +71,57 @@ const ChatRoomScreen = props => {
     },
   );
 
+  /**
+   * @param {number} minutes
+   * @returns {string}
+   */
+  const getStatusText = minutes => {
+    if (minutes < 60) {
+      return `Online ${minutes} minutes ago`;
+    }
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) {
+      return `Online ${hours} hours ago`;
+    }
+    const days = Math.floor(hours / 24);
+    if (days < 24) {
+      return `Online ${days} days ago`;
+    }
+    const months = Math.floor(days / 30);
+    if (months < 12) {
+      return `Online ${months} months ago`;
+    }
+  };
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: prop => {
+        var lastOnline = moment.unix(otherUser?.lastOnlineAt);
+
+        var now = moment.unix(moment().unix());
+        var duration = moment.duration(now.diff(lastOnline));
+        var minutes = Math.floor(duration.asMinutes());
         return (
           <View style={styles.headerContainer}>
             <ConversationPersonImage
               imageStyle={styles.icon}
               imageSource={otherUser?.imageUri}
             />
-            <Text style={{...styles.text, color: prop.tintColor}}>
-              {otherUser?.name}
-            </Text>
+
+            <View>
+              <Text style={{...styles.text, color: prop.tintColor}}>
+                {otherUser?.name}
+              </Text>
+              {minutes < 10 ? (
+                <Text style={{...styles.text, color: prop.tintColor}}>
+                  Online
+                </Text>
+              ) : (
+                <Text style={{...styles.text, color: prop.tintColor}}>
+                  {getStatusText(minutes)}
+                </Text>
+              )}
+            </View>
           </View>
         );
       },
@@ -115,7 +157,12 @@ const ChatRoomScreen = props => {
         );
       },
     });
-  }, [navigation, otherUser?.imageUri, otherUser?.name]);
+  }, [
+    navigation,
+    otherUser?.imageUri,
+    otherUser?.lastOnlineAt,
+    otherUser?.name,
+  ]);
 
   const fetchChatRoom = useCallback(async () => {
     const room = await DataStore.query(ChatRoom, route.params.id);
@@ -211,6 +258,7 @@ const ChatRoomScreen = props => {
         content: key,
         messageType: messageType,
         base64type: data[0].type,
+        status: 'SENT',
       }),
     );
     setSending(undefined);
@@ -239,6 +287,7 @@ const ChatRoomScreen = props => {
         content: key,
         messageType: messageType,
         base64type: data[0].type,
+        status: 'SENT',
       }),
     );
     setSending(undefined);
@@ -272,6 +321,9 @@ const ChatRoomScreen = props => {
             renderItem={
               /** @param {{item: MessageModel}} param0 */ ({item}) => (
                 <ChatMessage
+                  onLongPress={message => {
+                    setReplyToMessage(message);
+                  }}
                   message={item}
                   isMine={item.userID === authedUserState.authedUser.id}
                   onImageFullScreen={() => {
@@ -287,6 +339,10 @@ const ChatRoomScreen = props => {
         </>
       )}
       <MessageInput
+        onCancelReply={() => {
+          setReplyToMessage(undefined);
+        }}
+        replyToMessage={replyToMessage}
         onAddFile={data => {
           sendFile2(data);
         }}
@@ -297,8 +353,11 @@ const ChatRoomScreen = props => {
               chatroomID: chatRoom.id,
               content: text,
               messageType: 'text',
+              status: 'SENT',
+              replyToMessageId: replyToMessage ? replyToMessage.id : null,
             }),
           );
+          setReplyToMessage(undefined);
           updateLastMessage(response);
         }}
         onMic={() => {

@@ -45,6 +45,22 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "status": {
+                    "name": "status",
+                    "isArray": false,
+                    "type": {
+                        "enum": "MessageStatus"
+                    },
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "replyToMessageId": {
+                    "name": "replyToMessageId",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -122,20 +138,6 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "LastMessage": {
-                    "name": "LastMessage",
-                    "isArray": false,
-                    "type": {
-                        "model": "Message"
-                    },
-                    "isRequired": false,
-                    "attributes": [],
-                    "association": {
-                        "connectionType": "HAS_ONE",
-                        "associatedWith": "id",
-                        "targetName": "chatRoomLastMessageId"
-                    }
-                },
                 "Messages": {
                     "name": "Messages",
                     "isArray": true,
@@ -162,6 +164,20 @@ export const schema = {
                     "association": {
                         "connectionType": "HAS_MANY",
                         "associatedWith": "chatRoom"
+                    }
+                },
+                "LastMessage": {
+                    "name": "LastMessage",
+                    "isArray": false,
+                    "type": {
+                        "model": "Message"
+                    },
+                    "isRequired": false,
+                    "attributes": [],
+                    "association": {
+                        "connectionType": "HAS_ONE",
+                        "associatedWith": "id",
+                        "targetName": "chatRoomLastMessageId"
                     }
                 },
                 "createdAt": {
@@ -272,6 +288,13 @@ export const schema = {
                         "associatedWith": "user"
                     }
                 },
+                "lastOnlineAt": {
+                    "name": "lastOnlineAt",
+                    "isArray": false,
+                    "type": "AWSTimestamp",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -377,7 +400,16 @@ export const schema = {
             ]
         }
     },
-    "enums": {},
+    "enums": {
+        "MessageStatus": {
+            "name": "MessageStatus",
+            "values": [
+                "SENT",
+                "DELIVERED",
+                "READ"
+            ]
+        }
+    },
     "nonModels": {},
-    "version": "23bdc48e92a578508729304f010f36e6"
+    "version": "ad875752ad20c8cf5547f82ad3e6e089"
 };
