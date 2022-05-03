@@ -3,6 +3,8 @@ import FullScreenViewer from 'components/common/FullScreenViewer';
 import React from 'react';
 import {Platform} from 'react-native';
 import ChatRoomScreen from 'screens/chat/ChatRoomScreen';
+import CreateGroupScreen from 'screens/chat/CreateGroupScreen';
+import DetailsScreen from 'screens/chat/DetailsScreen';
 import UsersScreen from 'screens/chat/UsersScreen';
 import HomeScreen from 'screens/home/HomeScreen';
 import ProfileScreen from 'screens/profile/ProfileScreen';
@@ -64,6 +66,22 @@ const MainStackNavigation = () => (
       options={{
         headerBackTitleVisible: false,
         title: Translations.strings.users(),
+      }}
+    />
+    <Stack.Screen
+      name="CreateGroupScreen"
+      component={CreateGroupScreen}
+      options={{
+        headerBackTitleVisible: false,
+        title: 'Create group',
+      }}
+    />
+    <Stack.Screen
+      name="DetailsScreen"
+      component={DetailsScreen}
+      options={{
+        headerBackTitleVisible: false,
+        title: 'Details screen',
       }}
     />
     <Stack.Screen

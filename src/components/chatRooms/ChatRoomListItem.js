@@ -18,7 +18,11 @@ const ChatRoomListItem = props => {
       <TouchableOpacity onPress={() => props.onPress(roomData.chatRoom.id)}>
         <View style={styles.container}>
           <ConversationPersonImage
-            imageSource={roomData.user.imageUri}
+            imageSource={
+              roomData.groupName
+                ? roomData.groupImage
+                : roomData?.users[0].imageUri
+            }
             imageStyle={styles.image}
           />
 
@@ -28,15 +32,19 @@ const ChatRoomListItem = props => {
 
           <View style={styles.fullSpace}>
             <View style={styles.textContainer}>
-              <Text style={styles.name}>{roomData.user.name}</Text>
+              <Text style={styles.name}>
+                {roomData.groupName
+                  ? roomData.groupName
+                  : roomData.users[0].name}
+              </Text>
               {roomData.lastMessage && (
                 <Text style={styles.text}>
-                  {formatDate(roomData.lastMessage.createdAt)}
+                  {formatDate(roomData.lastMessage?.createdAt)}
                 </Text>
               )}
             </View>
             <Text numberOfLines={1} style={styles.text}>
-              {roomData.lastMessage.content ?? ''}
+              {roomData?.lastMessage?.content ?? ''}
             </Text>
           </View>
         </View>

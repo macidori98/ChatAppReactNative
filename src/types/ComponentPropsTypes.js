@@ -44,14 +44,14 @@ import {Asset} from 'react-native-image-picker';
 
 /**
  * @typedef {Object} ChatRoomListProps
- * @property {{chatRoom: ChatRoom, lastMessage: Message, user: User}[]} data
+ * @property {{users: User[], lastMessage: Message, admin: User, groupName: string, groupImage: string, chatRoom: ChatRoom}[]} data
  * @property {(id: string) => void} onPress
  * @property {() => void} onRefresh
  */
 
 /**
  * @typedef {Object} ChatRoomListItemProps
- * @property {{chatRoom: ChatRoom, lastMessage: Message, user: User}} data
+ * @property {{users: User[], lastMessage: Message, admin: User, groupName: string, groupImage: string, chatRoom: ChatRoom}} data
  * @property {(id: string) => void} onPress
  */
 
@@ -70,12 +70,15 @@ import {Asset} from 'react-native-image-picker';
  * @typedef {Object} UsersListItemProps
  * @property {User} user
  * @property {{(user: User): void}} onPress
+ * @property {boolean} [isSelected]
  */
 
 /**
  * @typedef {Object} UsersListProps
  * @property {User[]} users
  * @property {{(user: User): void}} onPress
+ * @property {() => void} [onNewGroupPress]
+ * @property {User[]} [selectedItems]
  */
 
 export {};

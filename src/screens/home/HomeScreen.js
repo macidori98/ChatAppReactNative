@@ -21,7 +21,7 @@ const HomeScreen = props => {
 
   /** @type {UseState<boolean>} */
   const [isLoading, setIsLoading] = useState(true);
-  /** @type {UseState<{chatRoom: ChatRoom, lastMessage: Message, user: User}[]>} */
+  /** @type {UseState<{users: User[], lastMessage: Message, admin: User, groupName: string, groupImage: string, chatRoom: ChatRoom}[]>} */
   const [chatRooms, setChatRooms] = useState();
 
   const authedUserState = useSelector(
@@ -31,15 +31,18 @@ const HomeScreen = props => {
   );
 
   const fetchChatRoomData = useCallback(
-    /** @param {ChatRoom} room */ async room => {
+    /**
+     * @param {ChatRoom} room
+     * @returns {Promise<{users: User[], lastMessage: Message, admin: User, groupName: string, groupImage: string}>}
+     */ async room => {
       const chatRoomUsers = (await DataStore.query(ChatRoomUser)).filter(
         item => item.chatRoom.id === room.id,
       );
 
       /** @type {Message} */
       let lastMessage;
-      /** @type {User} */
-      let user;
+      /** @type {User[]} */
+      let users;
 
       if (room.chatRoomLastMessageId) {
         const message = await DataStore.query(
@@ -50,11 +53,17 @@ const HomeScreen = props => {
       }
 
       //setUsers(chatRoomUsers.map(item => item.user));
-      user = chatRoomUsers.filter(
-        item => item.user.id !== authedUserState.authedUser.id,
-      )[0].user;
+      users = chatRoomUsers
+        .filter(item => item.user.id !== authedUserState.authedUser.id)
+        .map(item => item.user);
 
-      return {user: user, lastMessage: lastMessage};
+      return {
+        users: users,
+        lastMessage: lastMessage,
+        admin: room.Admin,
+        groupName: room.groupName,
+        groupImage: room.groupImage,
+      };
     },
     [authedUserState],
   );
@@ -67,7 +76,7 @@ const HomeScreen = props => {
       )
       .map(chatRoomUser => chatRoomUser.chatRoom);
 
-    /** @type {{chatRoom: ChatRoom, lastMessage: Message, user: User}[]} */
+    /** @type {{users: User[], lastMessage: Message, admin: User, groupName: string, groupImage: string, chatRoom: ChatRoom}[]} */
     const chatRoomsData = [];
     for (const room of rooms) {
       const data = await fetchChatRoomData(room);
