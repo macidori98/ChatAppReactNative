@@ -1,6 +1,7 @@
 import ConversationPersonImage from 'components/ConversationPersonImage';
 import React from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import Theme from 'theme/Theme';
 import {UsersListItemProps} from 'types/ComponentPropsTypes';
 
@@ -24,6 +25,11 @@ const UsersListItem = props => {
             <Text style={styles.name}>{data.name}</Text>
           </View>
         </View>
+        <View style={styles.selectedIndicator}>
+          {props.isSelected && (
+            <Icon name="checkmark-outline" size={25} color="green" />
+          )}
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -32,6 +38,10 @@ const UsersListItem = props => {
 export default UsersListItem;
 
 const styles = StyleSheet.create({
+  selectedIndicator: {
+    justifyContent: 'center',
+    marginEnd: Theme.values.margins.marginMedium,
+  },
   fullSpace: {
     ...Theme.styles.screen,
     justifyContent: 'center',

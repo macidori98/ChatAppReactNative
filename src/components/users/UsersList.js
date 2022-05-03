@@ -1,3 +1,4 @@
+import NewGroupButton from 'components/users/CustomButton';
 import UsersListItem from 'components/users/UsersListItem';
 import React from 'react';
 import {FlatList, Text, View} from 'react-native';
@@ -16,12 +17,25 @@ const UsersList = props => {
         <FlatList
           data={props.users}
           renderItem={({item}) => (
-            <UsersListItem onPress={props.onPress} user={item} />
+            <UsersListItem
+              onPress={props.onPress}
+              user={item}
+              isSelected={props.selectedItems?.includes(item)}
+            />
           )}
           showsVerticalScrollIndicator={false}
           onEndReached={info => {
             //console.log(info);
           }}
+          ListHeaderComponent={
+            props.onNewGroupPress ? (
+              <NewGroupButton
+                onPress={props.onNewGroupPress}
+                title="New group"
+                iconName="people-outline"
+              />
+            ) : undefined
+          }
         />
       )}
       {props.users.length === 0 && (

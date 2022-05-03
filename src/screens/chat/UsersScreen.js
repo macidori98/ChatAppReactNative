@@ -25,10 +25,14 @@ const UsersScreen = props => {
   );
 
   const fetchUsers = useCallback(async () => {
-    const fetchedUsers = await DataStore.query(User);
-    setUsers(fetchedUsers);
-    setIsLoading(false);
-  }, []);
+    if (authedUserState.authedUser) {
+      const fetchedUsers = (await DataStore.query(User)).filter(
+        u => u.id !== authedUserState.authedUser.id,
+      );
+      setUsers(fetchedUsers);
+      setIsLoading(false);
+    }
+  }, [authedUserState.authedUser]);
 
   useEffect(() => {
     fetchUsers();
@@ -75,7 +79,15 @@ const UsersScreen = props => {
 
   return (
     <>
-      {!isLoading && <UsersList onPress={onPress} users={users} />}
+      {!isLoading && (
+        <UsersList
+          onNewGroupPress={() => {
+            props.navigation.replace('CreateGroupScreen', {data: users});
+          }}
+          onPress={onPress}
+          users={users}
+        />
+      )}
       {isLoading && <LoadingIndicator />}
     </>
   );

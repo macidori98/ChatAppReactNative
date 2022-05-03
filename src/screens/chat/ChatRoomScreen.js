@@ -13,6 +13,7 @@ import {
 } from 'models';
 import moment from 'moment';
 import React, {
+  createRef,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -20,6 +21,7 @@ import React, {
   useState,
 } from 'react';
 import {
+  Alert,
   Dimensions,
   FlatList,
   Platform,
@@ -29,6 +31,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import ActionSheet from 'react-native-actions-sheet';
 import 'react-native-get-random-values';
 import {Asset} from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
@@ -61,9 +64,13 @@ const ChatRoomScreen = props => {
   const [sending, setSending] = useState(undefined);
   /** @type {React.MutableRefObject<FlatList<Message>>} */
   const flatListRef = useRef();
+  /** @type {React.MutableRefObject<Message>} */
+  const messageRef = useRef();
 
   const screenHeaderHeight = useHeaderHeight();
   const screenDimensions = Dimensions.get('screen');
+
+  const actionSheetRef = createRef();
 
   const authedUserState = useSelector(
     /** @param {{auth: AuthenticateState}} state */ state => {
@@ -102,15 +109,23 @@ const ChatRoomScreen = props => {
         var duration = moment.duration(now.diff(lastOnline));
         var minutes = Math.floor(duration.asMinutes());
         return (
-          <View style={styles.headerContainer}>
+          <TouchableOpacity
+            style={styles.headerContainer}
+            onPress={() => {
+              props.navigation.navigate('DetailsScreen', {data: chatRoom});
+            }}>
             <ConversationPersonImage
               imageStyle={styles.icon}
-              imageSource={otherUser?.imageUri}
+              imageSource={
+                chatRoom?.groupImage
+                  ? chatRoom?.groupImage
+                  : otherUser?.imageUri
+              }
             />
 
             <View>
               <Text style={{...styles.text, color: prop.tintColor}}>
-                {otherUser?.name}
+                {chatRoom?.groupName ? chatRoom.groupName : otherUser?.name}
               </Text>
               {minutes < 10 ? (
                 <Text style={{...styles.text, color: prop.tintColor}}>
@@ -122,7 +137,7 @@ const ChatRoomScreen = props => {
                 </Text>
               )}
             </View>
-          </View>
+          </TouchableOpacity>
         );
       },
       headerRight: prop => {
@@ -158,10 +173,12 @@ const ChatRoomScreen = props => {
       },
     });
   }, [
+    chatRoom,
     navigation,
     otherUser?.imageUri,
     otherUser?.lastOnlineAt,
     otherUser?.name,
+    props.navigation,
   ]);
 
   const fetchChatRoom = useCallback(async () => {
@@ -198,6 +215,22 @@ const ChatRoomScreen = props => {
     const subscription = DataStore.observe(MessageModel).subscribe(msg => {
       if (msg.opType === 'INSERT' && msg.model === MessageModel) {
         setMessages(existingMessages => [...existingMessages, msg.element]);
+      }
+      if (msg.opType === 'DELETE' && msg.model === MessageModel) {
+        setMessages(prev => {
+          let index = -1;
+
+          prev.forEach((item, i) => {
+            if (item.id === msg.element.id) {
+              index = i;
+            }
+          });
+
+          if (index > -1) {
+            prev.splice(index, 1);
+          }
+          return [...prev];
+        });
       }
     });
 
@@ -294,6 +327,11 @@ const ChatRoomScreen = props => {
     updateLastMessage(response);
   };
 
+  const deleteMessage = async () => {
+    DataStore.delete(Message, m => m.id('eq', messageRef.current.id));
+    actionSheetRef.current?.hide();
+  };
+
   return (
     <SafeAreaView style={styles.page}>
       {isLoading && <LoadingIndicator />}
@@ -302,6 +340,49 @@ const ChatRoomScreen = props => {
           {sending && (
             <View style={{...styles.loadingIndicator, width: `${sending}%`}} />
           )}
+          <ActionSheet ref={actionSheetRef}>
+            <View style={styles.actionButtonsContainer}>
+              <TouchableOpacity
+                style={styles.actionButtonStyle}
+                onPress={() => {
+                  setReplyToMessage(messageRef.current);
+                  actionSheetRef.current?.hide();
+                }}>
+                <Text>Reply</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.actionButtonStyle}
+                onPress={() => {
+                  Alert.alert(
+                    'Confirm delete',
+                    'Are you sure you want to delete the message?',
+                    [
+                      {
+                        text: 'Delete',
+                        style: 'destructive',
+                        onPress: deleteMessage,
+                      },
+                      {
+                        text: 'Cancel',
+                        style: 'cancel',
+                      },
+                    ],
+                  );
+                }}>
+                <Text>Delete</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  actionSheetRef.current?.hide();
+                }}
+                style={styles.actionButtonStyle}>
+                <Text>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </ActionSheet>
+
           <FlatList
             ListEmptyComponent={
               <View
@@ -322,7 +403,10 @@ const ChatRoomScreen = props => {
               /** @param {{item: MessageModel}} param0 */ ({item}) => (
                 <ChatMessage
                   onLongPress={message => {
-                    setReplyToMessage(message);
+                    messageRef.current = message;
+                    actionSheetRef.current?.show();
+
+                    //setReplyToMessage(message);
                   }}
                   message={item}
                   isMine={item.userID === authedUserState.authedUser.id}
@@ -402,5 +486,14 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: 'bold',
     marginHorizontal: Theme.values.margins.marginMedium,
+  },
+  actionButtonsContainer: {
+    margin: 20,
+    marginBottom: 30,
+  },
+  actionButtonStyle: {
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
