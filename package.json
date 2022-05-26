@@ -17,10 +17,13 @@
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.2",
     "@reduxjs/toolkit": "^1.8.1",
+    "@stablelib/base64": "^1.0.1",
+    "@stablelib/utf8": "^1.0.1",
     "amazon-cognito-identity-js": "^5.2.8",
     "aws-amplify": "^4.3.17",
     "aws-amplify-react-native": "^6.0.3",
     "aws-lambda": "^1.0.7",
+    "buffer": "^6.0.3",
     "moment": "^2.29.3",
     "pretty-format": "^27.5.1",
     "react": "17.0.2",
@@ -41,6 +44,8 @@
     "redux": "^4.1.2",
     "redux-thunk": "^2.4.1",
     "rn-fetch-blob": "^0.12.0",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

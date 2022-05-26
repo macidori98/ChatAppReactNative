@@ -3,6 +3,7 @@ import {
   AuthenticateState,
   GetAuthenticatedUserAction,
   LogOutDataAction,
+  UpdateDataAction,
 } from 'types/StoreTypes';
 
 /** @type {AuthenticateState} */
@@ -12,7 +13,7 @@ const initialState = {
 
 /**
  * @param {AuthenticateState} state
- * @param {AuthenticateDataAction|LogOutDataAction|GetAuthenticatedUserAction} action
+ * @param {AuthenticateDataAction|LogOutDataAction|GetAuthenticatedUserAction|UpdateDataAction} action
  * @returns {AuthenticateState}
  */
 export default (state = initialState, action) => {
@@ -23,6 +24,8 @@ export default (state = initialState, action) => {
       return {...state};
     case 'LOG_OUT':
       return initialState;
+    case 'UPDATE_USER':
+      return {...state, authedUser: action.data};
     default:
       return initialState;
   }

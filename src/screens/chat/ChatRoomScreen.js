@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useHeaderHeight} from '@react-navigation/elements';
 import {DataStore, SortDirection, Storage} from 'aws-amplify';
 import ChatMessage from 'components/chat/ChatMessage';
@@ -39,9 +40,11 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
+import {box} from 'tweetnacl';
 import {UseState} from 'types/CommonTypes';
 import {ChatScreenProps} from 'types/NavigationTypes';
 import {AuthenticateState} from 'types/StoreTypes';
+import {encrypt, stringToUint8Array} from 'utils/crypto';
 import {v4 as uuidv4} from 'uuid';
 
 /**
@@ -56,7 +59,7 @@ const ChatRoomScreen = props => {
   const [replyToMessage, setReplyToMessage] = useState();
   /** @type {UseState<ChatRoom>} */
   const [chatRoom, setChatRoom] = useState();
-  /** @type {UseState<User>} */
+  /** @type {UseState<{isGroup: true, users: User[]}|{isGroup: false, user: User}>} */
   const [otherUser, setOtherUSer] = useState();
   /** @type {UseState<boolean>} */
   const [isLoading, setIsLoading] = useState(true);
@@ -103,42 +106,49 @@ const ChatRoomScreen = props => {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerTitle: prop => {
-        var lastOnline = moment.unix(otherUser?.lastOnlineAt);
+        var imageUri, name, lastOnline, now, duration, minutes;
+        if (otherUser) {
+          if (otherUser.isGroup === false) {
+            lastOnline = moment.unix(otherUser?.user.lastOnlineAt);
+            imageUri = otherUser?.user.imageUri;
+            name = otherUser?.user.name;
+            now = moment.unix(moment().unix());
+            duration = moment.duration(now.diff(lastOnline));
+            minutes = Math.floor(duration.asMinutes());
+          } else {
+            imageUri = chatRoom?.groupImage;
+            name = chatRoom?.groupName;
+          }
 
-        var now = moment.unix(moment().unix());
-        var duration = moment.duration(now.diff(lastOnline));
-        var minutes = Math.floor(duration.asMinutes());
-        return (
-          <TouchableOpacity
-            style={styles.headerContainer}
-            onPress={() => {
-              props.navigation.navigate('DetailsScreen', {data: chatRoom});
-            }}>
-            <ConversationPersonImage
-              imageStyle={styles.icon}
-              imageSource={
-                chatRoom?.groupImage
-                  ? chatRoom?.groupImage
-                  : otherUser?.imageUri
-              }
-            />
+          return (
+            <TouchableOpacity
+              style={styles.headerContainer}
+              onPress={() => {
+                props.navigation.navigate('DetailsScreen', {data: chatRoom});
+              }}>
+              <ConversationPersonImage
+                imageStyle={styles.icon}
+                imageSource={imageUri}
+              />
 
-            <View>
-              <Text style={{...styles.text, color: prop.tintColor}}>
-                {chatRoom?.groupName ? chatRoom.groupName : otherUser?.name}
-              </Text>
-              {minutes < 10 ? (
+              <View>
                 <Text style={{...styles.text, color: prop.tintColor}}>
-                  Online
+                  {name}
                 </Text>
-              ) : (
-                <Text style={{...styles.text, color: prop.tintColor}}>
-                  {getStatusText(minutes)}
-                </Text>
-              )}
-            </View>
-          </TouchableOpacity>
-        );
+                {minutes < 10 && (
+                  <Text style={{...styles.text, color: prop.tintColor}}>
+                    Online
+                  </Text>
+                )}
+                {minutes >= 10 && (
+                  <Text style={{...styles.text, color: prop.tintColor}}>
+                    {getStatusText(minutes)}
+                  </Text>
+                )}
+              </View>
+            </TouchableOpacity>
+          );
+        }
       },
       headerRight: prop => {
         return (
@@ -172,14 +182,7 @@ const ChatRoomScreen = props => {
         );
       },
     });
-  }, [
-    chatRoom,
-    navigation,
-    otherUser?.imageUri,
-    otherUser?.lastOnlineAt,
-    otherUser?.name,
-    props.navigation,
-  ]);
+  }, [chatRoom, navigation, otherUser, otherUser?.isGroup, props.navigation]);
 
   const fetchChatRoom = useCallback(async () => {
     const room = await DataStore.query(ChatRoom, route.params.id);
@@ -189,7 +192,10 @@ const ChatRoomScreen = props => {
   const fetchMessages = useCallback(async () => {
     const fetchedMessages = await DataStore.query(
       MessageModel,
-      item => item.chatroomID('eq', chatRoom.id),
+      item =>
+        item
+          .chatroomID('eq', chatRoom.id)
+          .forUserId('eq', authedUserState.authedUser.id),
       {
         sort: message => message.createdAt(SortDirection.ASCENDING),
       },
@@ -197,45 +203,59 @@ const ChatRoomScreen = props => {
 
     setMessages(fetchedMessages);
     setIsLoading(false);
-  }, [chatRoom]);
+  }, [authedUserState, chatRoom]);
 
   const fetchOtherUserData = useCallback(async () => {
     const chatRoomUsers = (await DataStore.query(ChatRoomUser)).filter(
       item => item.chatRoom.id === chatRoom.id,
     );
 
-    setOtherUSer(
-      chatRoomUsers.filter(
-        item => item.user.id !== authedUserState.authedUser.id,
-      )[0].user,
+    const chatUsers = chatRoomUsers.filter(
+      item => item.user.id !== authedUserState.authedUser.id,
     );
+
+    if (chatUsers.length === 1) {
+      setOtherUSer({
+        isGroup: false,
+        user: chatUsers[0].user,
+      });
+    } else {
+      setOtherUSer({
+        isGroup: true,
+        users: chatUsers.map(u => u.user),
+      });
+    }
   }, [authedUserState.authedUser.id, chatRoom]);
 
   useEffect(() => {
-    const subscription = DataStore.observe(MessageModel).subscribe(msg => {
-      if (msg.opType === 'INSERT' && msg.model === MessageModel) {
-        setMessages(existingMessages => [...existingMessages, msg.element]);
-      }
-      if (msg.opType === 'DELETE' && msg.model === MessageModel) {
-        setMessages(prev => {
-          let index = -1;
-
-          prev.forEach((item, i) => {
-            if (item.id === msg.element.id) {
-              index = i;
-            }
-          });
-
-          if (index > -1) {
-            prev.splice(index, 1);
+    const subscription = DataStore.observe(MessageModel).subscribe(
+      async msg => {
+        if (msg.opType === 'INSERT' && msg.model === MessageModel) {
+          if (msg.element.forUserId === authedUserState.authedUser.id) {
+            setMessages(existingMessages => [...existingMessages, msg.element]);
           }
-          return [...prev];
-        });
-      }
-    });
+        }
+        if (msg.opType === 'DELETE' && msg.model === MessageModel) {
+          setMessages(prev => {
+            let index = -1;
+
+            prev.forEach((item, i) => {
+              if (item.id === msg.element.id) {
+                index = i;
+              }
+            });
+
+            if (index > -1) {
+              prev.splice(index, 1);
+            }
+            return [...prev];
+          });
+        }
+      },
+    );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [authedUserState.authedUser.id]);
 
   useEffect(() => {
     fetchChatRoom();
@@ -258,16 +278,19 @@ const ChatRoomScreen = props => {
     return blob;
   };
 
-  /**
-   * @param {Message} newMessage
-   */
-  const updateLastMessage = async newMessage => {
-    DataStore.save(
-      ChatRoom.copyOf(chatRoom, updatedChatRoom => {
-        updatedChatRoom.LastMessage = newMessage;
-      }),
-    );
-  };
+  const updateLastMessage = useCallback(
+    /**
+     * @param {Message} newMessage
+     */
+    async newMessage => {
+      DataStore.save(
+        ChatRoom.copyOf(chatRoom, updatedChatRoom => {
+          updatedChatRoom.LastMessage = newMessage;
+        }),
+      );
+    },
+    [chatRoom],
+  );
 
   /**
    * @param {import('react-native-document-picker').DocumentPickerResponse[]} data
@@ -297,6 +320,52 @@ const ChatRoomScreen = props => {
     setSending(undefined);
     updateLastMessage(response);
   };
+
+  const sendMessageToUser = useCallback(
+    /**
+     * @param {User} user
+     * @param {string} text
+     */
+    async (user, text) => {
+      const secretKey = await AsyncStorage.getItem('SECRET_KEY');
+      if (!secretKey) {
+        Alert.alert('You have to set your keypair from settings');
+        return;
+      }
+
+      const userPublicKeyUint8Array = stringToUint8Array(user.publicKey);
+
+      const secretKeyUint8Array = stringToUint8Array(secretKey);
+
+      const sharedKey = box.before(
+        userPublicKeyUint8Array,
+        secretKeyUint8Array,
+      );
+
+      const encryptedText = encrypt(sharedKey, text);
+
+      const response = await DataStore.save(
+        new MessageModel({
+          userID: authedUserState.authedUser.id,
+          chatroomID: chatRoom.id,
+          content: encryptedText,
+          messageType: 'text',
+          status: 'SENT',
+          forUserId: user.id,
+          replyToMessageId: replyToMessage ? replyToMessage.id : null,
+        }),
+      );
+      //if (response.forUserId === authedUserState.authedUser.id) {
+      updateLastMessage(response);
+      //}
+    },
+    [
+      authedUserState?.authedUser?.id,
+      chatRoom?.id,
+      replyToMessage,
+      updateLastMessage,
+    ],
+  );
 
   /**
    * @param {Asset[]} data
@@ -431,18 +500,29 @@ const ChatRoomScreen = props => {
           sendFile2(data);
         }}
         onSendMessage={async text => {
-          const response = await DataStore.save(
-            new MessageModel({
-              userID: authedUserState.authedUser.id,
-              chatroomID: chatRoom.id,
-              content: text,
-              messageType: 'text',
-              status: 'SENT',
-              replyToMessageId: replyToMessage ? replyToMessage.id : null,
-            }),
-          );
+          if (otherUser.isGroup) {
+            await Promise.all(
+              [...otherUser.users, authedUserState.authedUser].map(u =>
+                sendMessageToUser(u, text),
+              ),
+            );
+          } else if (otherUser.isGroup === false) {
+            await [otherUser.user, authedUserState.authedUser].map(u =>
+              sendMessageToUser(u, text),
+            );
+          }
+          // const response = await DataStore.save(
+          //   new MessageModel({
+          //     userID: authedUserState.authedUser.id,
+          //     chatroomID: chatRoom.id,
+          //     content: text,
+          //     messageType: 'text',
+          //     status: 'SENT',
+          //     replyToMessageId: replyToMessage ? replyToMessage.id : null,
+          //   }),
+          // );
           setReplyToMessage(undefined);
-          updateLastMessage(response);
+          // updateLastMessage(response);
         }}
         onMic={() => {
           Toast.show({

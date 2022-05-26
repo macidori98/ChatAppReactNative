@@ -20,7 +20,8 @@
       "values/*": ["values/*"],
       "helpers/*": ["helpers/*"],
       "store/*": ["store/*"],
-      "translations/*": ["translations/*"]
+      "translations/*": ["translations/*"],
+      "utils/*": ["utils/*"]
     }
   },
   "exclude": ["node_modules"]

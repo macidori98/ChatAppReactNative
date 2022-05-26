@@ -19,7 +19,8 @@
           "values": "./src/values",
           "helpers": "./src/helpers",
           "store": "./src/store",
-          "translations": "./src/translations"
+          "translations": "./src/translations",
+          "utils": "./src/utils"
         }
       }
     ]

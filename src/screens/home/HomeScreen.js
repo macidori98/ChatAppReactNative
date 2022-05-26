@@ -98,14 +98,14 @@ const HomeScreen = props => {
       headerRight: prop => {
         return (
           <>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={{marginHorizontal: Theme.values.margins.marginSmall}}>
               <Icon
                 name="camera-outline"
                 color={Theme.colors.black}
                 size={Theme.values.headerIcon.height}
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity
               onPress={() => {
                 navigation.navigate('UsersScreen');
