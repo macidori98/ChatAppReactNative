@@ -12,7 +12,7 @@ import {SplashScreenProps} from 'types/NavigationTypes';
  * @param {SplashScreenProps} props
  * @returns {JSX.Element}
  */
-const SplashScreen = props => {
+const SplashScreen = ({navigation}) => {
   /** @type {UseState<boolean>} */
   const [isLoading, setIsLoading] = useState(true);
 
@@ -22,8 +22,8 @@ const SplashScreen = props => {
     const userData = await getCurrentUserData();
     dispatch(authenticateUser(userData));
     setIsLoading(false);
-    props.navigation.replace('Home');
-  }, [dispatch, props.navigation]);
+    navigation.replace('Home');
+  }, [dispatch, navigation]);
 
   useEffect(() => {
     const removeListener = hubListener(getAuthedUserData);
