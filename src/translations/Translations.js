@@ -31,5 +31,7 @@ export const Translations = {
     profile: () => getText('profile'),
     logout: () => getText('logout'),
     back: () => getText('back'),
+    updateKeypair: () => getText('updateKeypair'),
+    updateKeypairSuccess: () => getText('updateKeypairSuccess'),
   },
 };

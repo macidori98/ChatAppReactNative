@@ -1,6 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Auth, DataStore} from 'aws-amplify';
-import {User} from 'models';
+import {logOut, updateCurrentUserPublicKey} from 'api/Requests';
+import {saveItemToAsyncStorage} from 'helpers/AsyncStorageHelper';
+import {SECRET_KEY} from 'helpers/Constants';
+import {ToastHelper} from 'helpers/ToastHelper';
 import React from 'react';
 import {Button, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -9,10 +10,7 @@ import {Translations} from 'translations/Translations';
 import {AuthenticateState} from 'types/StoreTypes';
 import {generateKeyPair} from 'utils/crypto';
 
-const PUBLIC_KEY = 'PUBLIC_KEY';
-const SECRET_KEY = 'SECRET_KEY';
-
-const ProfileScreen = props => {
+const ProfileScreen = () => {
   const authedUserState = useSelector(
     /** @param {{auth: AuthenticateState}} state */ state => {
       return state.auth;
@@ -21,28 +19,30 @@ const ProfileScreen = props => {
 
   const dispatch = useDispatch();
 
+  const handleLogOut = async () => {
+    await logOut();
+  };
+
+  const handleKeyPairUpdate = async () => {
+    const {publicKey, secretKey} = generateKeyPair();
+    await saveItemToAsyncStorage(SECRET_KEY, secretKey.toString());
+    const response = await updateCurrentUserPublicKey(
+      authedUserState.authedUser,
+      publicKey.toString(),
+    );
+
+    dispatch(updateUserData(response));
+
+    ToastHelper.showSuccess(Translations.strings.updateKeypairSuccess());
+  };
+
   return (
     <View>
       <Button
-        title={'Update keypair'}
-        onPress={async () => {
-          const {publicKey, secretKey} = generateKeyPair();
-          await AsyncStorage.setItem(SECRET_KEY, secretKey.toString());
-          const response = await DataStore.save(
-            User.copyOf(authedUserState.authedUser, update => {
-              update.publicKey = publicKey.toString();
-            }),
-          );
-          dispatch(updateUserData(response));
-        }}
+        title={Translations.strings.updateKeypair()}
+        onPress={handleKeyPairUpdate}
       />
-      <Button
-        title={Translations.strings.logout()}
-        onPress={async () => {
-          await DataStore.clear();
-          Auth.signOut();
-        }}
-      />
+      <Button title={Translations.strings.logout()} onPress={handleLogOut} />
     </View>
   );
 };

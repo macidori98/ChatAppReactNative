@@ -1,11 +1,14 @@
 import {
   AUTHENTICATE_USER,
   GET_AUTHENTICATE_USER,
+  LOG_OUT,
   UPDATE_USER,
 } from 'helpers/Constants';
 import {User} from 'models';
 import {
   AuthenticateUserActionReturnType,
+  GetAuthenticatedUserActionReturnType,
+  LogOutActionReturnType,
   UpdateUserActionReturnType,
 } from 'types/StoreTypes';
 
@@ -30,10 +33,19 @@ export const updateUserData = user => {
 };
 
 /**
- * @returns {{(dispatch: (data: {type: GET_AUTHENTICATE_USER}) => void)}}
+ * @returns {GetAuthenticatedUserActionReturnType}
  */
 export const getAuthedUserData = () => {
   return dispatch => {
     dispatch({type: GET_AUTHENTICATE_USER});
+  };
+};
+
+/**
+ * @returns {LogOutActionReturnType}
+ */
+export const logout = () => {
+  return dispatch => {
+    dispatch({type: LOG_OUT});
   };
 };

@@ -11,4 +11,8 @@ export const LOG_OUT = 'LOG_OUT';
 
 export const GET_AUTHENTICATE_USER = 'GET_AUTHENTICATE_USER';
 
+export const SECRET_KEY = 'SECRET_KEY';
+
+export const PUBLIC_KEY = 'PUBLIC_KEY';
+
 export {};
