@@ -1,6 +1,5 @@
-import {Auth, DataStore, Hub} from 'aws-amplify';
+import {getAllUsers, getCurrentUserData, hubListener} from 'api/Requests';
 import LoadingIndicator from 'components/common/LoadingIndicator';
-import {User} from 'models';
 import React, {useCallback, useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {useDispatch} from 'react-redux';
@@ -20,25 +19,16 @@ const SplashScreen = props => {
   const dispatch = useDispatch();
 
   const getAuthedUserData = useCallback(async () => {
-    const userId = (await Auth.currentAuthenticatedUser()).attributes.sub;
-    const userData = await DataStore.query(User, userId);
+    const userData = await getCurrentUserData();
     dispatch(authenticateUser(userData));
     setIsLoading(false);
     props.navigation.replace('Home');
   }, [dispatch, props.navigation]);
 
   useEffect(() => {
-    const removeListener = Hub.listen('datastore', async capsule => {
-      const {
-        payload: {event},
-      } = capsule;
+    const removeListener = hubListener(getAuthedUserData);
 
-      if (event === 'ready') {
-        getAuthedUserData();
-      }
-    });
-
-    DataStore.query(User);
+    getAllUsers();
 
     return () => {
       removeListener();
