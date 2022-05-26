@@ -1,6 +1,7 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {DataStore, Storage} from 'aws-amplify';
 import {S3Image} from 'aws-amplify-react-native/dist/Storage';
-import {Message} from 'models';
+import {Message, User} from 'models';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   Dimensions,
@@ -13,8 +14,10 @@ import Share from 'react-native-share';
 import Icon from 'react-native-vector-icons/Ionicons';
 import RNFetchBlob from 'rn-fetch-blob';
 import Theme from 'theme/Theme';
+import {box} from 'tweetnacl';
 import {UseState} from 'types/CommonTypes';
 import {ChatMessageProps} from 'types/ComponentPropsTypes';
+import {decrypt, stringToUint8Array} from 'utils/crypto';
 
 /**
  * @param {ChatMessageProps} props
@@ -25,6 +28,26 @@ const ChatMessage = props => {
   const [message, setMessage] = useState(props.message);
   /** @type {UseState<string>} */
   const [repliedTo, setRepliedTo] = useState();
+  /** @type {UseState<string>} */
+  const [decryptedContent, setDecryptedContent] = useState();
+
+  useEffect(() => {
+    const decryptMessage = async () => {
+      const secretKey = await AsyncStorage.getItem('SECRET_KEY');
+      const senderUserPublicKey = (await DataStore.query(User, message.userID))
+        .publicKey;
+      const sharedKey = box.before(
+        stringToUint8Array(senderUserPublicKey),
+        stringToUint8Array(secretKey),
+      );
+      const decryptedText = await decrypt(sharedKey, message.content);
+      setDecryptedContent(decryptedText);
+    };
+
+    if (message?.content) {
+      decryptMessage();
+    }
+  }, [message]);
 
   useEffect(() => {
     const subscription = DataStore.observe(Message, message.id).subscribe(
@@ -144,9 +167,12 @@ const ChatMessage = props => {
                   </Text>
                 </View>
               )}
-              <Text style={props.isMine ? styles.textIsMe : styles.textIsOther}>
-                {message.content ?? ''}
-              </Text>
+              {decryptedContent && (
+                <Text
+                  style={props.isMine ? styles.textIsMe : styles.textIsOther}>
+                  {decryptedContent}
+                </Text>
+              )}
               {props.isMine && message.status !== 'SENT' && (
                 <View style={styles.readStatusContainer}>
                   <Icon

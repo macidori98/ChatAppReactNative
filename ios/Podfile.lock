@@ -282,9 +282,9 @@ PODS:
     - glog
   - react-native-document-picker (8.1.0):
     - React-Core
-  - react-native-get-random-values (1.7.2):
+  - react-native-get-random-values (1.8.0):
     - React-Core
-  - react-native-image-picker (4.7.4):
+  - react-native-image-picker (4.8.2):
     - React-Core
   - react-native-netinfo (8.3.0):
     - React-Core
@@ -597,8 +597,8 @@ SPEC CHECKSUMS:
   React-jsinspector: f4775ea9118cbe1f72b834f0f842baa7a99508d8
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
   react-native-document-picker: e54f06b94104d91f651db1db378898fe2ba7050b
-  react-native-get-random-values: 30b3f74ca34e30e2e480de48e4add2706a40ac8f
-  react-native-image-picker: 6f492e10fec60daf3047ac529806f914661cdb2d
+  react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
+  react-native-image-picker: 86bd151df6f46b8a77a2594df0391df5e4c0fea4
   react-native-netinfo: ebbcd8fbe1a0ce7035e43cd18c5a545dcb93dd08
   react-native-safe-area-context: 923e8a02d3bd88ca7a6b6c9b3db1b94591044b0c
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f

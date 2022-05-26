@@ -1,6 +1,13 @@
-import {AUTHENTICATE_USER, GET_AUTHENTICATE_USER} from 'helpers/Constants';
+import {
+  AUTHENTICATE_USER,
+  GET_AUTHENTICATE_USER,
+  UPDATE_USER,
+} from 'helpers/Constants';
 import {User} from 'models';
-import {AuthenticateUserActionReturnType} from 'types/StoreTypes';
+import {
+  AuthenticateUserActionReturnType,
+  UpdateUserActionReturnType,
+} from 'types/StoreTypes';
 
 /**
  * @param {User} user
@@ -9,6 +16,16 @@ import {AuthenticateUserActionReturnType} from 'types/StoreTypes';
 export const authenticateUser = user => {
   return dispatch => {
     dispatch({type: AUTHENTICATE_USER, data: user});
+  };
+};
+
+/**
+ * @param {User} user
+ * @returns {UpdateUserActionReturnType}
+ */
+export const updateUserData = user => {
+  return dispatch => {
+    dispatch({type: UPDATE_USER, data: user});
   };
 };
 

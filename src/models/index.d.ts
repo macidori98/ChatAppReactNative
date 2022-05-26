@@ -33,6 +33,7 @@ export declare class Message {
   readonly base64type?: string | null;
   readonly status?: MessageStatus | keyof typeof MessageStatus | null;
   readonly replyToMessageId?: string | null;
+  readonly forUserId?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Message, MessageMetaData>);
@@ -64,6 +65,7 @@ export declare class User {
   readonly Messages?: (Message | null)[] | null;
   readonly chatrooms?: (ChatRoomUser | null)[] | null;
   readonly lastOnlineAt?: number | null;
+  readonly publicKey?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<User, UserMetaData>);

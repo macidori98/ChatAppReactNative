@@ -3,21 +3,29 @@ import {ChatRoom, User} from 'models';
 /**
  * @template T
  * @typedef {import('@react-navigation/native').TypedNavigator<T,
- * import('@react-navigation/native').StackNavigationState<import('@react-navigation/native').ParamListBase>,
+ * import('@react-navigation/native').StackNavigationState<
+ * import('@react-navigation/native').ParamListBase>,
  * import('@react-navigation/native-stack').NativeStackNavigationOptions,
  * import("@react-navigation/native-stack").NativeStackNavigationEventMap,
  * ({ initialRouteName, children, screenListeners, screenOptions, ...rest}:
- * import('@react-navigation/core').DefaultNavigatorOptions<import('@react-navigation/routers').ParamListBase,
- * import('@react-navigation/routers').StackNavigationState<import('@react-navigation/routers').ParamListBase>,
- * import('@react-navigation/native-stack').NativeStackNavigationOptions, import('@react-navigation/native-stack').NativeStackNavigationEventMap>
+ * import('@react-navigation/core').DefaultNavigatorOptions<
+ * import('@react-navigation/routers').ParamListBase,
+ * import('@react-navigation/routers').StackNavigationState<
+ * import('@react-navigation/routers').ParamListBase>,
+ * import('@react-navigation/native-stack').NativeStackNavigationOptions,
+ * import('@react-navigation/native-stack').NativeStackNavigationEventMap>
  * & import('@react-navigation/routers').StackRouterOptions &
- * import('@react-navigation/native-stack/lib/typescript/src/types').NativeStackNavigationConfig) => JSX.Element>} CreateNativeStackNavigatorType
+ * import('@react-navigation/native-stack/lib/typescript/src/types').NativeStackNavigationConfig)
+ * => JSX.Element>} CreateNativeStackNavigatorType
  */
 
 /**
- * @typedef {{SplashScreen: undefined, Home: {title: string}, ChatScreen: {id: string},
+ * @typedef {{SplashScreen: undefined, Home: {title: string},
+ * ChatScreen: {id: string},
  * Auth: import('@react-navigation/native').NavigatorScreenParams<AuthenticationNavigationParamList>,
- * UsersScreen: {}, CreateGroupScreen: {data: User[]}, Profile: undefined, FullScreen: {imageId: string}, DetailsScreen: {data: ChatRoom}}} MainNavigationParamList
+ * UsersScreen: {}, CreateGroupScreen: {data: User[]},
+ * Profile: undefined, FullScreen: {imageId: string},
+ * DetailsScreen: {data: ChatRoom}}} MainNavigationParamList
  */
 
 /**

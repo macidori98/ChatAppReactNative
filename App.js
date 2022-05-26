@@ -5,6 +5,7 @@ import {Message, User} from 'models';
 import moment from 'moment';
 import MainStackNavigation from 'navigation/MainNavigation';
 import React, {useCallback, useEffect, useState} from 'react';
+import {StatusBar} from 'react-native';
 import Toast from 'react-native-toast-message';
 import {Provider} from 'react-redux';
 import {applyMiddleware, combineReducers, createStore} from 'redux';
@@ -30,6 +31,29 @@ const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 const App = props => {
   /** @type {import('types/CommonTypes').UseState<User>} */
   const [user, setUser] = useState();
+  const statusBarStyle = 'dark-content';
+
+  // useEffect(() => {
+  //   try {
+  //     const appearance = Appearance.getColorScheme();
+  //     setStatusBarStyle(
+  //       appearance === 'dark' ? 'light-content' : 'dark-content',
+  //     );
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   const obj = {hello: 'world'};
+  //   const pairA = generateKeyPair();
+  //   const pairB = generateKeyPair();
+  //   const sharedA = box.before(pairB.publicKey, pairA.secretKey);
+  //   const sharedB = box.before(pairA.publicKey, pairB.secretKey);
+  //   const encrypted = encrypt(sharedA, obj);
+  //   const decrypted = decrypt(sharedB, encrypted);
+  //   console.log(obj, encrypted, decrypted);
+  // }, []);
 
   Translations.initializeTranslations();
 
@@ -115,7 +139,7 @@ const App = props => {
     <Provider store={store}>
       <NavigationContainer
         theme={{
-          dark: true,
+          dark: false,
           colors: {
             background: Theme.colors.white,
             text: Theme.colors.black,
@@ -125,6 +149,11 @@ const App = props => {
             primary: Theme.colors.messageBadgeColor,
           },
         }}>
+        <StatusBar
+          animated={true}
+          barStyle={statusBarStyle}
+          backgroundColor={Theme.colors.white}
+        />
         <MainStackNavigation />
         <Toast
           position="top"
