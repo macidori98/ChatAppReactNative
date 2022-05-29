@@ -15,7 +15,7 @@ import {User} from 'models';
  */
 
 /**
- * @typedef {{data: User, type: LOG_OUT}} LogOutDataAction
+ * @typedef {{type: LOG_OUT}} LogOutDataAction
  */
 
 /**
@@ -36,6 +36,10 @@ import {User} from 'models';
 
 /**
  * @typedef {{(dispatch: (data: GetAuthenticatedUserAction) => void)}} GetAuthenticatedUserActionReturnType
+ */
+
+/**
+ * @typedef {{(dispatch: (data: LogOutDataAction) => void)}} LogOutActionReturnType
  */
 
 export {};

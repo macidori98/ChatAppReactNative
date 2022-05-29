@@ -1,6 +1,7 @@
 import {NavigationContainer} from '@react-navigation/native';
 import {Amplify, Auth, DataStore, Hub} from 'aws-amplify';
 import {withAuthenticator} from 'aws-amplify-react-native/dist/Auth';
+import LoadingIndicator from 'components/common/LoadingIndicator';
 import {Message, User} from 'models';
 import moment from 'moment';
 import MainStackNavigation from 'navigation/MainNavigation';
@@ -31,6 +32,7 @@ const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 const App = props => {
   /** @type {import('types/CommonTypes').UseState<User>} */
   const [user, setUser] = useState();
+  const [loading, setLoading] = useState(true);
   const statusBarStyle = 'dark-content';
 
   // useEffect(() => {
@@ -55,7 +57,14 @@ const App = props => {
   //   console.log(obj, encrypted, decrypted);
   // }, []);
 
-  Translations.initializeTranslations();
+  const setTranslations = useCallback(async () => {
+    await Translations.initializeTranslations();
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    setTranslations();
+  }, [setTranslations]);
 
   const fetchUser = useCallback(async () => {
     const userData = await Auth.currentAuthenticatedUser();
@@ -137,31 +146,34 @@ const App = props => {
 
   return (
     <Provider store={store}>
-      <NavigationContainer
-        theme={{
-          dark: false,
-          colors: {
-            background: Theme.colors.white,
-            text: Theme.colors.black,
-            border: Theme.colors.white,
-            card: Theme.colors.white,
-            notification: Theme.colors.white,
-            primary: Theme.colors.messageBadgeColor,
-          },
-        }}>
-        <StatusBar
-          animated={true}
-          barStyle={statusBarStyle}
-          backgroundColor={Theme.colors.white}
-        />
-        <MainStackNavigation />
-        <Toast
-          position="top"
-          ref={ref => {
-            Toast.setRef(ref);
-          }}
-        />
-      </NavigationContainer>
+      {loading && <LoadingIndicator />}
+      {!loading && (
+        <NavigationContainer
+          theme={{
+            dark: false,
+            colors: {
+              background: Theme.colors.white,
+              text: Theme.colors.black,
+              border: Theme.colors.white,
+              card: Theme.colors.white,
+              notification: Theme.colors.white,
+              primary: Theme.colors.messageBadgeColor,
+            },
+          }}>
+          <StatusBar
+            animated={true}
+            barStyle={statusBarStyle}
+            backgroundColor={Theme.colors.white}
+          />
+          <MainStackNavigation />
+          <Toast
+            position="top"
+            ref={ref => {
+              Toast.setRef(ref);
+            }}
+          />
+        </NavigationContainer>
+      )}
     </Provider>
   );
 };

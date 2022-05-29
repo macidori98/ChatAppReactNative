@@ -14,5 +14,9 @@
   "emptyList": "Üres lista",
   "profile": "Profil",
   "logout": "Kijelentkezés",
-  "back": "Vissza"
+  "back": "Vissza",
+  "updateKeypair": "Kulcspár frissítése",
+  "updateKeypairSuccess": "Sikeresen frissítette kulcspárját",
+  "changeProfilePicture": "Profilkép csere",
+  "changeLanguage": "Nyelv csere"
 }

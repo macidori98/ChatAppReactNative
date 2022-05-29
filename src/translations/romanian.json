@@ -14,5 +14,9 @@
   "emptyList": "Lista goală",
   "profile": "Profil",
   "logout": "Deconectați-vă",
-  "back": "Înapoi"
+  "back": "Înapoi",
+  "updateKeypair": "Actualizare chei",
+  "updateKeypairSuccess": "Actualizare chei cu succes",
+  "changeProfilePicture": "Schimbare poză de profil",
+  "changeLanguage": "Schimbare limbă"
 }

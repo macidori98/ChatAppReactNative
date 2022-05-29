@@ -14,5 +14,9 @@
   "emptyList": "Empty list",
   "profile": "Profile",
   "logout": "Log out",
-  "back": "Back"
+  "back": "Back",
+  "updateKeypair": "Update keypair",
+  "updateKeypairSuccess": "Keypairs successfully updated",
+  "changeProfilePicture": "Change profile picture",
+  "changeLanguage": "Change language"
 }

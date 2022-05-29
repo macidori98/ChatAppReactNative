@@ -8,6 +8,14 @@ export enum MessageStatus {
 
 
 
+type FriendsListMetaData = {
+  readOnlyFields: 'createdAt' | 'updatedAt';
+}
+
+type FriendsRequestMetaData = {
+  readOnlyFields: 'createdAt' | 'updatedAt';
+}
+
 type MessageMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
 }
@@ -22,6 +30,26 @@ type UserMetaData = {
 
 type ChatRoomUserMetaData = {
   readOnlyFields: 'createdAt' | 'updatedAt';
+}
+
+export declare class FriendsList {
+  readonly id: string;
+  readonly userId?: string | null;
+  readonly friendsId?: (string | null)[] | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+  constructor(init: ModelInit<FriendsList, FriendsListMetaData>);
+  static copyOf(source: FriendsList, mutator: (draft: MutableModel<FriendsList, FriendsListMetaData>) => MutableModel<FriendsList, FriendsListMetaData> | void): FriendsList;
+}
+
+export declare class FriendsRequest {
+  readonly id: string;
+  readonly sender?: string | null;
+  readonly reciever?: string | null;
+  readonly createdAt?: string | null;
+  readonly updatedAt?: string | null;
+  constructor(init: ModelInit<FriendsRequest, FriendsRequestMetaData>);
+  static copyOf(source: FriendsRequest, mutator: (draft: MutableModel<FriendsRequest, FriendsRequestMetaData>) => MutableModel<FriendsRequest, FriendsRequestMetaData> | void): FriendsRequest;
 }
 
 export declare class Message {

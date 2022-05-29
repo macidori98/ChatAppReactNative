@@ -23,6 +23,7 @@ export default (state = initialState, action) => {
     case 'GET_AUTHENTICATE_USER':
       return {...state};
     case 'LOG_OUT':
+      console.log('REDUX LOGOUT');
       return initialState;
     case 'UPDATE_USER':
       return {...state, authedUser: action.data};
