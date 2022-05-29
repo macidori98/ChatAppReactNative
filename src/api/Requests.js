@@ -3,7 +3,6 @@ import {User} from 'models';
 
 /**
  * @param {() => Promise<void>} action
- * @returns
  */
 export const hubListener = action =>
   Hub.listen('datastore', async capsule => {

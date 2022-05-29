@@ -15,4 +15,6 @@ export const SECRET_KEY = 'SECRET_KEY';
 
 export const PUBLIC_KEY = 'PUBLIC_KEY';
 
+export const LANGUAGE = 'LANGUAGE';
+
 export {};

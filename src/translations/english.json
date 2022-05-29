@@ -16,5 +16,7 @@
   "logout": "Log out",
   "back": "Back",
   "updateKeypair": "Update keypair",
-  "updateKeypairSuccess": "Keypairs successfully updated"
+  "updateKeypairSuccess": "Keypairs successfully updated",
+  "changeProfilePicture": "Change profile picture",
+  "changeLanguage": "Change language"
 }

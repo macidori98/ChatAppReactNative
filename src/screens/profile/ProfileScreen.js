@@ -7,10 +7,15 @@ import {Button, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {updateUserData} from 'store/actions/auth';
 import {Translations} from 'translations/Translations';
+import {ProfileScreenProps} from 'types/NavigationTypes';
 import {AuthenticateState} from 'types/StoreTypes';
 import {generateKeyPair} from 'utils/crypto';
 
-const ProfileScreen = () => {
+/**
+ * @param {ProfileScreenProps} props
+ * @returns {JSX.Element}
+ */
+const ProfileScreen = props => {
   const authedUserState = useSelector(
     /** @param {{auth: AuthenticateState}} state */ state => {
       return state.auth;
@@ -36,8 +41,22 @@ const ProfileScreen = () => {
     ToastHelper.showSuccess(Translations.strings.updateKeypairSuccess());
   };
 
+  const changeProfilePicture = () => {};
+
+  const changeLanguage = () => {
+    props.navigation.navigate('Languages');
+  };
+
   return (
     <View>
+      <Button
+        title={Translations.strings.changeLanguage()}
+        onPress={changeLanguage}
+      />
+      <Button
+        title={Translations.strings.changeProfilePicture()}
+        onPress={changeProfilePicture}
+      />
       <Button
         title={Translations.strings.updateKeypair()}
         onPress={handleKeyPairUpdate}

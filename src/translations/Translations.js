@@ -1,3 +1,9 @@
+import {
+  getItemFromAsyncStorage,
+  saveItemToAsyncStorage,
+} from 'helpers/AsyncStorageHelper';
+import {LANGUAGE} from 'helpers/Constants';
+
 let _translations = null;
 
 /**
@@ -9,11 +15,39 @@ const getText = textId => {
 };
 
 export const Translations = {
-  initializeTranslations: () => {
-    //read from async storage
-    const language = 'hungarian';
-    _translations = require(`./${language}.json`);
+  languages: () => {
+    return ['Magyar', 'Română', 'English'];
   },
+
+  /**
+   * @param {string} [language]
+   */
+  initializeTranslations: async language => {
+    let currentLanguage;
+    if (language) {
+      await saveItemToAsyncStorage(LANGUAGE, language);
+    } else {
+      currentLanguage = await getItemFromAsyncStorage(LANGUAGE);
+      language = currentLanguage ?? Translations.languages()[2];
+      await saveItemToAsyncStorage(LANGUAGE, language);
+    }
+
+    switch (language) {
+      case 'English':
+        _translations = require('./english.json');
+        break;
+      case 'Magyar':
+        _translations = require('./hungarian.json');
+        break;
+      case 'Română':
+        _translations = require('./romanian.json');
+        break;
+
+      default:
+        break;
+    }
+  },
+
   strings: {
     homeScreenTitle: () => getText('homeScreenTitle'),
     emptyChat: () => getText('emptyChat'),
@@ -33,5 +67,7 @@ export const Translations = {
     back: () => getText('back'),
     updateKeypair: () => getText('updateKeypair'),
     updateKeypairSuccess: () => getText('updateKeypairSuccess'),
+    changeProfilePicture: () => getText('changeProfilePicture'),
+    changeLanguage: () => getText('changeLanguage'),
   },
 };

@@ -16,5 +16,7 @@
   "logout": "Deconectați-vă",
   "back": "Înapoi",
   "updateKeypair": "Actualizare chei",
-  "updateKeypairSuccess": "Actualizare chei cu succes"
+  "updateKeypairSuccess": "Actualizare chei cu succes",
+  "changeProfilePicture": "Schimbare poză de profil",
+  "changeLanguage": "Schimbare limbă"
 }

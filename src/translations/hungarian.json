@@ -16,5 +16,7 @@
   "logout": "Kijelentkezés",
   "back": "Vissza",
   "updateKeypair": "Kulcspár frissítése",
-  "updateKeypairSuccess": "Sikeresen frissítette kulcspárját"
+  "updateKeypairSuccess": "Sikeresen frissítette kulcspárját",
+  "changeProfilePicture": "Profilkép csere",
+  "changeLanguage": "Nyelv csere"
 }
