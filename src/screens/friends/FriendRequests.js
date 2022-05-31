@@ -42,9 +42,13 @@ const FriendRequests = props => {
 
   const getContent = () => {
     if (users.length > 0) {
-      return users.map(item => <Text>{item.name}</Text>);
+      return users.map(item => <Text key={item.name}>{item.name}</Text>);
     } else {
-      return <Text>{Translations.strings.emptyList()}</Text>;
+      return (
+        <Text key={Translations.strings.emptyList()}>
+          {Translations.strings.emptyList()}
+        </Text>
+      );
     }
   };
 

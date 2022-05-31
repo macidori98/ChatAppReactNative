@@ -66,33 +66,33 @@ const SentRequests = props => {
      */
     const items = [
       <Button
+        key={Translations.strings.addFriend()}
         title={Translations.strings.addFriend()}
-        onPress={
-          //saveUser();
-          () => {
-            Alert.prompt(
-              Translations.strings.enterEmail(),
-              Translations.strings.enterFriendEmail(),
-              [
-                {
-                  text: Translations.strings.cancel(),
-                  onPress: () => console.log('Cancel Pressed'),
-                  style: 'cancel',
-                },
-                {
-                  text: 'OK',
-                  onPress: email => saveUser(email),
-                },
-              ],
-              'plain-text',
-            );
-          }
-        }
+        onPress={() => {
+          Alert.prompt(
+            Translations.strings.enterEmail(),
+            Translations.strings.enterFriendEmail(),
+            [
+              {
+                text: Translations.strings.cancel(),
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
+              },
+              {
+                text: 'OK',
+                onPress: email => saveUser(email),
+              },
+            ],
+            'plain-text',
+          );
+        }}
       />,
     ];
 
     if (users.length > 0) {
-      users.flatMap(item => items.push(<Text>{item.name}</Text>));
+      users.flatMap(item =>
+        items.push(<Text key={item.name}>{item.name}</Text>),
+      );
       return <FlatList data={items} renderItem={({item}) => item} />;
     } else {
       items.push(<Text>{Translations.strings.emptyList()}</Text>);
