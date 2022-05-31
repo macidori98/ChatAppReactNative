@@ -34,5 +34,7 @@
   "sentYouFriendRequest": "v-a trimis cerere de prietenie",
   "whatToDo": "Ce vreți să faceți?",
   "accept": "Acceptă",
-  "remove": "Șterge"
+  "remove": "Șterge",
+  "startChat": "Începeți conversația",
+  "changeName": "Schimbare nume"
 }

@@ -34,5 +34,7 @@
   "sentYouFriendRequest": "sent you a friend request",
   "whatToDo": "What would you like to do?",
   "accept": "Accept",
-  "remove": "Remove"
+  "remove": "Remove",
+  "startChat": "Start chatting",
+  "changeName": "Change name"
 }

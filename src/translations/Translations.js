@@ -85,5 +85,7 @@ export const Translations = {
     whatToDo: () => getText('whatToDo'),
     accept: () => getText('accept'),
     remove: () => getText('remove'),
+    startChat: () => getText('startChat'),
+    changeName: () => getText('changeName'),
   },
 };

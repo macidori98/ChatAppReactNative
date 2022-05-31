@@ -34,7 +34,7 @@ export const getCurrentUserData = async () => {
 
 export const logOut = async () => {
   await DataStore.clear();
-  await Auth.signOut();
+  Auth.signOut();
 };
 
 /**
@@ -86,8 +86,9 @@ export const getRecievedRequests = async currentUserId => {
    */
   let users = [];
   for (const item of userIds) {
-    const user = await DataStore.query(User, item);
-    users.push(user);
+    const u = await DataStore.query(User);
+    const user = u.filter(i => i.id === item);
+    users.push(user[0]);
   }
   return users;
 };
@@ -259,6 +260,49 @@ const addFriendToFriendList = async (currentUser, user) => {
 
     return {success: true, data: undefined, error: undefined};
   } catch (error) {
+    return {success: false, data: undefined, error: 'error'};
+  }
+};
+
+/**
+ * @param {User} currentUser
+ * @param {User} user
+ * @returns {Promise<{success: boolean, error?: string, data?: any}>}
+ */
+export const removeFriendFromList = async (currentUser, user) => {
+  const res1 = await removeFriendFromFriendList(currentUser, user);
+  if (res1.success) {
+    const res2 = await removeFriendFromFriendList(user, currentUser);
+    return res2;
+  }
+  return res1;
+};
+
+/**
+ * @param {User} currentUser
+ * @param {User} user
+ * @returns {Promise<{success: boolean, error?: string, data?: any}>}
+ */
+const removeFriendFromFriendList = async (currentUser, user) => {
+  try {
+    const friendListResponse = await getUserFriendsList(currentUser.id);
+    let friendsList = friendListResponse[0].friendsId;
+
+    const index = friendsList.indexOf(user.id);
+
+    if (index !== -1) {
+      friendsList = friendsList.filter(item => item !== user.id);
+
+      await DataStore.save(
+        FriendsList.copyOf(friendListResponse[0], update => {
+          update.friendsId = [...friendsList];
+        }),
+      );
+    }
+
+    return {success: true, data: undefined, error: undefined};
+  } catch (error) {
+    console.log(error);
     return {success: false, data: undefined, error: 'error'};
   }
 };

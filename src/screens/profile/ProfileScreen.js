@@ -1,4 +1,6 @@
 import {logOut, updateCurrentUserPublicKey} from 'api/Requests';
+import Separator from 'components/common/Separator';
+import UserProfile from 'components/users/UserProfile';
 import {saveItemToAsyncStorage} from 'helpers/AsyncStorageHelper';
 import {SECRET_KEY} from 'helpers/Constants';
 import {ToastHelper} from 'helpers/ToastHelper';
@@ -43,12 +45,18 @@ const ProfileScreen = props => {
 
   const changeProfilePicture = () => {};
 
+  const changeName = () => {};
+
   const changeLanguage = () => {
     props.navigation.navigate('Languages');
   };
 
   return (
     <View>
+      <UserProfile user={authedUserState.authedUser} />
+
+      <Separator />
+
       <Button
         title={Translations.strings.changeLanguage()}
         onPress={changeLanguage}
@@ -57,6 +65,7 @@ const ProfileScreen = props => {
         title={Translations.strings.changeProfilePicture()}
         onPress={changeProfilePicture}
       />
+      <Button title={Translations.strings.changeName()} onPress={changeName} />
       <Button
         title={Translations.strings.updateKeypair()}
         onPress={handleKeyPairUpdate}

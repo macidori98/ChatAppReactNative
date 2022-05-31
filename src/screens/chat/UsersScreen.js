@@ -4,7 +4,9 @@ import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersList from 'components/users/UsersList';
 import {ChatRoom, ChatRoomUser, User} from 'models';
 import React, {useCallback, useEffect, useState} from 'react';
+import {Alert} from 'react-native';
 import {useSelector} from 'react-redux';
+import {Translations} from 'translations/Translations';
 import {UseState} from 'types/CommonTypes';
 import {UsersScreenProps} from 'types/NavigationTypes';
 import {AuthenticateState} from 'types/StoreTypes';
@@ -55,7 +57,17 @@ const UsersScreen = props => {
   /**
    * @param {User} user
    */
-  const onPress = async user => {
+  const showUserProfile = user => {
+    props.navigation.navigate('UsersProfile', {
+      user: user,
+      currentUser: authedUserState.authedUser,
+    });
+  };
+
+  /**
+   * @param {User} user
+   */
+  const startChat = async user => {
     //create corresponding chat, and transfer that id
 
     //connect authenticated user with the chatroom
@@ -89,6 +101,31 @@ const UsersScreen = props => {
     props.navigation.replace('ChatScreen', {
       id: roomChatRoom.id,
     });
+  };
+
+  /**
+   * @param {User} user
+   */
+  const onPress = user => {
+    Alert.prompt(
+      `${user.name}`,
+      Translations.strings.whatToDo(),
+      [
+        {
+          text: Translations.strings.cancel(),
+          style: 'cancel',
+        },
+        {
+          text: Translations.strings.profile(),
+          onPress: showUserProfile.bind(this, user),
+        },
+        {
+          text: Translations.strings.startChat(),
+          onPress: startChat.bind(this, user),
+        },
+      ],
+      'default',
+    );
   };
 
   return (
