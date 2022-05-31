@@ -1,7 +1,8 @@
 import {removeFriendFromList} from 'api/Requests';
 import UserProfile from 'components/users/UserProfile';
+import {ToastHelper} from 'helpers/ToastHelper';
 import React from 'react';
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
 import {UsersProfileScreenProps} from 'types/NavigationTypes';
@@ -16,9 +17,10 @@ const UsersProfileScreen = props => {
   const removeFriend = async () => {
     const result = await removeFriendFromList(currentUser, user);
     if (result.success) {
+      ToastHelper.showSuccess(Translations.strings.requestSuccessfullySent());
       props.navigation.reset({routes: [{name: 'Home'}, {name: 'UsersScreen'}]});
     } else {
-      Alert.alert(result.error);
+      ToastHelper.showError(result.error);
     }
   };
 

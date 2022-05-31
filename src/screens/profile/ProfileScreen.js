@@ -1,11 +1,11 @@
-import {logOut, updateCurrentUserPublicKey} from 'api/Requests';
+import {changeUserName, logOut, updateCurrentUserPublicKey} from 'api/Requests';
 import Separator from 'components/common/Separator';
 import UserProfile from 'components/users/UserProfile';
 import {saveItemToAsyncStorage} from 'helpers/AsyncStorageHelper';
 import {SECRET_KEY} from 'helpers/Constants';
 import {ToastHelper} from 'helpers/ToastHelper';
 import React from 'react';
-import {Button, View} from 'react-native';
+import {Alert, Button, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {updateUserData} from 'store/actions/auth';
 import {Translations} from 'translations/Translations';
@@ -45,7 +45,32 @@ const ProfileScreen = props => {
 
   const changeProfilePicture = () => {};
 
-  const changeName = () => {};
+  /**
+   * @param {string} name
+   */
+  const changeName = async name => {
+    const response = await changeUserName(authedUserState.authedUser, name);
+    dispatch(updateUserData(response));
+    ToastHelper.showSuccess(Translations.strings.requestSuccessfullySent());
+  };
+
+  const handleChangeName = async () => {
+    Alert.prompt(
+      Translations.strings.changeName(),
+      Translations.strings.enterName(),
+      [
+        {
+          text: Translations.strings.cancel(),
+          style: 'cancel',
+        },
+        {
+          text: 'OK',
+          onPress: name => changeName(name),
+        },
+      ],
+      'plain-text',
+    );
+  };
 
   const changeLanguage = () => {
     props.navigation.navigate('Languages');
@@ -65,7 +90,10 @@ const ProfileScreen = props => {
         title={Translations.strings.changeProfilePicture()}
         onPress={changeProfilePicture}
       />
-      <Button title={Translations.strings.changeName()} onPress={changeName} />
+      <Button
+        title={Translations.strings.changeName()}
+        onPress={handleChangeName}
+      />
       <Button
         title={Translations.strings.updateKeypair()}
         onPress={handleKeyPairUpdate}

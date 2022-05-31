@@ -5,6 +5,7 @@ import {
 } from 'api/Requests';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersList from 'components/users/UsersList';
+import {ToastHelper} from 'helpers/ToastHelper';
 import {User} from 'models';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Alert, Button, Text, View} from 'react-native';
@@ -50,10 +51,10 @@ const SentRequests = props => {
       );
 
       if (response.success) {
-        Alert.alert(Translations.strings.requestSuccessfullySent());
+        ToastHelper.showSuccess(Translations.strings.requestSuccessfullySent());
         setUsers(prev => [...prev, response.data]);
       } else {
-        Alert.alert(response.error);
+        ToastHelper.showError(response.error);
       }
 
       setIsLoading(false);
@@ -82,9 +83,12 @@ const SentRequests = props => {
         if (index !== -1) {
           users.splice(index, 1);
           setUsers([...users]);
+          ToastHelper.showSuccess(
+            Translations.strings.requestSuccessfullySent(),
+          );
         }
       } else {
-        Alert.alert(response.error);
+        ToastHelper.showError(response.error);
       }
 
       setIsLoading(false);

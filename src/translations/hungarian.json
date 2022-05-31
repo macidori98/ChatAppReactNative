@@ -36,5 +36,6 @@
   "accept": "Elfogadás",
   "remove": "Törlés",
   "startChat": "Csevegés kezdése",
-  "changeName": "Név csere"
+  "changeName": "Név csere",
+  "enterName": "Név megadása"
 }

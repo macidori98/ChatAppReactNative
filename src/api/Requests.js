@@ -306,3 +306,15 @@ const removeFriendFromFriendList = async (currentUser, user) => {
     return {success: false, data: undefined, error: 'error'};
   }
 };
+
+/**
+ * @param {User} user
+ * @param {string} newName
+ */
+export const changeUserName = async (user, newName) => {
+  return await DataStore.save(
+    User.copyOf(user, update => {
+      update.userName = newName;
+    }),
+  );
+};

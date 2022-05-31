@@ -36,5 +36,6 @@
   "accept": "Accept",
   "remove": "Remove",
   "startChat": "Start chatting",
-  "changeName": "Change name"
+  "changeName": "Change name",
+  "enterName": "Enter name"
 }

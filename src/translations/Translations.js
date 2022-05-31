@@ -87,5 +87,6 @@ export const Translations = {
     remove: () => getText('remove'),
     startChat: () => getText('startChat'),
     changeName: () => getText('changeName'),
+    enterName: () => getText('enterName'),
   },
 };
