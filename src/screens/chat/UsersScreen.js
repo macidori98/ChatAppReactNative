@@ -1,4 +1,5 @@
 import {DataStore} from '@aws-amplify/datastore';
+import {getUserById, getUserFriendsList} from 'api/Requests';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersList from 'components/users/UsersList';
 import {ChatRoom, ChatRoomUser, User} from 'models';
@@ -26,10 +27,23 @@ const UsersScreen = props => {
 
   const fetchUsers = useCallback(async () => {
     if (authedUserState.authedUser) {
-      const fetchedUsers = (await DataStore.query(User)).filter(
-        u => u.id !== authedUserState.authedUser.id,
+      const fetchedUsersId = await getUserFriendsList(
+        authedUserState.authedUser.id,
       );
-      setUsers(fetchedUsers);
+
+      /**
+       * @type {User[]}
+       */
+      let userss = [];
+
+      if (fetchedUsersId && fetchedUsersId[0]) {
+        for (const item of fetchedUsersId[0]?.friendsId) {
+          const u = await getUserById(item);
+          userss.push(u);
+        }
+      }
+
+      setUsers(userss);
       setIsLoading(false);
     }
   }, [authedUserState.authedUser]);

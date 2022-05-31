@@ -1,8 +1,13 @@
-import {getSentRequests, saveNewFriendRequest} from 'api/Requests';
+import {
+  getSentRequests,
+  removeFriendRequest,
+  saveNewFriendRequest,
+} from 'api/Requests';
 import LoadingIndicator from 'components/common/LoadingIndicator';
+import UsersList from 'components/users/UsersList';
 import {User} from 'models';
 import React, {useCallback, useEffect, useState} from 'react';
-import {Alert, Button, FlatList, Text, View} from 'react-native';
+import {Alert, Button, Text, View} from 'react-native';
 import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
@@ -60,6 +65,33 @@ const SentRequests = props => {
     getRequests();
   }, [getRequests]);
 
+  const removeRequest = useCallback(
+    /**
+     * @param {User} user
+     */
+    async user => {
+      setIsLoading(true);
+      const response = await removeFriendRequest(
+        authedUserState.authedUser,
+        user,
+      );
+
+      if (response.success) {
+        const index = users.indexOf(user);
+
+        if (index !== -1) {
+          users.splice(index, 1);
+          setUsers([...users]);
+        }
+      } else {
+        Alert.alert(response.error);
+      }
+
+      setIsLoading(false);
+    },
+    [authedUserState.authedUser, users],
+  );
+
   const getContent = () => {
     /**
      * @type {JSX.Element[]}
@@ -75,7 +107,6 @@ const SentRequests = props => {
             [
               {
                 text: Translations.strings.cancel(),
-                onPress: () => console.log('Cancel Pressed'),
                 style: 'cancel',
               },
               {
@@ -90,21 +121,47 @@ const SentRequests = props => {
     ];
 
     if (users.length > 0) {
-      users.flatMap(item =>
-        items.push(<Text key={item.name}>{item.name}</Text>),
+      items.push(
+        <UsersList
+          key={'list'}
+          users={users}
+          onPress={user => {
+            Alert.prompt(
+              `${user.name}`,
+              Translations.strings.whatToDo(),
+              [
+                {
+                  text: Translations.strings.cancel(),
+                  style: 'cancel',
+                },
+                {
+                  text: Translations.strings.remove(),
+                  onPress: removeRequest.bind(this, user),
+                },
+              ],
+              'default',
+            );
+          }}
+        />,
       );
-      return <FlatList data={items} renderItem={({item}) => item} />;
+      return items;
     } else {
-      items.push(<Text>{Translations.strings.emptyList()}</Text>);
+      items.push(
+        <View
+          key={Translations.strings.emptyList()}
+          style={{...Theme.styles.screen, ...Theme.styles.center}}>
+          <Text>{Translations.strings.emptyList()}</Text>
+        </View>,
+      );
       return items;
     }
   };
 
   return (
-    <View style={{...Theme.styles.screen, ...Theme.styles.center}}>
+    <>
       {isLoading && <LoadingIndicator />}
       {!isLoading && getContent()}
-    </View>
+    </>
   );
 };
 

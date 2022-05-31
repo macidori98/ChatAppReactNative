@@ -79,7 +79,7 @@ export const getRecievedRequests = async currentUserId => {
     await DataStore.query(FriendsRequest, fr =>
       fr.reciever('eq', currentUserId),
     )
-  ).map(item => item.reciever);
+  ).map(item => item.sender);
 
   /**
    * @type {User[]}
@@ -157,4 +157,108 @@ export const saveNewFriendRequest = async (currentUser, userEmail) => {
   }
 
   return {success: true, data: userResponse[0]};
+};
+
+/**
+ * @param {string} userId
+ * @returns {Promise<User>}
+ */
+export const getUserById = async userId => {
+  return await DataStore.query(User, userId);
+};
+
+/**
+ * @param {User} currentUser
+ * @param {User} user
+ * @returns {Promise<{success: boolean, error?: string, data?: any}>}
+ */
+export const acceptFriendRequest = async (currentUser, user) => {
+  const response = await removeFriendRequest(currentUser, user);
+  if (response.success) {
+    // const friendListResponse = await getUserFriendsList(currentUser.id);
+    // const friendsList = friendListResponse[0]
+    //   ? friendListResponse[0].friendsId
+    //   : [];
+    // friendsList.push(user.id);
+    // if (friendListResponse[0]) {
+    //   await DataStore.save(
+    //     FriendsList.copyOf(friendListResponse[0], update => {
+    //       update.friendsId = friendsList;
+    //     }),
+    //   );
+    // } else {
+    //   await DataStore.save(
+    //     new FriendsList({userId: currentUser.id, friendsId: friendsList}),
+    //   );
+    // }
+    // return {success: true, data: undefined, error: undefined};
+    const res1 = await addFriendToFriendList(currentUser, user);
+    if (res1.success) {
+      const res2 = await addFriendToFriendList(user, currentUser);
+      if (res2.success) {
+        return {success: true, data: undefined, error: undefined};
+      } else {
+        return res2;
+      }
+    } else {
+      return res1;
+    }
+  } else {
+    return response;
+  }
+};
+
+/**
+ * @param {User} currentUser
+ * @param {User} user
+ * @returns {Promise<{success: boolean, error?: string, data?: FriendsRequest[]}>}
+ */
+export const removeFriendRequest = async (currentUser, user) => {
+  const friendsRequestResponse = await DataStore.query(FriendsRequest, fr =>
+    fr.sender('eq', user.id).reciever('eq', currentUser.id),
+  );
+
+  let response;
+
+  try {
+    response = await DataStore.delete(
+      FriendsRequest,
+      friendsRequestResponse[0].id,
+    );
+  } catch (error) {
+    return {success: false, data: undefined, error: 'Error'};
+  }
+
+  return {success: true, data: response, error: undefined};
+};
+
+/**
+ * @param {User} currentUser
+ * @param {User} user
+ * @returns {Promise<{success: boolean, error?: string, data?: any}>}
+ */
+const addFriendToFriendList = async (currentUser, user) => {
+  try {
+    const friendListResponse = await getUserFriendsList(currentUser.id);
+    const friendsList = friendListResponse[0]
+      ? friendListResponse[0].friendsId
+      : [];
+    friendsList.push(user.id);
+
+    if (friendListResponse[0]) {
+      await DataStore.save(
+        FriendsList.copyOf(friendListResponse[0], update => {
+          update.friendsId = friendsList;
+        }),
+      );
+    } else {
+      await DataStore.save(
+        new FriendsList({userId: currentUser.id, friendsId: friendsList}),
+      );
+    }
+
+    return {success: true, data: undefined, error: undefined};
+  } catch (error) {
+    return {success: false, data: undefined, error: 'error'};
+  }
 };

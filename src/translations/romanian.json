@@ -30,5 +30,9 @@
   "cannotAddYourselt": "Nu te poți adăuga pe tine",
   "userNotExists": "Utilizatorul nu există:",
   "requestAlreadySent": "Cerere deja trimisă:",
-  "userAlreadyExists": "Utilizatorul este deja adăugat la prieteni:"
+  "userAlreadyExists": "Utilizatorul este deja adăugat la prieteni:",
+  "sentYouFriendRequest": "v-a trimis cerere de prietenie",
+  "whatToDo": "Ce vreți să faceți?",
+  "accept": "Acceptă",
+  "remove": "Șterge"
 }

@@ -30,5 +30,9 @@
   "cannotAddYourselt": "Nem adhatod meg saját email címed",
   "userNotExists": "Felhasználó nem létezik:",
   "requestAlreadySent": "Már van egy elküldött barátkérő erre az email címre:",
-  "userAlreadyExists": "A személy már ismerősöd:"
+  "userAlreadyExists": "A személy már ismerősöd:",
+  "sentYouFriendRequest": "barátkérőt küldött",
+  "whatToDo": "Mit szeretne csinálni?",
+  "accept": "Elfogadás",
+  "remove": "Törlés"
 }

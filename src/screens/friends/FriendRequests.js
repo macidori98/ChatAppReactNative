@@ -1,8 +1,13 @@
-import {getRecievedRequests} from 'api/Requests';
+import {
+  acceptFriendRequest,
+  getRecievedRequests,
+  removeFriendRequest,
+} from 'api/Requests';
 import LoadingIndicator from 'components/common/LoadingIndicator';
+import UsersList from 'components/users/UsersList';
 import {User} from 'models';
 import React, {useCallback, useEffect, useState} from 'react';
-import {Text, View} from 'react-native';
+import {Alert, Text, View} from 'react-native';
 import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
@@ -40,23 +45,105 @@ const FriendRequests = props => {
     getRequests();
   }, [getRequests]);
 
+  const acceptRequest = useCallback(
+    /**
+     * @param {User} user
+     */
+    async user => {
+      setIsLoading(true);
+      const response = await acceptFriendRequest(
+        authedUserState.authedUser,
+        user,
+      );
+
+      if (response.success) {
+        const index = users.indexOf(user);
+
+        if (index !== -1) {
+          users.splice(index, 1);
+          setUsers([...users]);
+        }
+      } else {
+        Alert.alert(response.error);
+      }
+
+      setIsLoading(false);
+    },
+    [authedUserState.authedUser, users],
+  );
+
+  const removeRequest = useCallback(
+    /**
+     * @param {User} user
+     */
+    async user => {
+      setIsLoading(true);
+      const response = await removeFriendRequest(
+        authedUserState.authedUser,
+        user,
+      );
+
+      if (response.success) {
+        const index = users.indexOf(user);
+
+        if (index !== -1) {
+          users.splice(index, 1);
+          setUsers([...users]);
+        }
+      } else {
+        Alert.alert(response.error);
+      }
+
+      setIsLoading(false);
+    },
+    [authedUserState.authedUser, users],
+  );
+
   const getContent = () => {
     if (users.length > 0) {
-      return users.map(item => <Text key={item.name}>{item.name}</Text>);
+      return (
+        <UsersList
+          key={'list'}
+          onPress={user => {
+            Alert.prompt(
+              `${user.name} ${Translations.strings.sentYouFriendRequest()}`,
+              Translations.strings.whatToDo(),
+              [
+                {
+                  text: Translations.strings.cancel(),
+                  style: 'cancel',
+                },
+                {
+                  text: Translations.strings.accept(),
+                  onPress: acceptRequest.bind(this, user),
+                },
+                {
+                  text: Translations.strings.remove(),
+                  onPress: removeRequest.bind(this, user),
+                },
+              ],
+              'default',
+            );
+          }}
+          users={users}
+        />
+      );
     } else {
       return (
-        <Text key={Translations.strings.emptyList()}>
-          {Translations.strings.emptyList()}
-        </Text>
+        <View style={{...Theme.styles.screen, ...Theme.styles.center}}>
+          <Text key={Translations.strings.emptyList()}>
+            {Translations.strings.emptyList()}
+          </Text>
+        </View>
       );
     }
   };
 
   return (
-    <View style={{...Theme.styles.screen, ...Theme.styles.center}}>
+    <>
       {isLoading && <LoadingIndicator />}
       {!isLoading && getContent()}
-    </View>
+    </>
   );
 };
 

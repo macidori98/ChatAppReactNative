@@ -81,5 +81,9 @@ export const Translations = {
     userNotExists: () => getText('userNotExists'),
     requestAlreadySent: () => getText('requestAlreadySent'),
     userAlreadyExists: () => getText('userAlreadyExists'),
+    sentYouFriendRequest: () => getText('sentYouFriendRequest'),
+    whatToDo: () => getText('whatToDo'),
+    accept: () => getText('accept'),
+    remove: () => getText('remove'),
   },
 };

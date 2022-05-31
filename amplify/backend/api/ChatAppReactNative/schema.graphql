@@ -48,5 +48,6 @@ type User @model @auth(rules: [{allow: public}]) {
   chatrooms: [ChatRoom] @manyToMany(relationName: "ChatRoomUser")
   lastOnlineAt: AWSTimestamp
   publicKey: String
+  userName: String
 }
  
