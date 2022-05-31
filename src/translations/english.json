@@ -18,5 +18,17 @@
   "updateKeypair": "Update keypair",
   "updateKeypairSuccess": "Keypairs successfully updated",
   "changeProfilePicture": "Change profile picture",
-  "changeLanguage": "Change language"
+  "changeLanguage": "Change language",
+  "requests": "Requests",
+  "incomingFriendRequests": "Incoming friend requests",
+  "sentFriendRequests": "Sent friend requests",
+  "requestSuccessfullySent": "Request successfully sent",
+  "addFriend": "Add friend by email",
+  "enterEmail": "Enter email",
+  "enterFriendEmail": "Enter yout friend email",
+  "cancel": "Cancel",
+  "cannotAddYourselt": "Cannot add yourself",
+  "userNotExists": "User does not exist:",
+  "requestAlreadySent": "Friend request already exists:",
+  "userAlreadyExists": "User already exists:"
 }

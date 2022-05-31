@@ -18,5 +18,17 @@
   "updateKeypair": "Actualizare chei",
   "updateKeypairSuccess": "Actualizare chei cu succes",
   "changeProfilePicture": "Schimbare poză de profil",
-  "changeLanguage": "Schimbare limbă"
+  "changeLanguage": "Schimbare limbă",
+  "requests": "Cereri",
+  "incomingFriendRequests": "Cereri primite",
+  "sentFriendRequests": "Cereri trimise",
+  "requestSuccessfullySent": "Cerere trimisă cu succes",
+  "addFriend": "Adăugare prieteni via email",
+  "enterEmail": "Introduceți adresa de email",
+  "enterFriendEmail": "introduceți adresa de email a prietenului vostru",
+  "cancel": "Anulare",
+  "cannotAddYourselt": "Nu te poți adăuga pe tine",
+  "userNotExists": "Utilizatorul nu există:",
+  "requestAlreadySent": "Cerere deja trimisă:",
+  "userAlreadyExists": "Utilizatorul este deja adăugat la prieteni:"
 }

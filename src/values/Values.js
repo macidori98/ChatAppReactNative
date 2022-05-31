@@ -49,6 +49,10 @@ const Values = {
     height: 33,
   },
 
+  tabBarIconSize: {
+    icon: 25,
+  },
+
   roundButton: {
     width: 40,
     height: 40,

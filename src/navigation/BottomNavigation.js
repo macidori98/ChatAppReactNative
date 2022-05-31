@@ -1,25 +1,58 @@
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import ChatNavigation from 'navigation/ChatNavigation';
 import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
+import FriendRequests from 'screens/friends/FriendRequests';
+import SentRequests from 'screens/friends/SentRequests';
+import Theme from 'theme/Theme';
+import {Translations} from 'translations/Translations';
+import {
+  BottomTabNavigationParamList,
+  CreateBottomTabNavigatorType,
+} from 'types/NavigationTypes';
 
-const MainBottomNavigation = createBottomTabNavigator();
+/**
+ * @type {CreateBottomTabNavigatorType<BottomTabNavigationParamList>}
+ */
+const BottomTabNavigation = createBottomTabNavigator();
 
 const BottomNavigation = () => {
   return (
-    <MainBottomNavigation.Navigator
-      initialRouteName="Chats"
+    <BottomTabNavigation.Navigator
+      initialRouteName="FriendRequests"
       screenOptions={{headerShown: false}}>
-      <MainBottomNavigation.Screen
-        name="Chats"
-        component={ChatNavigation}
+      <BottomTabNavigation.Screen
+        name="FriendRequests"
+        component={FriendRequests}
         options={{
+          title: Translations.strings.incomingFriendRequests(),
           tabBarIcon: props => {
-            return <Icon name="car" />;
+            return (
+              <Icon
+                name="person-add"
+                size={Theme.values.tabBarIconSize.icon}
+                color={props.color}
+              />
+            );
           },
         }}
       />
-    </MainBottomNavigation.Navigator>
+      <BottomTabNavigation.Screen
+        name="SentRequests"
+        component={SentRequests}
+        options={{
+          title: Translations.strings.sentFriendRequests(),
+          tabBarIcon: props => {
+            return (
+              <Icon
+                name="send"
+                size={Theme.values.tabBarIconSize.icon}
+                color={props.color}
+              />
+            );
+          },
+        }}
+      />
+    </BottomTabNavigation.Navigator>
   );
 };
 

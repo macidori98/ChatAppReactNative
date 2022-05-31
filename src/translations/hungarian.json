@@ -18,5 +18,17 @@
   "updateKeypair": "Kulcspár frissítése",
   "updateKeypairSuccess": "Sikeresen frissítette kulcspárját",
   "changeProfilePicture": "Profilkép csere",
-  "changeLanguage": "Nyelv csere"
+  "changeLanguage": "Nyelv csere",
+  "requests": "Kérések",
+  "incomingFriendRequests": "Bejövő barátkérők",
+  "sentFriendRequests": "Elküldött barátkérők",
+  "requestSuccessfullySent": "Barétkérő sikeresen elküdlve",
+  "addFriend": "Barát hozzáadása email által",
+  "enterEmail": "Email cím megadása",
+  "enterFriendEmail": "Adja meg barátja email címét",
+  "cancel": "Elvetés",
+  "cannotAddYourselt": "Nem adhatod meg saját email címed",
+  "userNotExists": "Felhasználó nem létezik:",
+  "requestAlreadySent": "Már van egy elküldött barátkérő erre az email címre:",
+  "userAlreadyExists": "A személy már ismerősöd:"
 }

@@ -1,5 +1,6 @@
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import FullScreenViewer from 'components/common/FullScreenViewer';
+import BottomNavigation from 'navigation/BottomNavigation';
 import React from 'react';
 import {Platform} from 'react-native';
 import ChatRoomScreen from 'screens/chat/ChatRoomScreen';
@@ -99,6 +100,14 @@ const MainStackNavigation = () => (
       options={{
         headerBackTitleVisible: false,
         title: Translations.strings.changeLanguage(),
+      }}
+    />
+    <Stack.Screen
+      name="Friends"
+      component={BottomNavigation}
+      options={{
+        headerBackTitleVisible: false,
+        title: Translations.strings.requests(),
       }}
     />
   </Stack.Navigator>
