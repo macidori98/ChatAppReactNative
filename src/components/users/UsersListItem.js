@@ -16,13 +16,13 @@ const UsersListItem = props => {
     <TouchableOpacity onPress={() => props.onPress(data)}>
       <View style={styles.container}>
         <ConversationPersonImage
-          imageSource={data.imageUri}
+          imageSource={data?.imageUri}
           imageStyle={styles.image}
         />
 
         <View style={styles.fullSpace}>
           <View style={styles.textContainer}>
-            <Text style={styles.name}>{data.name}</Text>
+            <Text style={styles.name}>{data?.name}</Text>
           </View>
         </View>
         <View style={styles.selectedIndicator}>

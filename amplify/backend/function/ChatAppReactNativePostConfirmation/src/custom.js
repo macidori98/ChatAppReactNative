@@ -23,6 +23,10 @@ exports.handler = async event => {
     createdAt: {S: now.toISOString()},
     id: {S: event.request.userAttributes.sub},
     name: {S: event.request.userAttributes.email},
+    userName: {S: event.request.userAttributes.email},
+    imageUri: {
+      S: 'https://eitrawmaterials.eu/wp-content/uploads/2016/09/person-icon.png',
+    },
   };
 
   const params = {

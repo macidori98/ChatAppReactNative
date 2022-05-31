@@ -24,7 +24,7 @@ import {ChatRoom, User} from 'models';
  * ChatScreen: {id: string},
  * Auth: import('@react-navigation/native').NavigatorScreenParams<AuthenticationNavigationParamList>,
  * UsersScreen: {}, CreateGroupScreen: {data: User[]},
- * Profile: undefined, FullScreen: {imageId: string}, Languages: {},
+ * Profile: undefined, FullScreen: {imageId: string}, Languages: {}, Friends: {},
  * DetailsScreen: {data: ChatRoom}}} MainNavigationParamList
  */
 
@@ -82,16 +82,35 @@ import {ChatRoom, User} from 'models';
  * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<AuthenticationNavigationParamList, 'ForgotPassword'>} ForgotPasswordScreenProps
  */
 
+/**
+ * @template T
+ * @typedef {import("@react-navigation/native").TypedNavigator<T,
+ * import("@react-navigation/native").TabNavigationState<import("@react-navigation/native").ParamListBase>,
+ * import('@react-navigation/bottom-tabs').BottomTabNavigationOptions,
+ * import('@react-navigation/bottom-tabs/lib/typescript/src/types').BottomTabNavigationEventMap,
+ * ({ initialRouteName, backBehavior, children, screenListeners,
+ * screenOptions, sceneContainerStyle, lazy, tabBarOptions, ...rest }:
+ * import('@react-navigation/core').DefaultNavigatorOptions<import('@react-navigation/routers').ParamListBase,
+ * import('@react-navigation/routers').TabNavigationState<import('@react-navigation/routers').ParamListBase>,
+ * import('@react-navigation/bottom-tabs').BottomTabNavigationOptions,
+ * import('@react-navigation/bottom-tabs/lib/typescript/src/types').BottomTabNavigationEventMap> &
+ * import('@react-navigation/routers').TabRouterOptions &
+ * import('@react-navigation/bottom-tabs/lib/typescript/src/types').BottomTabNavigationConfig)=> JSX.Element>} CreateBottomTabNavigatorType
+ */
+
+/**
+ * @typedef {{FriendRequests: {}, SentRequests: {}}} BottomTabNavigationParamList
+ */
+
+/**
+ * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<MainNavigationParamList, 'FriendRequests'>} FriendRequestsScreenProps
+ */
+
+/**
+ * @typedef {import("@react-navigation/native-stack").NativeStackScreenProps<MainNavigationParamList, 'SentRequests'>} SentRequestsScreenProps
+ */
+
 export {};
-
-// /**
-//  * @typedef {{Study: undefined, Game: undefined}} BottomTabBarParamList
-//  */
-
-// /**
-//  * @template T
-//  * @typedef {import("@react-navigation/native").TypedNavigator<T, import("@react-navigation/native").TabNavigationState<import("@react-navigation/native").ParamListBase>, import('@react-navigation/bottom-tabs').BottomTabNavigationOptions, import('@react-navigation/bottom-tabs/lib/typescript/src/types').BottomTabNavigationEventMap, ({ initialRouteName, backBehavior, children, screenListeners, screenOptions, sceneContainerStyle, lazy, tabBarOptions, ...rest }: import('@react-navigation/core').DefaultNavigatorOptions<import('@react-navigation/routers').ParamListBase, import('@react-navigation/routers').TabNavigationState<import('@react-navigation/routers').ParamListBase>, import('@react-navigation/bottom-tabs').BottomTabNavigationOptions, import('@react-navigation/bottom-tabs/lib/typescript/src/types').BottomTabNavigationEventMap> & import('@react-navigation/routers').TabRouterOptions & import('@react-navigation/bottom-tabs/lib/typescript/src/types').BottomTabNavigationConfig)=> JSX.Element>} CreateBottomTabNavigatorType
-//  */
 
 // /**
 //  * @typedef {{onStartGame: (data: GameData) => void}} GameConfig

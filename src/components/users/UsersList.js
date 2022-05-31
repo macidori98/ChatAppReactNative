@@ -27,6 +27,13 @@ const UsersList = props => {
           onEndReached={info => {
             //console.log(info);
           }}
+          ListEmptyComponent={() => {
+            return (
+              <View style={{...Theme.styles.screen, ...Theme.styles.center}}>
+                <Text>{Translations.strings.emptyList()}</Text>
+              </View>
+            );
+          }}
           ListHeaderComponent={
             props.onNewGroupPress ? (
               <NewGroupButton
