@@ -1,5 +1,5 @@
 import {Auth, DataStore, Hub} from 'aws-amplify';
-import {FriendsList, FriendsRequest, User} from 'models';
+import {ChatRoom, FriendsList, FriendsRequest, User} from 'models';
 import {Translations} from 'translations/Translations';
 
 /**
@@ -241,15 +241,16 @@ export const removeFriendRequest = async (currentUser, user) => {
 const addFriendToFriendList = async (currentUser, user) => {
   try {
     const friendListResponse = await getUserFriendsList(currentUser.id);
-    const friendsList = friendListResponse[0]
+
+    let friendsList = friendListResponse[0]
       ? friendListResponse[0].friendsId
       : [];
-    friendsList.push(user.id);
+    friendsList = [...friendsList, user.id];
 
     if (friendListResponse[0]) {
       await DataStore.save(
         FriendsList.copyOf(friendListResponse[0], update => {
-          update.friendsId = friendsList;
+          update.friendsId = [...friendsList];
         }),
       );
     } else {
@@ -260,6 +261,7 @@ const addFriendToFriendList = async (currentUser, user) => {
 
     return {success: true, data: undefined, error: undefined};
   } catch (error) {
+    console.log(error);
     return {success: false, data: undefined, error: 'error'};
   }
 };
@@ -315,6 +317,18 @@ export const changeUserName = async (user, newName) => {
   return await DataStore.save(
     User.copyOf(user, update => {
       update.userName = newName;
+    }),
+  );
+};
+
+/**
+ * @param {ChatRoom} room
+ * @param {string} newName
+ */
+export const changeChatRoomName = async (room, newName) => {
+  return await DataStore.save(
+    ChatRoom.copyOf(room, update => {
+      update.groupName = newName;
     }),
   );
 };

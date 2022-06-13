@@ -108,7 +108,7 @@ const UsersScreen = props => {
    */
   const onPress = user => {
     Alert.prompt(
-      `${user.name}`,
+      `${user.userName}`,
       Translations.strings.whatToDo(),
       [
         {

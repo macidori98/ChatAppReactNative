@@ -111,7 +111,7 @@ const ChatRoomScreen = props => {
           if (otherUser.isGroup === false) {
             lastOnline = moment.unix(otherUser?.user.lastOnlineAt);
             imageUri = otherUser?.user.imageUri;
-            name = otherUser?.user.name;
+            name = otherUser?.user.userName;
             now = moment.unix(moment().unix());
             duration = moment.duration(now.diff(lastOnline));
             minutes = Math.floor(duration.asMinutes());

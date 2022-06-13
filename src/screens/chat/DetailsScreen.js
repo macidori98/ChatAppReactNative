@@ -65,7 +65,7 @@ const DetailsScreen = props => {
     if (isGroup && user !== data.Admin) {
       Alert.alert(
         'Confirm delete',
-        `Are you sure you want to delete ${user.name} from the group?`,
+        `Are you sure you want to delete ${user.userName} from the group?`,
         [
           {
             text: 'Delete',

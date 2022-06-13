@@ -35,7 +35,7 @@ const ChatRoomListItem = props => {
               <Text style={styles.name}>
                 {roomData.groupName
                   ? roomData.groupName
-                  : roomData.users[0].name}
+                  : roomData.users[0].userName}
               </Text>
               {roomData.lastMessage && (
                 <Text style={styles.text}>

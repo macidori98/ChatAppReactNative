@@ -131,7 +131,7 @@ const SentRequests = props => {
           users={users}
           onPress={user => {
             Alert.prompt(
-              `${user.name}`,
+              `${user.userName}`,
               Translations.strings.whatToDo(),
               [
                 {

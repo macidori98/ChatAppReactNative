@@ -22,7 +22,7 @@ const UsersListItem = props => {
 
         <View style={styles.fullSpace}>
           <View style={styles.textContainer}>
-            <Text style={styles.name}>{data?.name}</Text>
+            <Text style={styles.name}>{data?.userName}</Text>
           </View>
         </View>
         <View style={styles.selectedIndicator}>

@@ -68,7 +68,7 @@ const FriendRequests = props => {
           );
         }
       } else {
-        ToastHelper.showSuccess(response.error);
+        ToastHelper.showError(response.error);
       }
 
       setIsLoading(false);
@@ -98,7 +98,7 @@ const FriendRequests = props => {
           );
         }
       } else {
-        ToastHelper.showSuccess(response.error);
+        ToastHelper.showError(response.error);
       }
 
       setIsLoading(false);
@@ -113,7 +113,7 @@ const FriendRequests = props => {
           key={'list'}
           onPress={user => {
             Alert.prompt(
-              `${user.name} ${Translations.strings.sentYouFriendRequest()}`,
+              `${user.userName} ${Translations.strings.sentYouFriendRequest()}`,
               Translations.strings.whatToDo(),
               [
                 {
