@@ -2,12 +2,16 @@ import {changeChatRoomName, getRoomUsers, leaveChatRoom} from 'api/Requests';
 import {DataStore} from 'aws-amplify';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersListItem from 'components/users/UsersListItem';
-import {getDeleteAlert, getLeaveAlert} from 'helpers/AlertHelper';
+import {
+  getDeleteAlert,
+  getLeaveAlert,
+  getPromptAlert,
+  getSimpleAlert,
+} from 'helpers/AlertHelper';
 import {ToastHelper} from 'helpers/ToastHelper';
 import {ChatRoomUser, User} from 'models';
 import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
 import {
-  Alert,
   SectionList,
   StyleSheet,
   Text,
@@ -56,6 +60,27 @@ const DetailsScreen = props => {
     }
   }, [authedUserState.authedUser.id, data.id, props.navigation]);
 
+  const onChangeGroupName = useCallback(
+    /**
+     * @param {string} name
+     */
+    async name => {
+      if (name.length > 8) {
+        setIsLoading(true);
+        const response = await changeChatRoomName(data, name);
+        props.navigation.reset({
+          routes: [
+            {name: 'Home'},
+            {name: 'ChatScreen', params: {id: response.id}},
+          ],
+        });
+      } else {
+        getSimpleAlert('you have to enter at least 8 characters');
+      }
+    },
+    [data, props.navigation],
+  );
+
   const setHeader = useCallback(
     () => (
       <>
@@ -72,52 +97,38 @@ const DetailsScreen = props => {
             size={Theme.values.headerIcon.height}
           />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            Alert.prompt(
-              Translations.strings.changeName(),
-              Translations.strings.enterName(),
-              [
-                {
-                  text: Translations.strings.cancel(),
-                  style: 'cancel',
-                },
-                {
-                  text: 'OK',
-                  onPress: async name => {
-                    setIsLoading(true);
-                    const response = await changeChatRoomName(data, name);
-                    console.log(response);
-                    props.navigation.reset({
-                      routes: [
-                        {name: 'Home'},
-                        {name: 'ChatScreen', params: {id: response.id}},
-                      ],
-                    });
-                  },
-                },
-              ],
-              'plain-text',
-            );
-          }}
-          style={{marginHorizontal: Theme.values.margins.marginSmall}}>
-          <Icon
-            name="create-outline"
-            color={Theme.colors.error}
-            size={Theme.values.headerIcon.height}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={{marginHorizontal: Theme.values.margins.marginSmall}}>
-          <Icon
-            name="image-outline"
-            color={Theme.colors.error}
-            size={Theme.values.headerIcon.height}
-          />
-        </TouchableOpacity>
+        {data.groupName && (
+          <>
+            <TouchableOpacity
+              onPress={getPromptAlert.bind(
+                this,
+                Translations.strings.changeName(),
+                Translations.strings.enterName(),
+                /**
+                 * @param {string} name
+                 */
+                name => onChangeGroupName(name),
+              )}
+              style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+              <Icon
+                name="create-outline"
+                color={Theme.colors.error}
+                size={Theme.values.headerIcon.height}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+              <Icon
+                name="image-outline"
+                color={Theme.colors.error}
+                size={Theme.values.headerIcon.height}
+              />
+            </TouchableOpacity>
+          </>
+        )}
       </>
     ),
-    [data, leaveRoom, props.navigation],
+    [data.groupName, leaveRoom, onChangeGroupName],
   );
 
   useLayoutEffect(() => {
@@ -190,7 +201,7 @@ const DetailsScreen = props => {
   };
 
   return (
-    <View style={isLoading ? {flex: 1} : undefined}>
+    <View style={Theme.styles.screen}>
       {!isLoading && (
         <SectionList
           sections={isGroup ? getGroupSections() : getSections()}
