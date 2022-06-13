@@ -1,5 +1,12 @@
 import {Auth, DataStore, Hub} from 'aws-amplify';
-import {ChatRoom, FriendsList, FriendsRequest, User} from 'models';
+import {Logger} from 'helpers/Logger';
+import {
+  ChatRoom,
+  ChatRoomUser,
+  FriendsList,
+  FriendsRequest,
+  User,
+} from 'models';
 import {Translations} from 'translations/Translations';
 
 /**
@@ -328,7 +335,48 @@ export const changeUserName = async (user, newName) => {
 export const changeChatRoomName = async (room, newName) => {
   return await DataStore.save(
     ChatRoom.copyOf(room, update => {
+      update.Admin = room.Admin;
+      update.ChatRoomUsers = room.ChatRoomUsers;
+      update.LastMessage = room.LastMessage;
+      update.Messages = room.Messages;
+      update.chatRoomAdminId = room.chatRoomAdminId;
+      update.chatRoomLastMessageId = room.chatRoomLastMessageId;
+      update.groupImage = room.groupImage;
+      update.newMessages = room.newMessages;
       update.groupName = newName;
     }),
   );
+};
+
+/**
+ * @param {string} id
+ * @returns {Promise<User[]>}
+ */
+export const getRoomUsers = async id => {
+  const usersResponse = (await DataStore.query(ChatRoomUser))
+    .filter(u => u.chatRoom.id === id)
+    .map(u => u.user);
+
+  return usersResponse;
+};
+
+/**
+ * @param {string} roomId
+ * @param {string} userId
+ */
+export const leaveChatRoom = async (roomId, userId) => {
+  try {
+    const responseChatRoomUser = (await DataStore.query(ChatRoomUser)).filter(
+      u => u.chatRoom.id === roomId && u.user.id === userId,
+    );
+    const response = await DataStore.delete(
+      ChatRoomUser,
+      responseChatRoomUser[0].id,
+    );
+
+    Logger.log(response);
+    return {success: true, data: response, error: undefined};
+  } catch (error) {
+    return {success: false, data: undefined, error: 'Error'};
+  }
 };

@@ -5,6 +5,7 @@ import ChatMessage from 'components/chat/ChatMessage';
 import MessageInput from 'components/chat/MessageInput';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import ConversationPersonImage from 'components/ConversationPersonImage';
+import {getDeleteAlert, getSimpleAlert} from 'helpers/AlertHelper';
 import {
   ChatRoom,
   ChatRoomUser,
@@ -22,10 +23,8 @@ import React, {
   useState,
 } from 'react';
 import {
-  Alert,
   Dimensions,
   FlatList,
-  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -33,10 +32,10 @@ import {
   View,
 } from 'react-native';
 import ActionSheet from 'react-native-actions-sheet';
+import {DocumentPickerResponse} from 'react-native-document-picker';
 import 'react-native-get-random-values';
 import {Asset} from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
-import Icon from 'react-native-vector-icons/Ionicons';
 import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
@@ -103,86 +102,64 @@ const ChatRoomScreen = props => {
     }
   };
 
+  const setHeaderOptions = useCallback(
+    /**
+     * @param {{children: string, tintColor?: string}} prop
+     * @returns {JSX.Element}
+     */
+    prop => {
+      var imageUri, name, lastOnline, now, duration, minutes;
+      if (otherUser) {
+        if (otherUser.isGroup === false) {
+          lastOnline = moment.unix(otherUser?.user.lastOnlineAt);
+          imageUri = otherUser?.user.imageUri;
+          name = otherUser?.user.userName;
+          now = moment.unix(moment().unix());
+          duration = moment.duration(now.diff(lastOnline));
+          minutes = Math.floor(duration.asMinutes());
+        } else {
+          imageUri = chatRoom?.groupImage;
+          name = chatRoom?.groupName;
+        }
+
+        return (
+          <TouchableOpacity
+            style={styles.headerContainer}
+            onPress={() => {
+              props.navigation.navigate('DetailsScreen', {data: chatRoom});
+            }}>
+            <ConversationPersonImage
+              imageStyle={styles.icon}
+              imageSource={imageUri}
+            />
+
+            <View>
+              <Text style={{...styles.text, color: prop.tintColor}}>
+                {name}
+              </Text>
+              {minutes < 10 && (
+                <Text style={{...styles.text, color: prop.tintColor}}>
+                  Online
+                </Text>
+              )}
+              {minutes >= 10 && (
+                <Text style={{...styles.text, color: prop.tintColor}}>
+                  {getStatusText(minutes)}
+                </Text>
+              )}
+            </View>
+          </TouchableOpacity>
+        );
+      }
+    },
+    [chatRoom, otherUser, props.navigation],
+  );
+
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: prop => {
-        var imageUri, name, lastOnline, now, duration, minutes;
-        if (otherUser) {
-          if (otherUser.isGroup === false) {
-            lastOnline = moment.unix(otherUser?.user.lastOnlineAt);
-            imageUri = otherUser?.user.imageUri;
-            name = otherUser?.user.userName;
-            now = moment.unix(moment().unix());
-            duration = moment.duration(now.diff(lastOnline));
-            minutes = Math.floor(duration.asMinutes());
-          } else {
-            imageUri = chatRoom?.groupImage;
-            name = chatRoom?.groupName;
-          }
-
-          return (
-            <TouchableOpacity
-              style={styles.headerContainer}
-              onPress={() => {
-                props.navigation.navigate('DetailsScreen', {data: chatRoom});
-              }}>
-              <ConversationPersonImage
-                imageStyle={styles.icon}
-                imageSource={imageUri}
-              />
-
-              <View>
-                <Text style={{...styles.text, color: prop.tintColor}}>
-                  {name}
-                </Text>
-                {minutes < 10 && (
-                  <Text style={{...styles.text, color: prop.tintColor}}>
-                    Online
-                  </Text>
-                )}
-                {minutes >= 10 && (
-                  <Text style={{...styles.text, color: prop.tintColor}}>
-                    {getStatusText(minutes)}
-                  </Text>
-                )}
-              </View>
-            </TouchableOpacity>
-          );
-        }
-      },
-      headerRight: prop => {
-        return (
-          <>
-            <TouchableOpacity
-              style={{marginHorizontal: Theme.values.margins.marginSmall}}>
-              <Icon
-                name="call-outline"
-                color={
-                  Platform.OS === 'ios'
-                    ? Theme.colors.black
-                    : Theme.colors.white
-                }
-                size={Theme.values.headerIcon.height}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => {}}
-              style={{marginHorizontal: Theme.values.margins.marginSmall}}>
-              <Icon
-                name="videocam-outline"
-                color={
-                  Platform.OS === 'ios'
-                    ? Theme.colors.black
-                    : Theme.colors.white
-                }
-                size={Theme.values.headerIcon.height}
-              />
-            </TouchableOpacity>
-          </>
-        );
-      },
+      headerTitle: propss => setHeaderOptions(propss),
     });
-  }, [chatRoom, navigation, otherUser, otherUser?.isGroup, props.navigation]);
+  }, [navigation, setHeaderOptions]);
 
   const fetchChatRoom = useCallback(async () => {
     const room = await DataStore.query(ChatRoom, route.params.id);
@@ -214,15 +191,15 @@ const ChatRoomScreen = props => {
       item => item.user.id !== authedUserState.authedUser.id,
     );
 
-    if (chatUsers.length === 1) {
-      setOtherUSer({
-        isGroup: false,
-        user: chatUsers[0].user,
-      });
-    } else {
+    if (chatRoom.groupName) {
       setOtherUSer({
         isGroup: true,
         users: chatUsers.map(u => u.user),
+      });
+    } else {
+      setOtherUSer({
+        isGroup: false,
+        user: chatUsers[0].user,
       });
     }
   }, [authedUserState.authedUser.id, chatRoom]);
@@ -293,7 +270,7 @@ const ChatRoomScreen = props => {
   );
 
   /**
-   * @param {import('react-native-document-picker').DocumentPickerResponse[]} data
+   * @param {DocumentPickerResponse[]} data
    */
   const sendFile2 = async data => {
     const blob = await getFileBlob(data[0].uri);
@@ -329,7 +306,7 @@ const ChatRoomScreen = props => {
     async (user, text) => {
       const secretKey = await AsyncStorage.getItem('SECRET_KEY');
       if (!secretKey) {
-        Alert.alert('You have to set your keypair from settings');
+        getSimpleAlert('You have to set your keypair from settings');
         return;
       }
 
@@ -355,9 +332,7 @@ const ChatRoomScreen = props => {
           replyToMessageId: replyToMessage ? replyToMessage.id : null,
         }),
       );
-      //if (response.forUserId === authedUserState.authedUser.id) {
       updateLastMessage(response);
-      //}
     },
     [
       authedUserState?.authedUser?.id,
@@ -423,20 +398,9 @@ const ChatRoomScreen = props => {
               <TouchableOpacity
                 style={styles.actionButtonStyle}
                 onPress={() => {
-                  Alert.alert(
-                    'Confirm delete',
+                  getDeleteAlert(
                     'Are you sure you want to delete the message?',
-                    [
-                      {
-                        text: 'Delete',
-                        style: 'destructive',
-                        onPress: deleteMessage,
-                      },
-                      {
-                        text: 'Cancel',
-                        style: 'cancel',
-                      },
-                    ],
+                    deleteMessage,
                   );
                 }}>
                 <Text>Delete</Text>

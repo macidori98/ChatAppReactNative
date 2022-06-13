@@ -1,14 +1,29 @@
+import {changeChatRoomName, getRoomUsers, leaveChatRoom} from 'api/Requests';
 import {DataStore} from 'aws-amplify';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersListItem from 'components/users/UsersListItem';
+import {getDeleteAlert, getLeaveAlert} from 'helpers/AlertHelper';
+import {ToastHelper} from 'helpers/ToastHelper';
 import {ChatRoomUser, User} from 'models';
-import React, {useEffect, useState} from 'react';
-import {Alert, SectionList, Text, View} from 'react-native';
+import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
+import {
+  Alert,
+  SectionList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
+import {Translations} from 'translations/Translations';
 import {UseState} from 'types/CommonTypes';
+import {DetailsScreenProps} from 'types/NavigationTypes';
+import {AuthenticateState} from 'types/StoreTypes';
 
 /**
- * @param {import('types/NavigationTypes').DetailsScreenProps} props
+ * @param {DetailsScreenProps} props
  * @returns {JSX.Element}
  */
 const DetailsScreen = props => {
@@ -20,13 +35,102 @@ const DetailsScreen = props => {
   /** @type {UseState<boolean>} */
   const [isGroup, setIsGroup] = useState(false);
 
+  const authedUserState = useSelector(
+    /** @param {{auth: AuthenticateState}} state */ state => {
+      return state.auth;
+    },
+  );
+
+  const leaveRoom = useCallback(async () => {
+    setIsLoading(true);
+    const response = await leaveChatRoom(
+      data.id,
+      authedUserState.authedUser.id,
+    );
+
+    if (response.success) {
+      ToastHelper.showSuccess('Successfully left the room');
+      props.navigation.reset({routes: [{name: 'Home'}]});
+    } else {
+      ToastHelper.showError(response.error);
+    }
+  }, [authedUserState.authedUser.id, data.id, props.navigation]);
+
+  const setHeader = useCallback(
+    () => (
+      <>
+        <TouchableOpacity
+          onPress={getLeaveAlert.bind(
+            this,
+            'Are you sure about leaving the room?',
+            leaveRoom,
+          )}
+          style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+          <Icon
+            name="log-out-outline"
+            color={Theme.colors.error}
+            size={Theme.values.headerIcon.height}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            Alert.prompt(
+              Translations.strings.changeName(),
+              Translations.strings.enterName(),
+              [
+                {
+                  text: Translations.strings.cancel(),
+                  style: 'cancel',
+                },
+                {
+                  text: 'OK',
+                  onPress: async name => {
+                    setIsLoading(true);
+                    const response = await changeChatRoomName(data, name);
+                    console.log(response);
+                    props.navigation.reset({
+                      routes: [
+                        {name: 'Home'},
+                        {name: 'ChatScreen', params: {id: response.id}},
+                      ],
+                    });
+                  },
+                },
+              ],
+              'plain-text',
+            );
+          }}
+          style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+          <Icon
+            name="create-outline"
+            color={Theme.colors.error}
+            size={Theme.values.headerIcon.height}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{marginHorizontal: Theme.values.margins.marginSmall}}>
+          <Icon
+            name="image-outline"
+            color={Theme.colors.error}
+            size={Theme.values.headerIcon.height}
+          />
+        </TouchableOpacity>
+      </>
+    ),
+    [data, leaveRoom, props.navigation],
+  );
+
+  useLayoutEffect(() => {
+    props.navigation.setOptions({
+      headerRight: setHeader,
+    });
+  }, [props.navigation, setHeader]);
+
   useEffect(() => {
     const fetchData = async () => {
-      const usersResponse = (await DataStore.query(ChatRoomUser))
-        .filter(u => u.chatRoom.id === data.id)
-        .map(u => u.user);
+      const roomUsers = await getRoomUsers(data.id);
 
-      setUsers(usersResponse);
+      setUsers(roomUsers);
       setIsGroup(data.groupName ? true : false);
       setIsLoading(false);
     };
@@ -63,20 +167,9 @@ const DetailsScreen = props => {
    */
   const confirmDelete = user => {
     if (isGroup && user !== data.Admin) {
-      Alert.alert(
-        'Confirm delete',
+      getDeleteAlert(
         `Are you sure you want to delete ${user.userName} from the group?`,
-        [
-          {
-            text: 'Delete',
-            onPress: () => removeUserFromRoom(user),
-            style: 'destructive',
-          },
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-        ],
+        () => removeUserFromRoom(user),
       );
     }
   };
@@ -97,23 +190,17 @@ const DetailsScreen = props => {
   };
 
   return (
-    <View>
+    <View style={isLoading ? {flex: 1} : undefined}>
       {!isLoading && (
         <SectionList
           sections={isGroup ? getGroupSections() : getSections()}
           renderItem={({item}) => (
             <UsersListItem onPress={confirmDelete} user={item} />
           )}
-          renderSectionFooter={() => <View style={{height: 15}} />}
+          renderSectionFooter={() => <View style={styles.footer} />}
           renderSectionHeader={({section: {title}}) => (
-            <View
-              style={{
-                height: 30,
-                backgroundColor: Theme.colors.lightGrey,
-                justifyContent: 'center',
-                paddingHorizontal: Theme.values.paddings.paddingLarge,
-              }}>
-              <Text style={{fontWeight: 'bold'}}>{title}</Text>
+            <View style={styles.header}>
+              <Text style={styles.title}>{title}</Text>
             </View>
           )}
         />
@@ -122,5 +209,20 @@ const DetailsScreen = props => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  header: {
+    height: 30,
+    backgroundColor: Theme.colors.lightGrey,
+    justifyContent: 'center',
+    paddingHorizontal: Theme.values.paddings.paddingLarge,
+  },
+  title: {
+    fontWeight: 'bold',
+  },
+  footer: {
+    height: 15,
+  },
+});
 
 export default DetailsScreen;
