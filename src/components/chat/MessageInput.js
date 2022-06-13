@@ -214,15 +214,6 @@ const MessageInput = props => {
                   />
                 </TouchableOpacity>
               )}
-              {/* {!message && (
-                <TouchableOpacity style={styles.icon} onPress={onMic}>
-                  <Icon
-                    name="mic-outline"
-                    color={Theme.colors.icon}
-                    size={25}
-                  />
-                </TouchableOpacity>
-              )} */}
               {!message && (
                 <TouchableOpacity style={styles.icon} onPress={onOpenGallery}>
                   <Icon

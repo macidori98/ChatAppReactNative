@@ -1,4 +1,10 @@
-import {changeChatRoomName, getRoomUsers, leaveChatRoom} from 'api/Requests';
+import {
+  changeChatRoomImage,
+  changeChatRoomName,
+  getRoomUsers,
+  leaveChatRoom,
+  uploadImage,
+} from 'api/Requests';
 import {DataStore} from 'aws-amplify';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersListItem from 'components/users/UsersListItem';
@@ -8,6 +14,7 @@ import {
   getPromptAlert,
   getSimpleAlert,
 } from 'helpers/AlertHelper';
+import {pickImageFromGallery} from 'helpers/GalleryHelper';
 import {ToastHelper} from 'helpers/ToastHelper';
 import {ChatRoomUser, User} from 'models';
 import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
@@ -18,6 +25,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {Asset} from 'react-native-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
@@ -81,6 +89,24 @@ const DetailsScreen = props => {
     [data, props.navigation],
   );
 
+  const onImageRecieved = useCallback(
+    /**
+     * @param {Asset[]} dataa
+     */
+    async dataa => {
+      setIsLoading(true);
+      const imageLink = await uploadImage(dataa);
+      const response = await changeChatRoomImage(data, imageLink);
+      props.navigation.reset({
+        routes: [
+          {name: 'Home'},
+          {name: 'ChatScreen', params: {id: response.id}},
+        ],
+      });
+    },
+    [data, props.navigation],
+  );
+
   const setHeader = useCallback(
     () => (
       <>
@@ -117,6 +143,9 @@ const DetailsScreen = props => {
               />
             </TouchableOpacity>
             <TouchableOpacity
+              onPress={async () => {
+                await pickImageFromGallery(onImageRecieved);
+              }}
               style={{marginHorizontal: Theme.values.margins.marginSmall}}>
               <Icon
                 name="image-outline"
@@ -128,7 +157,7 @@ const DetailsScreen = props => {
         )}
       </>
     ),
-    [data.groupName, leaveRoom, onChangeGroupName],
+    [data.groupName, leaveRoom, onChangeGroupName, onImageRecieved],
   );
 
   useLayoutEffect(() => {
