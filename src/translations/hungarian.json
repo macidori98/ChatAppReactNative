@@ -34,5 +34,8 @@
   "sentYouFriendRequest": "barátkérőt küldött",
   "whatToDo": "Mit szeretne csinálni?",
   "accept": "Elfogadás",
-  "remove": "Törlés"
+  "remove": "Törlés",
+  "startChat": "Csevegés kezdése",
+  "changeName": "Név csere",
+  "enterName": "Név megadása"
 }

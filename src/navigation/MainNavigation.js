@@ -10,6 +10,7 @@ import UsersScreen from 'screens/chat/UsersScreen';
 import HomeScreen from 'screens/home/HomeScreen';
 import LanguageScreen from 'screens/language/LanguageScreen';
 import ProfileScreen from 'screens/profile/ProfileScreen';
+import UsersProfileScreen from 'screens/profile/UsersProfileScreen';
 import SplashScreen from 'screens/splash/SplashScreen';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
@@ -100,6 +101,14 @@ const MainStackNavigation = () => (
       options={{
         headerBackTitleVisible: false,
         title: Translations.strings.changeLanguage(),
+      }}
+    />
+    <Stack.Screen
+      name="UsersProfile"
+      component={UsersProfileScreen}
+      options={{
+        headerBackTitleVisible: false,
+        title: Translations.strings.profile(),
       }}
     />
     <Stack.Screen

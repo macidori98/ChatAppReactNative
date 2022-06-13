@@ -45,8 +45,8 @@ const Values = {
   },
 
   headerIcon: {
-    width: 33,
-    height: 33,
+    width: 30,
+    height: 30,
   },
 
   tabBarIconSize: {

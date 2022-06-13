@@ -1,5 +1,12 @@
 import {Auth, DataStore, Hub} from 'aws-amplify';
-import {FriendsList, FriendsRequest, User} from 'models';
+import {Logger} from 'helpers/Logger';
+import {
+  ChatRoom,
+  ChatRoomUser,
+  FriendsList,
+  FriendsRequest,
+  User,
+} from 'models';
 import {Translations} from 'translations/Translations';
 
 /**
@@ -34,7 +41,7 @@ export const getCurrentUserData = async () => {
 
 export const logOut = async () => {
   await DataStore.clear();
-  await Auth.signOut();
+  Auth.signOut();
 };
 
 /**
@@ -86,8 +93,9 @@ export const getRecievedRequests = async currentUserId => {
    */
   let users = [];
   for (const item of userIds) {
-    const user = await DataStore.query(User, item);
-    users.push(user);
+    const u = await DataStore.query(User);
+    const user = u.filter(i => i.id === item);
+    users.push(user[0]);
   }
   return users;
 };
@@ -240,15 +248,16 @@ export const removeFriendRequest = async (currentUser, user) => {
 const addFriendToFriendList = async (currentUser, user) => {
   try {
     const friendListResponse = await getUserFriendsList(currentUser.id);
-    const friendsList = friendListResponse[0]
+
+    let friendsList = friendListResponse[0]
       ? friendListResponse[0].friendsId
       : [];
-    friendsList.push(user.id);
+    friendsList = [...friendsList, user.id];
 
     if (friendListResponse[0]) {
       await DataStore.save(
         FriendsList.copyOf(friendListResponse[0], update => {
-          update.friendsId = friendsList;
+          update.friendsId = [...friendsList];
         }),
       );
     } else {
@@ -259,6 +268,115 @@ const addFriendToFriendList = async (currentUser, user) => {
 
     return {success: true, data: undefined, error: undefined};
   } catch (error) {
+    console.log(error);
     return {success: false, data: undefined, error: 'error'};
+  }
+};
+
+/**
+ * @param {User} currentUser
+ * @param {User} user
+ * @returns {Promise<{success: boolean, error?: string, data?: any}>}
+ */
+export const removeFriendFromList = async (currentUser, user) => {
+  const res1 = await removeFriendFromFriendList(currentUser, user);
+  if (res1.success) {
+    const res2 = await removeFriendFromFriendList(user, currentUser);
+    return res2;
+  }
+  return res1;
+};
+
+/**
+ * @param {User} currentUser
+ * @param {User} user
+ * @returns {Promise<{success: boolean, error?: string, data?: any}>}
+ */
+const removeFriendFromFriendList = async (currentUser, user) => {
+  try {
+    const friendListResponse = await getUserFriendsList(currentUser.id);
+    let friendsList = friendListResponse[0].friendsId;
+
+    const index = friendsList.indexOf(user.id);
+
+    if (index !== -1) {
+      friendsList = friendsList.filter(item => item !== user.id);
+
+      await DataStore.save(
+        FriendsList.copyOf(friendListResponse[0], update => {
+          update.friendsId = [...friendsList];
+        }),
+      );
+    }
+
+    return {success: true, data: undefined, error: undefined};
+  } catch (error) {
+    console.log(error);
+    return {success: false, data: undefined, error: 'error'};
+  }
+};
+
+/**
+ * @param {User} user
+ * @param {string} newName
+ */
+export const changeUserName = async (user, newName) => {
+  return await DataStore.save(
+    User.copyOf(user, update => {
+      update.userName = newName;
+    }),
+  );
+};
+
+/**
+ * @param {ChatRoom} room
+ * @param {string} newName
+ */
+export const changeChatRoomName = async (room, newName) => {
+  return await DataStore.save(
+    ChatRoom.copyOf(room, update => {
+      update.Admin = room.Admin;
+      update.ChatRoomUsers = room.ChatRoomUsers;
+      update.LastMessage = room.LastMessage;
+      update.Messages = room.Messages;
+      update.chatRoomAdminId = room.chatRoomAdminId;
+      update.chatRoomLastMessageId = room.chatRoomLastMessageId;
+      update.groupImage = room.groupImage;
+      update.newMessages = room.newMessages;
+      update.groupName = newName;
+    }),
+  );
+};
+
+/**
+ * @param {string} id
+ * @returns {Promise<User[]>}
+ */
+export const getRoomUsers = async id => {
+  const usersResponse = (await DataStore.query(ChatRoomUser))
+    .filter(u => u.chatRoom.id === id)
+    .map(u => u.user);
+
+  return usersResponse;
+};
+
+/**
+ * @param {string} roomId
+ * @param {string} userId
+ */
+export const leaveChatRoom = async (roomId, userId) => {
+  try {
+    const responseChatRoomUser = (await DataStore.query(ChatRoomUser)).filter(
+      u => u.chatRoom.id === roomId && u.user.id === userId,
+    );
+    const response = await DataStore.delete(
+      ChatRoomUser,
+      responseChatRoomUser[0].id,
+    );
+
+    Logger.log(response);
+    return {success: true, data: response, error: undefined};
+  } catch (error) {
+    return {success: false, data: undefined, error: 'Error'};
   }
 };
