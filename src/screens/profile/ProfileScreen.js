@@ -94,7 +94,12 @@ const ProfileScreen = props => {
   };
 
   const onNameConfirmed = () => {
-    changeName(nameRef.current);
+    if (nameRef.current.length >= 8) {
+      changeName(nameRef.current);
+    } else {
+      ToastHelper.showError('You have to enter at least 8 charachters');
+    }
+
     nameRef.current = undefined;
     setIsNameChange(false);
   };

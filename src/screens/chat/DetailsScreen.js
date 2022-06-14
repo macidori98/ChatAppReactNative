@@ -158,7 +158,14 @@ const DetailsScreen = props => {
                 groupNameRef.current = text;
               },
               () => {
-                onChangeGroupName(groupNameRef.current);
+                if (groupNameRef.current.length >= 8) {
+                  onChangeGroupName(groupNameRef.current);
+                } else {
+                  ToastHelper.showError(
+                    'You have to enter at least 8 charachters',
+                  );
+                }
+
                 groupNameRef.current = undefined;
                 setIsChangeGroupNameDialogShown(false);
               },

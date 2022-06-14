@@ -115,7 +115,13 @@ const SentRequests = props => {
   };
 
   const onConfirmPressSendRequest = () => {
-    saveUser(emailRef.current);
+    const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+    if (reg.test(emailRef.current)) {
+      saveUser(emailRef.current);
+    } else {
+      ToastHelper.showError('You have to enter a valid email address');
+    }
+
     emailRef.current = undefined;
     setIsAddFriend(false);
   };
