@@ -280,15 +280,15 @@ PODS:
   - React-jsinspector (0.67.4)
   - React-logger (0.67.4):
     - glog
-  - react-native-document-picker (8.1.0):
+  - react-native-document-picker (8.1.1):
     - React-Core
   - react-native-get-random-values (1.8.0):
     - React-Core
-  - react-native-image-picker (4.8.3):
+  - react-native-image-picker (4.8.4):
     - React-Core
   - react-native-netinfo (8.3.1):
     - React-Core
-  - react-native-safe-area-context (4.2.5):
+  - react-native-safe-area-context (4.3.1):
     - RCT-Folly
     - RCTRequired
     - RCTTypeSafety
@@ -363,7 +363,7 @@ PODS:
     - React-Core
   - RNAWSCognito (5.2.9):
     - React-Core
-  - RNCAsyncStorage (1.17.5):
+  - RNCAsyncStorage (1.17.6):
     - React-Core
   - RNCPicker (2.4.1):
     - React-Core
@@ -372,7 +372,7 @@ PODS:
   - RNScreens (3.13.1):
     - React-Core
     - React-RCTImage
-  - RNShare (7.5.0):
+  - RNShare (7.6.2):
     - React-Core
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -596,11 +596,11 @@ SPEC CHECKSUMS:
   React-jsiexecutor: cbdf37cebdc4f5d8b3d0bf5ccaa6147fd9de9f3d
   React-jsinspector: f4775ea9118cbe1f72b834f0f842baa7a99508d8
   React-logger: a1f028f6d8639a3f364ef80419e5e862e1115250
-  react-native-document-picker: e54f06b94104d91f651db1db378898fe2ba7050b
+  react-native-document-picker: 3c074fa194fddbcd46867c3a1c44b9331bd9dcbc
   react-native-get-random-values: a6ea6a8a65dc93e96e24a11105b1a9c8cfe1d72a
-  react-native-image-picker: eb0a159c2a00bcfb49f0469fcc6b164329e9d4ca
+  react-native-image-picker: 9f9eb160a4f4fc0702f9d0a60fa453b413258ef8
   react-native-netinfo: 0981b7054d93cf88d3ce1e279c34423ae3db1182
-  react-native-safe-area-context: 923e8a02d3bd88ca7a6b6c9b3db1b94591044b0c
+  react-native-safe-area-context: d768fdafd416b4c0bdc7bef4240c9ee53909baf3
   React-perflogger: 0afaf2f01a47fd0fc368a93bfbb5bd3b26db6e7f
   React-RCTActionSheet: 59f35c4029e0b532fc42114241a06e170b7431a2
   React-RCTAnimation: aae4f4bed122e78bdab72f7118d291d70a932ce2
@@ -615,11 +615,11 @@ SPEC CHECKSUMS:
   ReactCommon: 07d0c460b9ba9af3eaf1b8f5abe7daaad28c9c4e
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNAWSCognito: b967f462350ac749f2ff36426f84cdbf5689f576
-  RNCAsyncStorage: e405f7684be5a2066f5418bb1a4729129ae4feb3
+  RNCAsyncStorage: 86050d31a1cdc564876f68d8e342688b29f9b186
   RNCPicker: abc646b53a3d28ccfa3232c927a0ca52e0cf024d
   RNPermissions: 7ad8d93b004e6bc85c89e27a102afcde90e07efa
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
-  RNShare: 2e8e9dadea058057642a9351ca2878867ad4ad5c
+  RNShare: da0fd52f08c7b9f1ca31aef98a4890e98fc2c4c5
   Yoga: d6b6a80659aa3e91aaba01d0012e7edcbedcbecd
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 

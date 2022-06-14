@@ -5,7 +5,7 @@ import ChatMessage from 'components/chat/ChatMessage';
 import MessageInput from 'components/chat/MessageInput';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import ConversationPersonImage from 'components/ConversationPersonImage';
-import {getDeleteAlert, getSimpleAlert} from 'helpers/AlertHelper';
+import {getInteractiveDialog, getSimpleDialog} from 'helpers/AlertHelper';
 import {
   ChatRoom,
   ChatRoomUser,
@@ -62,12 +62,16 @@ const ChatRoomScreen = props => {
   const [otherUser, setOtherUSer] = useState();
   /** @type {UseState<boolean>} */
   const [isLoading, setIsLoading] = useState(true);
+  /** @type {UseState<boolean>} */
+  const [isDialogShown, setIsDialogShown] = useState();
   /** @type {UseState<number>} */
   const [sending, setSending] = useState(undefined);
   /** @type {React.MutableRefObject<FlatList<Message>>} */
   const flatListRef = useRef();
   /** @type {React.MutableRefObject<Message>} */
   const messageRef = useRef();
+  /** @type {UseState<boolean>} */
+  const [isDeleteDialogShown, setIsDeleteDialogShown] = useState();
 
   const screenHeaderHeight = useHeaderHeight();
   const screenDimensions = Dimensions.get('screen');
@@ -306,7 +310,7 @@ const ChatRoomScreen = props => {
     async (user, text) => {
       const secretKey = await AsyncStorage.getItem('SECRET_KEY');
       if (!secretKey) {
-        getSimpleAlert('You have to set your keypair from settings');
+        setIsDialogShown(true);
         return;
       }
 
@@ -378,9 +382,31 @@ const ChatRoomScreen = props => {
 
   return (
     <SafeAreaView style={styles.page}>
+      {getSimpleDialog(
+        isDialogShown,
+        'warning',
+        'You have to set your keypair from settings',
+        () => {
+          setIsDialogShown(false);
+        },
+      )}
       {isLoading && <LoadingIndicator />}
       {!isLoading && (
         <>
+          {isDeleteDialogShown &&
+            getInteractiveDialog(
+              isDeleteDialogShown,
+              'Delete',
+              'Are you sure you want to delete the message?',
+              () => {
+                deleteMessage();
+                setIsDeleteDialogShown(false);
+              },
+              () => {
+                setIsDeleteDialogShown(false);
+              },
+              'Delete',
+            )}
           {sending && (
             <View style={{...styles.loadingIndicator, width: `${sending}%`}} />
           )}
@@ -398,10 +424,8 @@ const ChatRoomScreen = props => {
               <TouchableOpacity
                 style={styles.actionButtonStyle}
                 onPress={() => {
-                  getDeleteAlert(
-                    'Are you sure you want to delete the message?',
-                    deleteMessage,
-                  );
+                  setIsDeleteDialogShown(true);
+                  actionSheetRef.current?.hide();
                 }}>
                 <Text>Delete</Text>
               </TouchableOpacity>

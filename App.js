@@ -35,28 +35,6 @@ const App = props => {
   const [loading, setLoading] = useState(true);
   const statusBarStyle = 'dark-content';
 
-  // useEffect(() => {
-  //   try {
-  //     const appearance = Appearance.getColorScheme();
-  //     setStatusBarStyle(
-  //       appearance === 'dark' ? 'light-content' : 'dark-content',
-  //     );
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   const obj = {hello: 'world'};
-  //   const pairA = generateKeyPair();
-  //   const pairB = generateKeyPair();
-  //   const sharedA = box.before(pairB.publicKey, pairA.secretKey);
-  //   const sharedB = box.before(pairA.publicKey, pairB.secretKey);
-  //   const encrypted = encrypt(sharedA, obj);
-  //   const decrypted = decrypt(sharedB, encrypted);
-  //   console.log(obj, encrypted, decrypted);
-  // }, []);
-
   const setTranslations = useCallback(async () => {
     await Translations.initializeTranslations();
     setLoading(false);
@@ -92,7 +70,7 @@ const App = props => {
 
   const updateLastOnline = useCallback(async () => {
     if (user) {
-      const response = await DataStore.save(
+      await DataStore.save(
         User.copyOf(user, update => {
           update.lastOnlineAt = moment().unix();
         }),
@@ -103,7 +81,7 @@ const App = props => {
   useEffect(() => {
     const interval = setInterval(() => {
       updateLastOnline();
-    }, 1000);
+    }, 300000);
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -112,7 +90,7 @@ const App = props => {
   useEffect(() => {
     updateLastOnline();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     if (

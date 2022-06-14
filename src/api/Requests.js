@@ -1,4 +1,5 @@
-import {Auth, DataStore, Hub} from 'aws-amplify';
+import {Auth, DataStore, Hub, Storage} from 'aws-amplify';
+import {getFileBlob} from 'helpers/GalleryHelper';
 import {Logger} from 'helpers/Logger';
 import {
   ChatRoom,
@@ -7,7 +8,10 @@ import {
   FriendsRequest,
   User,
 } from 'models';
+import 'react-native-get-random-values';
+import {Asset} from 'react-native-image-picker';
 import {Translations} from 'translations/Translations';
+import {v4 as uuidv4} from 'uuid';
 
 /**
  * @param {() => Promise<void>} action
@@ -41,7 +45,7 @@ export const getCurrentUserData = async () => {
 
 export const logOut = async () => {
   await DataStore.clear();
-  Auth.signOut();
+  await Auth.signOut();
 };
 
 /**
@@ -50,11 +54,14 @@ export const logOut = async () => {
  * @returns {Promise<User>}
  */
 export const updateCurrentUserPublicKey = async (currentUser, key) => {
-  return await DataStore.save(
-    User.copyOf(currentUser, update => {
+  const response = await DataStore.query(User, currentUser.id);
+  await DataStore.save(
+    User.copyOf(response, update => {
       update.publicKey = key;
     }),
   );
+
+  return await getCurrentUserData();
 };
 
 /**
@@ -234,6 +241,7 @@ export const removeFriendRequest = async (currentUser, user) => {
       friendsRequestResponse[0].id,
     );
   } catch (error) {
+    Logger.log(error);
     return {success: false, data: undefined, error: 'Error'};
   }
 
@@ -317,15 +325,31 @@ const removeFriendFromFriendList = async (currentUser, user) => {
 };
 
 /**
- * @param {User} user
  * @param {string} newName
  */
-export const changeUserName = async (user, newName) => {
-  return await DataStore.save(
-    User.copyOf(user, update => {
+export const changeUserName = async newName => {
+  const response = await getCurrentUserData();
+  await DataStore.save(
+    User.copyOf(response, update => {
       update.userName = newName;
     }),
   );
+
+  return await getCurrentUserData();
+};
+
+/**
+ * @param {string} imageLink
+ */
+export const changeUserProfilePicture = async imageLink => {
+  const response = await getCurrentUserData();
+  await DataStore.save(
+    User.copyOf(response, update => {
+      update.imageUri = imageLink;
+    }),
+  );
+
+  return await getCurrentUserData();
 };
 
 /**
@@ -344,6 +368,26 @@ export const changeChatRoomName = async (room, newName) => {
       update.groupImage = room.groupImage;
       update.newMessages = room.newMessages;
       update.groupName = newName;
+    }),
+  );
+};
+
+/**
+ * @param {ChatRoom} room
+ * @param {string} newImage
+ */
+export const changeChatRoomImage = async (room, newImage) => {
+  return await DataStore.save(
+    ChatRoom.copyOf(room, update => {
+      update.Admin = room.Admin;
+      update.ChatRoomUsers = room.ChatRoomUsers;
+      update.LastMessage = room.LastMessage;
+      update.Messages = room.Messages;
+      update.chatRoomAdminId = room.chatRoomAdminId;
+      update.chatRoomLastMessageId = room.chatRoomLastMessageId;
+      update.groupImage = newImage;
+      update.newMessages = room.newMessages;
+      update.groupName = room.groupName;
     }),
   );
 };
@@ -379,4 +423,17 @@ export const leaveChatRoom = async (roomId, userId) => {
   } catch (error) {
     return {success: false, data: undefined, error: 'Error'};
   }
+};
+
+/**
+ * @param {Asset[]} data
+ * @returns {Promise<string>}
+ */
+export const uploadImage = async data => {
+  const blob = await getFileBlob(data[0].uri);
+  const index = data[0].type.indexOf('/');
+  const extenstion = data[0].type.substring(index + 1);
+  const result = await Storage.put(`${uuidv4()}.${extenstion}`, blob);
+  const image = await Storage.get(result.key);
+  return image;
 };

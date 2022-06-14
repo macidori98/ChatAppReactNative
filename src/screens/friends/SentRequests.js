@@ -5,10 +5,11 @@ import {
 } from 'api/Requests';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersList from 'components/users/UsersList';
+import {getInteractiveDialog, getPromptDialog} from 'helpers/AlertHelper';
 import {ToastHelper} from 'helpers/ToastHelper';
 import {User} from 'models';
-import React, {useCallback, useEffect, useState} from 'react';
-import {Alert, Button, Text, View} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Button, Text, View} from 'react-native';
 import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
@@ -24,6 +25,18 @@ const SentRequests = props => {
    * @type {UseState<User[]>}
    */
   const [users, setUsers] = useState();
+  /**
+   * @type {UseState<boolean>}
+   */
+  const [isAddFriend, setIsAddFriend] = useState();
+  /** @type {React.MutableRefObject<string>} */
+  const emailRef = useRef();
+  /**
+   * @type {UseState<boolean>}
+   */
+  const [isUserClicked, setIsUserClicked] = useState();
+  /** @type {React.MutableRefObject<User>} */
+  const userRef = useRef();
 
   const authedUserState = useSelector(
     /** @param {{auth: AuthenticateState}} state */ state => {
@@ -73,8 +86,8 @@ const SentRequests = props => {
     async user => {
       setIsLoading(true);
       const response = await removeFriendRequest(
-        authedUserState.authedUser,
         user,
+        authedUserState.authedUser,
       );
 
       if (response.success) {
@@ -96,30 +109,69 @@ const SentRequests = props => {
     [authedUserState.authedUser, users],
   );
 
+  /** @param {string} text */
+  const onChangeTextEnterEmail = text => {
+    emailRef.current = text;
+  };
+
+  const onConfirmPressSendRequest = () => {
+    const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
+    if (reg.test(emailRef.current)) {
+      saveUser(emailRef.current);
+    } else {
+      ToastHelper.showError('You have to enter a valid email address');
+    }
+
+    emailRef.current = undefined;
+    setIsAddFriend(false);
+  };
+
+  const onCancelPressSendRequest = () => {
+    setIsAddFriend(false);
+    emailRef.current = undefined;
+  };
+
   const getContent = () => {
     /**
      * @type {JSX.Element[]}
      */
     const items = [
+      <>
+        {isAddFriend &&
+          getPromptDialog(
+            isAddFriend,
+            Translations.strings.enterEmail(),
+            Translations.strings.enterFriendEmail(),
+            onChangeTextEnterEmail,
+            onConfirmPressSendRequest,
+            onCancelPressSendRequest,
+          )}
+      </>,
+      <>
+        {isUserClicked &&
+          getInteractiveDialog(
+            isUserClicked,
+            `${userRef.current.userName}`,
+            Translations.strings.whatToDo(),
+            () => {
+              removeRequest(userRef.current);
+              userRef.current = undefined;
+              setIsUserClicked(false);
+            },
+            () => {
+              userRef.current = undefined;
+              setIsUserClicked(false);
+            },
+            Translations.strings.remove(),
+            Translations.strings.cancel(),
+            'red',
+          )}
+      </>,
       <Button
         key={Translations.strings.addFriend()}
         title={Translations.strings.addFriend()}
         onPress={() => {
-          Alert.prompt(
-            Translations.strings.enterEmail(),
-            Translations.strings.enterFriendEmail(),
-            [
-              {
-                text: Translations.strings.cancel(),
-                style: 'cancel',
-              },
-              {
-                text: 'OK',
-                onPress: email => saveUser(email),
-              },
-            ],
-            'plain-text',
-          );
+          setIsAddFriend(true);
         }}
       />,
     ];
@@ -130,21 +182,8 @@ const SentRequests = props => {
           key={'list'}
           users={users}
           onPress={user => {
-            Alert.prompt(
-              `${user.userName}`,
-              Translations.strings.whatToDo(),
-              [
-                {
-                  text: Translations.strings.cancel(),
-                  style: 'cancel',
-                },
-                {
-                  text: Translations.strings.remove(),
-                  onPress: removeRequest.bind(this, user),
-                },
-              ],
-              'default',
-            );
+            userRef.current = user;
+            setIsUserClicked(true);
           }}
         />,
       );

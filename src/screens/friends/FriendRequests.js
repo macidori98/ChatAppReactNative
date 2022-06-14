@@ -5,10 +5,11 @@ import {
 } from 'api/Requests';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersList from 'components/users/UsersList';
+import {getInteractiveDialog} from 'helpers/AlertHelper';
 import {ToastHelper} from 'helpers/ToastHelper';
 import {User} from 'models';
-import React, {useCallback, useEffect, useState} from 'react';
-import {Alert, Text, View} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Text, View} from 'react-native';
 import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
@@ -24,6 +25,12 @@ const FriendRequests = props => {
    * @type {UseState<User[]>}
    */
   const [users, setUsers] = useState();
+  /**
+   * @type {UseState<boolean>}
+   */
+  const [isUserClicked, setIsUserClicked] = useState();
+  /** @type {React.MutableRefObject<User>} */
+  const userRef = useRef();
 
   const authedUserState = useSelector(
     /** @param {{auth: AuthenticateState}} state */ state => {
@@ -109,31 +116,42 @@ const FriendRequests = props => {
   const getContent = () => {
     if (users.length > 0) {
       return (
-        <UsersList
-          key={'list'}
-          onPress={user => {
-            Alert.prompt(
-              `${user.userName} ${Translations.strings.sentYouFriendRequest()}`,
+        <>
+          {isUserClicked &&
+            getInteractiveDialog(
+              isUserClicked,
+              `${
+                userRef.current.userName
+              } ${Translations.strings.sentYouFriendRequest()}`,
               Translations.strings.whatToDo(),
-              [
-                {
-                  text: Translations.strings.cancel(),
-                  style: 'cancel',
-                },
-                {
-                  text: Translations.strings.accept(),
-                  onPress: acceptRequest.bind(this, user),
-                },
-                {
-                  text: Translations.strings.remove(),
-                  onPress: removeRequest.bind(this, user),
-                },
-              ],
-              'default',
-            );
-          }}
-          users={users}
-        />
+              () => {
+                removeRequest(userRef.current);
+                userRef.current = undefined;
+                setIsUserClicked(false);
+              },
+              () => {
+                userRef.current = undefined;
+                setIsUserClicked(false);
+              },
+              Translations.strings.remove(),
+              Translations.strings.cancel(),
+              'red',
+              Translations.strings.accept(),
+              () => {
+                acceptRequest(userRef.current);
+                userRef.current = undefined;
+                setIsUserClicked(false);
+              },
+            )}
+          <UsersList
+            key={'list'}
+            onPress={user => {
+              userRef.current = user;
+              setIsUserClicked(true);
+            }}
+            users={users}
+          />
+        </>
       );
     } else {
       return (
