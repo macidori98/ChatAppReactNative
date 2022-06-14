@@ -45,7 +45,7 @@ export const getCurrentUserData = async () => {
 
 export const logOut = async () => {
   await DataStore.clear();
-  Auth.signOut();
+  await Auth.signOut();
 };
 
 /**
@@ -54,11 +54,14 @@ export const logOut = async () => {
  * @returns {Promise<User>}
  */
 export const updateCurrentUserPublicKey = async (currentUser, key) => {
-  return await DataStore.save(
-    User.copyOf(currentUser, update => {
+  const response = await DataStore.query(User, currentUser.id);
+  await DataStore.save(
+    User.copyOf(response, update => {
       update.publicKey = key;
     }),
   );
+
+  return await getCurrentUserData();
 };
 
 /**
@@ -321,15 +324,31 @@ const removeFriendFromFriendList = async (currentUser, user) => {
 };
 
 /**
- * @param {User} user
  * @param {string} newName
  */
-export const changeUserName = async (user, newName) => {
-  return await DataStore.save(
-    User.copyOf(user, update => {
+export const changeUserName = async newName => {
+  const response = await getCurrentUserData();
+  await DataStore.save(
+    User.copyOf(response, update => {
       update.userName = newName;
     }),
   );
+
+  return await getCurrentUserData();
+};
+
+/**
+ * @param {string} imageLink
+ */
+export const changeUserProfilePicture = async imageLink => {
+  const response = await getCurrentUserData();
+  await DataStore.save(
+    User.copyOf(response, update => {
+      update.imageUri = imageLink;
+    }),
+  );
+
+  return await getCurrentUserData();
 };
 
 /**
@@ -413,7 +432,7 @@ export const uploadImage = async data => {
   const blob = await getFileBlob(data[0].uri);
   const index = data[0].type.indexOf('/');
   const extenstion = data[0].type.substring(index + 1);
-  const result = await Storage.put(`${uuidv4()}.${extenstion}`, blob); // file name is the result
+  const result = await Storage.put(`${uuidv4()}.${extenstion}`, blob);
   const image = await Storage.get(result.key);
   return image;
 };
