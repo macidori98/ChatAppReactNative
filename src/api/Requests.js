@@ -241,6 +241,7 @@ export const removeFriendRequest = async (currentUser, user) => {
       friendsRequestResponse[0].id,
     );
   } catch (error) {
+    Logger.log(error);
     return {success: false, data: undefined, error: 'Error'};
   }
 

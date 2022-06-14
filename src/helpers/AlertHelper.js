@@ -1,72 +1,113 @@
-import {Alert} from 'react-native';
+import React from 'react';
+import {View} from 'react-native';
+import Dialog from 'react-native-dialog';
 import {Translations} from 'translations/Translations';
 
 /**
- * @param {string} actionDescription
- * @param {(str?: string) => void} removeFunction
- * @returns {void}
+ * @param {boolean} visible
+ * @param {string} title
+ * @param {string} description
+ * @param {() => void} onCancelPress
+ * @param {string} [labelCancel]
+ * @returns {JSX.Element}
  */
-export const getDeleteAlert = (actionDescription, removeFunction) =>
-  Alert.alert('Confirm delete', actionDescription, [
-    {
-      text: 'Delete',
-      onPress: removeFunction,
-      style: 'destructive',
-    },
-    {
-      text: Translations.strings.cancel(),
-      style: 'cancel',
-    },
-  ]);
-
-/**
- * @param {string} actionDescription
- * @param {(str?: string) => void} removeFunction
- * @returns {void}
- */
-export const getLeaveAlert = (actionDescription, removeFunction) =>
-  Alert.alert('Confirm leaving', actionDescription, [
-    {
-      text: 'Leave',
-      onPress: removeFunction,
-      style: 'destructive',
-    },
-    {
-      text: Translations.strings.cancel(),
-      style: 'cancel',
-    },
-  ]);
-
-/**
- * @param {string} actionDescription
- * @returns {void}
- */
-export const getSimpleAlert = actionDescription =>
-  Alert.alert(actionDescription);
-
-/**
- * @param {string} actionDescription1
- * @param {string} actionDescription2
- * @param {(str?: string) => void} functionOnPress
- * @returns {void}
- */
-export const getPromptAlert = (
-  actionDescription1,
-  actionDescription2,
-  functionOnPress,
-) =>
-  Alert.prompt(
-    actionDescription1,
-    actionDescription2,
-    [
-      {
-        text: Translations.strings.cancel(),
-        style: 'cancel',
-      },
-      {
-        text: 'OK',
-        onPress: functionOnPress,
-      },
-    ],
-    'plain-text',
+export const getSimpleDialog = (
+  visible,
+  title,
+  description,
+  onCancelPress,
+  labelCancel,
+) => {
+  return (
+    <View key={`Dialog.${title}`}>
+      <Dialog.Container visible={visible}>
+        <Dialog.Title>{title}</Dialog.Title>
+        <Dialog.Description>{description}</Dialog.Description>
+        <Dialog.Button
+          onPress={onCancelPress}
+          label={labelCancel ?? Translations.strings.cancel()}
+        />
+      </Dialog.Container>
+    </View>
   );
+};
+
+/**
+ * @param {boolean} visible
+ * @param {string} title
+ * @param {string} description
+ * @param {() => void } onConfirmPress
+ * @param {() => void} onCancelPress
+ * @param {string} [labelConfirm]
+ * @param {string} [labelCancel]
+ * @param {string} [confirmColor]
+ * @param {string} [thirdLabel]
+ * @param {() => void} [onThirdButton]
+ * @returns {JSX.Element}
+ */
+export const getInteractiveDialog = (
+  visible,
+  title,
+  description,
+  onConfirmPress,
+  onCancelPress,
+  labelConfirm,
+  labelCancel,
+  confirmColor,
+  thirdLabel,
+  onThirdButton,
+) => {
+  return (
+    <View key={`Dialog.${title}`}>
+      <Dialog.Container visible={visible}>
+        <Dialog.Title>{title}</Dialog.Title>
+        <Dialog.Description>{description}</Dialog.Description>
+        <Dialog.Button
+          onPress={onCancelPress}
+          label={labelCancel ?? Translations.strings.cancel()}
+        />
+        <Dialog.Button
+          color={confirmColor ?? undefined}
+          onPress={onConfirmPress}
+          label={labelConfirm ?? 'Ok'}
+        />
+        {thirdLabel && (
+          <Dialog.Button onPress={onThirdButton} label={thirdLabel} />
+        )}
+      </Dialog.Container>
+    </View>
+  );
+};
+
+/**
+ * @param {boolean} visible
+ * @param {string} title
+ * @param {string} description
+ * @param {(text:string) => void} onChangeText
+ * @param {() => void } onConfirmPress
+ * @param {() => void} onCancelPress
+ * @returns {JSX.Element}
+ */
+export const getPromptDialog = (
+  visible,
+  title,
+  description,
+  onChangeText,
+  onConfirmPress,
+  onCancelPress,
+) => {
+  return (
+    <View key={`Dialog.${title}`}>
+      <Dialog.Container visible={visible}>
+        <Dialog.Title>{title}</Dialog.Title>
+        <Dialog.Description>{description}</Dialog.Description>
+        <Dialog.Input onChangeText={onChangeText} />
+        <Dialog.Button
+          onPress={onCancelPress}
+          label={Translations.strings.cancel()}
+        />
+        <Dialog.Button onPress={onConfirmPress} label="Ok" />
+      </Dialog.Container>
+    </View>
+  );
+};

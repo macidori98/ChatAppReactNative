@@ -2,9 +2,9 @@ import {DataStore} from '@aws-amplify/datastore';
 import {getUserById, getUserFriendsList} from 'api/Requests';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersList from 'components/users/UsersList';
+import {getInteractiveDialog} from 'helpers/AlertHelper';
 import {ChatRoom, ChatRoomUser, User} from 'models';
-import React, {useCallback, useEffect, useState} from 'react';
-import {Alert} from 'react-native';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useSelector} from 'react-redux';
 import {Translations} from 'translations/Translations';
 import {UseState} from 'types/CommonTypes';
@@ -20,6 +20,12 @@ const UsersScreen = props => {
   const [users, setUsers] = useState([]);
   /** @type {UseState<boolean>} */
   const [isLoading, setIsLoading] = useState(true);
+  /**
+   * @type {UseState<boolean>}
+   */
+  const [isUserClicked, setIsUserClicked] = useState();
+  /** @type {React.MutableRefObject<User>} */
+  const userRef = useRef();
 
   const authedUserState = useSelector(
     /** @param {{auth: AuthenticateState}} state */ state => {
@@ -107,37 +113,47 @@ const UsersScreen = props => {
    * @param {User} user
    */
   const onPress = user => {
-    Alert.prompt(
-      `${user.userName}`,
-      Translations.strings.whatToDo(),
-      [
-        {
-          text: Translations.strings.cancel(),
-          style: 'cancel',
-        },
-        {
-          text: Translations.strings.profile(),
-          onPress: showUserProfile.bind(this, user),
-        },
-        {
-          text: Translations.strings.startChat(),
-          onPress: startChat.bind(this, user),
-        },
-      ],
-      'default',
-    );
+    userRef.current = user;
+    setIsUserClicked(true);
   };
 
   return (
     <>
       {!isLoading && (
-        <UsersList
-          onNewGroupPress={() => {
-            props.navigation.replace('CreateGroupScreen', {data: users});
-          }}
-          onPress={onPress}
-          users={users}
-        />
+        <>
+          {isUserClicked &&
+            getInteractiveDialog(
+              isUserClicked,
+              `${userRef.current.userName}`,
+              Translations.strings.whatToDo(),
+              () => {
+                showUserProfile(userRef.current);
+                userRef.current = undefined;
+                setIsUserClicked(false);
+              },
+
+              () => {
+                userRef.current = undefined;
+                setIsUserClicked(false);
+              },
+              Translations.strings.profile(),
+              Translations.strings.cancel(),
+              undefined,
+              Translations.strings.startChat(),
+              () => {
+                startChat(userRef.current);
+                userRef.current = undefined;
+                setIsUserClicked(false);
+              },
+            )}
+          <UsersList
+            onNewGroupPress={() => {
+              props.navigation.replace('CreateGroupScreen', {data: users});
+            }}
+            onPress={onPress}
+            users={users}
+          />
+        </>
       )}
       {isLoading && <LoadingIndicator />}
     </>

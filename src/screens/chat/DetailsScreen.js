@@ -9,15 +9,20 @@ import {DataStore} from 'aws-amplify';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import UsersListItem from 'components/users/UsersListItem';
 import {
-  getDeleteAlert,
-  getLeaveAlert,
-  getPromptAlert,
-  getSimpleAlert,
+  getInteractiveDialog,
+  getPromptDialog,
+  getSimpleDialog,
 } from 'helpers/AlertHelper';
 import {pickImageFromGallery} from 'helpers/GalleryHelper';
 import {ToastHelper} from 'helpers/ToastHelper';
 import {ChatRoomUser, User} from 'models';
-import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   SectionList,
   StyleSheet,
@@ -46,6 +51,19 @@ const DetailsScreen = props => {
   const [isLoading, setIsLoading] = useState(true);
   /** @type {UseState<boolean>} */
   const [isGroup, setIsGroup] = useState(false);
+  /** @type {UseState<boolean>} */
+  const [isDialogShown, setIsDialogShown] = useState();
+  /** @type {UseState<boolean>} */
+  const [isLeaveDialogShown, setIsLeaveDialogShown] = useState();
+  /** @type {UseState<boolean>} */
+  const [isChangeGroupNameDialogShown, setIsChangeGroupNameDialogShown] =
+    useState();
+  /** @type {UseState<boolean>} */
+  const [isDeleteDialogShown, setIsDeleteDialogShown] = useState();
+  /** @type {React.MutableRefObject<User>} */
+  const userRef = useRef();
+  /** @type {React.MutableRefObject<string>} */
+  const groupNameRef = useRef();
 
   const authedUserState = useSelector(
     /** @param {{auth: AuthenticateState}} state */ state => {
@@ -83,7 +101,7 @@ const DetailsScreen = props => {
           ],
         });
       } else {
-        getSimpleAlert('you have to enter at least 8 characters');
+        setIsDialogShown(true);
       }
     },
     [data, props.navigation],
@@ -110,12 +128,19 @@ const DetailsScreen = props => {
   const setHeader = useCallback(
     () => (
       <>
+        {getInteractiveDialog(
+          isLeaveDialogShown,
+          'Leave',
+          'Are you sure about leaving the room?',
+          leaveRoom,
+          () => {
+            setIsLeaveDialogShown(false);
+          },
+        )}
         <TouchableOpacity
-          onPress={getLeaveAlert.bind(
-            this,
-            'Are you sure about leaving the room?',
-            leaveRoom,
-          )}
+          onPress={() => {
+            setIsLeaveDialogShown(true);
+          }}
           style={{marginHorizontal: Theme.values.margins.marginSmall}}>
           <Icon
             name="log-out-outline"
@@ -125,16 +150,27 @@ const DetailsScreen = props => {
         </TouchableOpacity>
         {data.groupName && (
           <>
+            {getPromptDialog(
+              isChangeGroupNameDialogShown,
+              Translations.strings.changeName(),
+              Translations.strings.enterName(),
+              text => {
+                groupNameRef.current = text;
+              },
+              () => {
+                onChangeGroupName(groupNameRef.current);
+                groupNameRef.current = undefined;
+                setIsChangeGroupNameDialogShown(false);
+              },
+              () => {
+                groupNameRef.current = undefined;
+                setIsChangeGroupNameDialogShown(false);
+              },
+            )}
             <TouchableOpacity
-              onPress={getPromptAlert.bind(
-                this,
-                Translations.strings.changeName(),
-                Translations.strings.enterName(),
-                /**
-                 * @param {string} name
-                 */
-                name => onChangeGroupName(name),
-              )}
+              onPress={() => {
+                setIsChangeGroupNameDialogShown(true);
+              }}
               style={{marginHorizontal: Theme.values.margins.marginSmall}}>
               <Icon
                 name="create-outline"
@@ -157,7 +193,14 @@ const DetailsScreen = props => {
         )}
       </>
     ),
-    [data.groupName, leaveRoom, onChangeGroupName, onImageRecieved],
+    [
+      data.groupName,
+      isChangeGroupNameDialogShown,
+      isLeaveDialogShown,
+      leaveRoom,
+      onChangeGroupName,
+      onImageRecieved,
+    ],
   );
 
   useLayoutEffect(() => {
@@ -207,10 +250,8 @@ const DetailsScreen = props => {
    */
   const confirmDelete = user => {
     if (isGroup && user !== data.Admin) {
-      getDeleteAlert(
-        `Are you sure you want to delete ${user.userName} from the group?`,
-        () => removeUserFromRoom(user),
-      );
+      userRef.current = user;
+      setIsDeleteDialogShown(true);
     }
   };
 
@@ -231,6 +272,30 @@ const DetailsScreen = props => {
 
   return (
     <View style={Theme.styles.screen}>
+      {getSimpleDialog(
+        isDialogShown,
+        'warning',
+        'you have to enter at least 8 characters',
+        () => {
+          setIsDialogShown(false);
+        },
+      )}
+      {isDeleteDialogShown &&
+        getInteractiveDialog(
+          isDeleteDialogShown,
+          'Delete',
+          `Are you sure you want to delete ${userRef.current.userName} from the group?`,
+          () => {
+            removeUserFromRoom(userRef.current);
+            userRef.current = undefined;
+            setIsDeleteDialogShown(false);
+          },
+          () => {
+            userRef.current = undefined;
+            setIsDeleteDialogShown(false);
+          },
+          'Delete',
+        )}
       {!isLoading && (
         <SectionList
           sections={isGroup ? getGroupSections() : getSections()}
