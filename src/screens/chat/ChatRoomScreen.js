@@ -277,6 +277,12 @@ const ChatRoomScreen = props => {
    * @param {DocumentPickerResponse[]} data
    */
   const sendFile2 = async data => {
+    const secretKey = await AsyncStorage.getItem('SECRET_KEY');
+    if (!secretKey) {
+      setIsDialogShown(true);
+      return;
+    }
+
     const blob = await getFileBlob(data[0].uri);
     const index = data[0].type.indexOf('/');
     const messageType = data[0].type.substring(0, index);
@@ -288,18 +294,62 @@ const ChatRoomScreen = props => {
         );
       },
     }); // file name is the result
-    const response = await DataStore.save(
-      new MessageModel({
-        userID: authedUserState.authedUser.id,
-        chatroomID: chatRoom.id,
-        content: key,
-        messageType: messageType,
-        base64type: data[0].type,
-        status: 'SENT',
-      }),
-    );
-    setSending(undefined);
-    updateLastMessage(response);
+
+    if (otherUser.isGroup) {
+      await Promise.all(
+        [...otherUser.users, authedUserState.authedUser].map(async u => {
+          const userPublicKeyUint8Array = stringToUint8Array(u.publicKey);
+
+          const secretKeyUint8Array = stringToUint8Array(secretKey);
+
+          const sharedKey = box.before(
+            userPublicKeyUint8Array,
+            secretKeyUint8Array,
+          );
+
+          const encryptedText = encrypt(sharedKey, key);
+          const response = await DataStore.save(
+            new MessageModel({
+              userID: authedUserState.authedUser.id,
+              chatroomID: chatRoom.id,
+              content: encryptedText,
+              messageType: messageType,
+              base64type: data[0].type,
+              forUserId: u.id,
+              status: 'SENT',
+            }),
+          );
+          setSending(undefined);
+          updateLastMessage(response);
+        }),
+      );
+    } else if (otherUser.isGroup === false) {
+      await [otherUser.user, authedUserState.authedUser].map(async u => {
+        const userPublicKeyUint8Array = stringToUint8Array(u.publicKey);
+
+        const secretKeyUint8Array = stringToUint8Array(secretKey);
+
+        const sharedKey = box.before(
+          userPublicKeyUint8Array,
+          secretKeyUint8Array,
+        );
+
+        const encryptedText = encrypt(sharedKey, key);
+        const response = await DataStore.save(
+          new MessageModel({
+            userID: authedUserState.authedUser.id,
+            chatroomID: chatRoom.id,
+            content: encryptedText,
+            messageType: messageType,
+            forUserId: u.id,
+            base64type: data[0].type,
+            status: 'SENT',
+          }),
+        );
+        setSending(undefined);
+        updateLastMessage(response);
+      });
+    }
   };
 
   const sendMessageToUser = useCallback(
@@ -350,6 +400,12 @@ const ChatRoomScreen = props => {
    * @param {Asset[]} data
    */
   const sendFile = async data => {
+    const secretKey = await AsyncStorage.getItem('SECRET_KEY');
+    if (!secretKey) {
+      setIsDialogShown(true);
+      return;
+    }
+
     const blob = await getFileBlob(data[0].uri);
     const index = data[0].type.indexOf('/');
     const messageType = data[0].type.substring(0, index);
@@ -361,18 +417,62 @@ const ChatRoomScreen = props => {
         );
       },
     }); // file name is the result
-    const response = await DataStore.save(
-      new MessageModel({
-        userID: authedUserState.authedUser.id,
-        chatroomID: chatRoom.id,
-        content: key,
-        messageType: messageType,
-        base64type: data[0].type,
-        status: 'SENT',
-      }),
-    );
-    setSending(undefined);
-    updateLastMessage(response);
+
+    if (otherUser.isGroup) {
+      await Promise.all(
+        [...otherUser.users, authedUserState.authedUser].map(async u => {
+          const userPublicKeyUint8Array = stringToUint8Array(u.publicKey);
+
+          const secretKeyUint8Array = stringToUint8Array(secretKey);
+
+          const sharedKey = box.before(
+            userPublicKeyUint8Array,
+            secretKeyUint8Array,
+          );
+
+          const encryptedText = encrypt(sharedKey, key);
+          const response = await DataStore.save(
+            new MessageModel({
+              userID: authedUserState.authedUser.id,
+              chatroomID: chatRoom.id,
+              content: encryptedText,
+              messageType: messageType,
+              base64type: data[0].type,
+              forUserId: u.id,
+              status: 'SENT',
+            }),
+          );
+          setSending(undefined);
+          updateLastMessage(response);
+        }),
+      );
+    } else if (otherUser.isGroup === false) {
+      await [otherUser.user, authedUserState.authedUser].map(async u => {
+        const userPublicKeyUint8Array = stringToUint8Array(u.publicKey);
+
+        const secretKeyUint8Array = stringToUint8Array(secretKey);
+
+        const sharedKey = box.before(
+          userPublicKeyUint8Array,
+          secretKeyUint8Array,
+        );
+
+        const encryptedText = encrypt(sharedKey, key);
+        const response = await DataStore.save(
+          new MessageModel({
+            userID: authedUserState.authedUser.id,
+            chatroomID: chatRoom.id,
+            content: encryptedText,
+            messageType: messageType,
+            forUserId: u.id,
+            base64type: data[0].type,
+            status: 'SENT',
+          }),
+        );
+        setSending(undefined);
+        updateLastMessage(response);
+      });
+    }
   };
 
   const deleteMessage = async () => {

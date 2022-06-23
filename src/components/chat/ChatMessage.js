@@ -102,7 +102,9 @@ const ChatMessage = props => {
             }}
             onPress={props.onImageFullScreen}
             style={styles.imageContainer}>
-            <S3Image style={styles.image} imgKey={message.content} />
+            {decryptedContent && (
+              <S3Image style={styles.image} imgKey={decryptedContent} />
+            )}
             {props.isMine && message.status !== 'SENT' && (
               <View style={styles.readStatusContainer}>
                 <Icon
@@ -127,7 +129,7 @@ const ChatMessage = props => {
               props.onLongPress(message);
             }}>
             <View>
-              <Text>{message.content ?? ''}</Text>
+              {decryptedContent && <Text>{decryptedContent ?? ''}</Text>}
               {props.isMine && message.status !== 'SENT' && (
                 <View style={styles.readStatusContainer}>
                   <Icon
@@ -154,13 +156,7 @@ const ChatMessage = props => {
             }}>
             <View>
               {repliedTo && (
-                <View
-                  style={{
-                    backgroundColor: 'rgba(0,0,0, 0.5)',
-                    padding: 4,
-                    marginBottom: 5,
-                    borderRadius: 5,
-                  }}>
+                <View style={styles.reply}>
                   <Text
                     style={props.isMine ? styles.textIsMe : styles.textIsOther}>
                     {repliedTo}
@@ -222,7 +218,7 @@ const ChatMessage = props => {
           const fs = RNFetchBlob.fs;
           let imagePath;
           try {
-            const url = await Storage.get(message.content);
+            const url = await Storage.get(decryptedContent);
             const data = await RNFetchBlob.config({
               fileCache: true,
             }).fetch('GET', url);
@@ -261,7 +257,7 @@ const ChatMessage = props => {
                   />
                 </View>
                 <Text style={{color: textColor}}>
-                  {message.content ?? undefined}
+                  {decryptedContent ?? undefined}
                 </Text>
               </View>
             </View>
@@ -333,5 +329,11 @@ const styles = StyleSheet.create({
     width: Dimensions.get('screen').width * 0.7,
     height: Dimensions.get('screen').width * 0.5,
     flexDirection: 'row',
+  },
+  reply: {
+    backgroundColor: 'rgba(0,0,0, 0.5)',
+    padding: 4,
+    marginBottom: 5,
+    borderRadius: 5,
   },
 });
