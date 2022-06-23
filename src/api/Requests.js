@@ -1,4 +1,4 @@
-import {Auth, DataStore, Hub, Storage} from 'aws-amplify';
+import {Auth, DataStore, Hub, SortDirection, Storage} from 'aws-amplify';
 import {getFileBlob} from 'helpers/GalleryHelper';
 import {Logger} from 'helpers/Logger';
 import {
@@ -6,6 +6,7 @@ import {
   ChatRoomUser,
   FriendsList,
   FriendsRequest,
+  Message,
   User,
 } from 'models';
 import 'react-native-get-random-values';
@@ -418,7 +419,6 @@ export const leaveChatRoom = async (roomId, userId) => {
       responseChatRoomUser[0].id,
     );
 
-    Logger.log(response);
     return {success: true, data: response, error: undefined};
   } catch (error) {
     return {success: false, data: undefined, error: 'Error'};
@@ -436,4 +436,106 @@ export const uploadImage = async data => {
   const result = await Storage.put(`${uuidv4()}.${extenstion}`, blob);
   const image = await Storage.get(result.key);
   return image;
+};
+
+/**
+ * @param {string} id
+ * @returns {Promise<ChatRoom>}
+ */
+export const getChatRoom = async id => {
+  return await DataStore.query(ChatRoom, id);
+};
+
+/**
+ * @param {string} chatRoomId
+ * @returns {Promise<Message[]>}
+ */
+export const getMessages = async chatRoomId => {
+  const currentUserId = await getCurrentUserId();
+  const messages = await DataStore.query(
+    Message,
+    item => item.chatroomID('eq', chatRoomId).forUserId('eq', currentUserId),
+    {
+      sort: message => message.createdAt(SortDirection.ASCENDING),
+    },
+  );
+
+  return messages;
+};
+
+/**
+ * @param {string} chatRoomId
+ * @returns {Promise<ChatRoomUser[]>}
+ */
+export const getOtherChatRoomUserData = async chatRoomId => {
+  const currentUserId = await getCurrentUserId();
+
+  const chatRoomUsers = (await DataStore.query(ChatRoomUser)).filter(
+    item => item.chatRoom.id === chatRoomId,
+  );
+
+  const chatUsers = chatRoomUsers.filter(
+    item => item.user.id !== currentUserId,
+  );
+
+  return chatUsers;
+};
+
+/**
+ * @param {Message} message
+ * @param {ChatRoom} chatRoom
+ * @returns {Promise<ChatRoom>}
+ */
+export const updateLastMessageDatabase = async (message, chatRoom) => {
+  return await DataStore.save(
+    ChatRoom.copyOf(chatRoom, updatedChatRoom => {
+      updatedChatRoom.LastMessage = message;
+    }),
+  );
+};
+
+/**
+ * @param {string} chatRoomId
+ * @param {string} content
+ * @param {string} messageType
+ * @param {string} forUserId
+ * @param {string} replyToMessageId
+ * @param {string} uniqueId
+ * @param {string} [base64type]
+ * @returns {Promise<Message>}
+ */
+export const saveMessage = async (
+  chatRoomId,
+  content,
+  messageType,
+  forUserId,
+  replyToMessageId,
+  uniqueId,
+  base64type,
+) => {
+  const currentUserId = await getCurrentUserId();
+
+  return await DataStore.save(
+    new Message({
+      userID: currentUserId,
+      chatroomID: chatRoomId,
+      content: content,
+      messageType: messageType,
+      status: 'SENT',
+      forUserId: forUserId,
+      replyToMessageId: replyToMessageId ?? null,
+      base64type: base64type,
+      messageIdentifier: uniqueId,
+    }),
+  );
+};
+
+/**
+ * @param {Message} message
+ * @returns {Promise<Message[]>}
+ */
+export const deleteMessageDatabase = async message => {
+  return await DataStore.delete(Message, m =>
+    m.messageIdentifier('eq', message.messageIdentifier),
+  );
 };

@@ -26,6 +26,7 @@ type Message @model @auth(rules: [{allow: public}]) {
   status: MessageStatus
   replyToMessageId: ID
   forUserId: ID
+  messageIdentifier: String
 }
 
 type ChatRoom @model @auth(rules: [{allow: public}]) {

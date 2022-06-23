@@ -21,7 +21,7 @@ const ChatRoomListItem = props => {
             imageSource={
               roomData.groupName
                 ? roomData.groupImage
-                : roomData?.users[0].imageUri
+                : roomData?.users[0]?.imageUri
             }
             imageStyle={styles.image}
           />
@@ -35,7 +35,7 @@ const ChatRoomListItem = props => {
               <Text style={styles.name}>
                 {roomData.groupName
                   ? roomData.groupName
-                  : roomData.users[0].userName}
+                  : roomData.users[0]?.userName}
               </Text>
               {roomData.lastMessage && (
                 <Text style={styles.text}>

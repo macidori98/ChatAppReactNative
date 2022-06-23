@@ -1,18 +1,21 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useHeaderHeight} from '@react-navigation/elements';
-import {DataStore, SortDirection, Storage} from 'aws-amplify';
+import {
+  deleteMessageDatabase,
+  getChatRoom,
+  getMessages,
+  getOtherChatRoomUserData,
+  saveMessage,
+  updateLastMessageDatabase,
+} from 'api/Requests';
+import {DataStore, Storage} from 'aws-amplify';
 import ChatMessage from 'components/chat/ChatMessage';
 import MessageInput from 'components/chat/MessageInput';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import ConversationPersonImage from 'components/ConversationPersonImage';
 import {getInteractiveDialog, getSimpleDialog} from 'helpers/AlertHelper';
-import {
-  ChatRoom,
-  ChatRoomUser,
-  Message,
-  Message as MessageModel,
-  User,
-} from 'models';
+import {getFileBlob} from 'helpers/GalleryHelper';
+import {ChatRoom, Message, Message as MessageModel, User} from 'models';
 import moment from 'moment';
 import React, {
   createRef,
@@ -35,15 +38,13 @@ import ActionSheet from 'react-native-actions-sheet';
 import {DocumentPickerResponse} from 'react-native-document-picker';
 import 'react-native-get-random-values';
 import {Asset} from 'react-native-image-picker';
-import Toast from 'react-native-toast-message';
 import {useSelector} from 'react-redux';
 import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
-import {box} from 'tweetnacl';
 import {UseState} from 'types/CommonTypes';
 import {ChatScreenProps} from 'types/NavigationTypes';
 import {AuthenticateState} from 'types/StoreTypes';
-import {encrypt, stringToUint8Array} from 'utils/crypto';
+import {encryptText, getStatusText} from 'utils/Utils';
 import {v4 as uuidv4} from 'uuid';
 
 /**
@@ -66,6 +67,8 @@ const ChatRoomScreen = props => {
   const [isDialogShown, setIsDialogShown] = useState();
   /** @type {UseState<number>} */
   const [sending, setSending] = useState(undefined);
+  /** @type {UseState<string>} */
+  const [secretKey, setSecretKey] = useState();
   /** @type {React.MutableRefObject<FlatList<Message>>} */
   const flatListRef = useRef();
   /** @type {React.MutableRefObject<Message>} */
@@ -83,28 +86,6 @@ const ChatRoomScreen = props => {
       return state.auth;
     },
   );
-
-  /**
-   * @param {number} minutes
-   * @returns {string}
-   */
-  const getStatusText = minutes => {
-    if (minutes < 60) {
-      return `Online ${minutes} minutes ago`;
-    }
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) {
-      return `Online ${hours} hours ago`;
-    }
-    const days = Math.floor(hours / 24);
-    if (days < 24) {
-      return `Online ${days} days ago`;
-    }
-    const months = Math.floor(days / 30);
-    if (months < 12) {
-      return `Online ${months} months ago`;
-    }
-  };
 
   const setHeaderOptions = useCallback(
     /**
@@ -165,35 +146,29 @@ const ChatRoomScreen = props => {
     });
   }, [navigation, setHeaderOptions]);
 
+  useEffect(() => {
+    const getSecretKey = async () => {
+      const secretKeyValue = await AsyncStorage.getItem('SECRET_KEY');
+      setSecretKey(secretKeyValue);
+    };
+
+    getSecretKey();
+  }, []);
+
   const fetchChatRoom = useCallback(async () => {
-    const room = await DataStore.query(ChatRoom, route.params.id);
+    const room = await getChatRoom(route.params.id);
     setChatRoom(room);
   }, [route.params.id]);
 
   const fetchMessages = useCallback(async () => {
-    const fetchedMessages = await DataStore.query(
-      MessageModel,
-      item =>
-        item
-          .chatroomID('eq', chatRoom.id)
-          .forUserId('eq', authedUserState.authedUser.id),
-      {
-        sort: message => message.createdAt(SortDirection.ASCENDING),
-      },
-    );
+    const fetchedMessages = await getMessages(chatRoom.id);
 
     setMessages(fetchedMessages);
     setIsLoading(false);
-  }, [authedUserState, chatRoom]);
+  }, [chatRoom]);
 
   const fetchOtherUserData = useCallback(async () => {
-    const chatRoomUsers = (await DataStore.query(ChatRoomUser)).filter(
-      item => item.chatRoom.id === chatRoom.id,
-    );
-
-    const chatUsers = chatRoomUsers.filter(
-      item => item.user.id !== authedUserState.authedUser.id,
-    );
+    const chatUsers = await getOtherChatRoomUserData(chatRoom.id);
 
     if (chatRoom.groupName) {
       setOtherUSer({
@@ -206,7 +181,7 @@ const ChatRoomScreen = props => {
         user: chatUsers[0].user,
       });
     }
-  }, [authedUserState.authedUser.id, chatRoom]);
+  }, [chatRoom]);
 
   useEffect(() => {
     const subscription = DataStore.observe(MessageModel).subscribe(
@@ -249,158 +224,45 @@ const ChatRoomScreen = props => {
     }
   }, [chatRoom, fetchMessages, fetchOtherUserData]);
 
-  const getFileBlob = async uri => {
-    if (!uri) {
-      return null;
-    }
-
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    return blob;
-  };
-
   const updateLastMessage = useCallback(
-    /**
-     * @param {Message} newMessage
-     */
+    /** @param {Message} newMessage */
     async newMessage => {
-      DataStore.save(
-        ChatRoom.copyOf(chatRoom, updatedChatRoom => {
-          updatedChatRoom.LastMessage = newMessage;
-        }),
-      );
+      updateLastMessageDatabase(newMessage, chatRoom);
     },
     [chatRoom],
   );
 
-  /**
-   * @param {DocumentPickerResponse[]} data
-   */
-  const sendFile2 = async data => {
-    const secretKey = await AsyncStorage.getItem('SECRET_KEY');
-    if (!secretKey) {
-      setIsDialogShown(true);
-      return;
-    }
-
-    const blob = await getFileBlob(data[0].uri);
-    const index = data[0].type.indexOf('/');
-    const messageType = data[0].type.substring(0, index);
-    const extenstion = data[0].type.substring(index + 1);
-    const {key} = await Storage.put(`${uuidv4()}.${extenstion}`, blob, {
-      progressCallback: progress => {
-        setSending(
-          Number(((progress.loaded / progress.total) * 100).toFixed(1)),
-        );
-      },
-    }); // file name is the result
-
-    if (otherUser.isGroup) {
-      await Promise.all(
-        [...otherUser.users, authedUserState.authedUser].map(async u => {
-          const userPublicKeyUint8Array = stringToUint8Array(u.publicKey);
-
-          const secretKeyUint8Array = stringToUint8Array(secretKey);
-
-          const sharedKey = box.before(
-            userPublicKeyUint8Array,
-            secretKeyUint8Array,
-          );
-
-          const encryptedText = encrypt(sharedKey, key);
-          const response = await DataStore.save(
-            new MessageModel({
-              userID: authedUserState.authedUser.id,
-              chatroomID: chatRoom.id,
-              content: encryptedText,
-              messageType: messageType,
-              base64type: data[0].type,
-              forUserId: u.id,
-              status: 'SENT',
-            }),
-          );
-          setSending(undefined);
-          updateLastMessage(response);
-        }),
-      );
-    } else if (otherUser.isGroup === false) {
-      await [otherUser.user, authedUserState.authedUser].map(async u => {
-        const userPublicKeyUint8Array = stringToUint8Array(u.publicKey);
-
-        const secretKeyUint8Array = stringToUint8Array(secretKey);
-
-        const sharedKey = box.before(
-          userPublicKeyUint8Array,
-          secretKeyUint8Array,
-        );
-
-        const encryptedText = encrypt(sharedKey, key);
-        const response = await DataStore.save(
-          new MessageModel({
-            userID: authedUserState.authedUser.id,
-            chatroomID: chatRoom.id,
-            content: encryptedText,
-            messageType: messageType,
-            forUserId: u.id,
-            base64type: data[0].type,
-            status: 'SENT',
-          }),
-        );
-        setSending(undefined);
-        updateLastMessage(response);
-      });
-    }
-  };
-
-  const sendMessageToUser = useCallback(
+  const sendMessage = useCallback(
     /**
-     * @param {User} user
      * @param {string} text
+     * @param {string} publicKey
+     * @param {string} messageType
+     * @param {string} userId
+     * @param {string} uniqueId
+     * @param {string} [base64type]
      */
-    async (user, text) => {
-      const secretKey = await AsyncStorage.getItem('SECRET_KEY');
-      if (!secretKey) {
-        setIsDialogShown(true);
-        return;
-      }
-
-      const userPublicKeyUint8Array = stringToUint8Array(user.publicKey);
-
-      const secretKeyUint8Array = stringToUint8Array(secretKey);
-
-      const sharedKey = box.before(
-        userPublicKeyUint8Array,
-        secretKeyUint8Array,
+    async (text, publicKey, messageType, userId, uniqueId, base64type) => {
+      const encryptedText = encryptText(text, publicKey, secretKey);
+      const response = await saveMessage(
+        chatRoom.id,
+        encryptedText,
+        messageType,
+        userId,
+        replyToMessage?.id,
+        uniqueId,
+        base64type,
       );
 
-      const encryptedText = encrypt(sharedKey, text);
-
-      const response = await DataStore.save(
-        new MessageModel({
-          userID: authedUserState.authedUser.id,
-          chatroomID: chatRoom.id,
-          content: encryptedText,
-          messageType: 'text',
-          status: 'SENT',
-          forUserId: user.id,
-          replyToMessageId: replyToMessage ? replyToMessage.id : null,
-        }),
-      );
+      setSending(undefined);
       updateLastMessage(response);
     },
-    [
-      authedUserState?.authedUser?.id,
-      chatRoom?.id,
-      replyToMessage,
-      updateLastMessage,
-    ],
+    [chatRoom?.id, replyToMessage?.id, secretKey, updateLastMessage],
   );
 
   /**
-   * @param {Asset[]} data
+   * @param {Asset[]|DocumentPickerResponse[]} data
    */
   const sendFile = async data => {
-    const secretKey = await AsyncStorage.getItem('SECRET_KEY');
     if (!secretKey) {
       setIsDialogShown(true);
       return;
@@ -416,67 +278,38 @@ const ChatRoomScreen = props => {
           Number(((progress.loaded / progress.total) * 100).toFixed(1)),
         );
       },
-    }); // file name is the result
+    });
+    const uniqueId = uuidv4();
 
     if (otherUser.isGroup) {
       await Promise.all(
         [...otherUser.users, authedUserState.authedUser].map(async u => {
-          const userPublicKeyUint8Array = stringToUint8Array(u.publicKey);
-
-          const secretKeyUint8Array = stringToUint8Array(secretKey);
-
-          const sharedKey = box.before(
-            userPublicKeyUint8Array,
-            secretKeyUint8Array,
+          sendMessage(
+            key,
+            u.publicKey,
+            messageType,
+            u.id,
+            uniqueId,
+            data[0].type,
           );
-
-          const encryptedText = encrypt(sharedKey, key);
-          const response = await DataStore.save(
-            new MessageModel({
-              userID: authedUserState.authedUser.id,
-              chatroomID: chatRoom.id,
-              content: encryptedText,
-              messageType: messageType,
-              base64type: data[0].type,
-              forUserId: u.id,
-              status: 'SENT',
-            }),
-          );
-          setSending(undefined);
-          updateLastMessage(response);
         }),
       );
     } else if (otherUser.isGroup === false) {
       await [otherUser.user, authedUserState.authedUser].map(async u => {
-        const userPublicKeyUint8Array = stringToUint8Array(u.publicKey);
-
-        const secretKeyUint8Array = stringToUint8Array(secretKey);
-
-        const sharedKey = box.before(
-          userPublicKeyUint8Array,
-          secretKeyUint8Array,
+        sendMessage(
+          key,
+          u.publicKey,
+          messageType,
+          u.id,
+          uniqueId,
+          data[0].type,
         );
-
-        const encryptedText = encrypt(sharedKey, key);
-        const response = await DataStore.save(
-          new MessageModel({
-            userID: authedUserState.authedUser.id,
-            chatroomID: chatRoom.id,
-            content: encryptedText,
-            messageType: messageType,
-            forUserId: u.id,
-            base64type: data[0].type,
-            status: 'SENT',
-          }),
-        );
-        setSending(undefined);
-        updateLastMessage(response);
       });
     }
   };
 
   const deleteMessage = async () => {
-    DataStore.delete(Message, m => m.id('eq', messageRef.current.id));
+    deleteMessageDatabase(messageRef.current);
     actionSheetRef.current?.hide();
   };
 
@@ -493,20 +326,19 @@ const ChatRoomScreen = props => {
       {isLoading && <LoadingIndicator />}
       {!isLoading && (
         <>
-          {isDeleteDialogShown &&
-            getInteractiveDialog(
-              isDeleteDialogShown,
-              'Delete',
-              'Are you sure you want to delete the message?',
-              () => {
-                deleteMessage();
-                setIsDeleteDialogShown(false);
-              },
-              () => {
-                setIsDeleteDialogShown(false);
-              },
-              'Delete',
-            )}
+          {getInteractiveDialog(
+            isDeleteDialogShown,
+            'Delete',
+            'Are you sure you want to delete the message?',
+            () => {
+              deleteMessage();
+              setIsDeleteDialogShown(false);
+            },
+            () => {
+              setIsDeleteDialogShown(false);
+            },
+            'Delete',
+          )}
           {sending && (
             <View style={{...styles.loadingIndicator, width: `${sending}%`}} />
           )}
@@ -514,7 +346,7 @@ const ChatRoomScreen = props => {
             <View style={styles.actionButtonsContainer}>
               <TouchableOpacity
                 style={styles.actionButtonStyle}
-                onPress={() => {
+                onPress={async () => {
                   setReplyToMessage(messageRef.current);
                   actionSheetRef.current?.hide();
                 }}>
@@ -562,8 +394,6 @@ const ChatRoomScreen = props => {
                   onLongPress={message => {
                     messageRef.current = message;
                     actionSheetRef.current?.show();
-
-                    //setReplyToMessage(message);
                   }}
                   message={item}
                   isMine={item.userID === authedUserState.authedUser.id}
@@ -585,39 +415,29 @@ const ChatRoomScreen = props => {
         }}
         replyToMessage={replyToMessage}
         onAddFile={data => {
-          sendFile2(data);
+          sendFile(data);
         }}
         onSendMessage={async text => {
+          if (!secretKey) {
+            setIsDialogShown(true);
+            return;
+          }
+
+          const uniqueId = uuidv4();
+
           if (otherUser.isGroup) {
             await Promise.all(
               [...otherUser.users, authedUserState.authedUser].map(u =>
-                sendMessageToUser(u, text),
+                sendMessage(text, u.publicKey, 'text', u.id, uniqueId),
               ),
             );
           } else if (otherUser.isGroup === false) {
             await [otherUser.user, authedUserState.authedUser].map(u =>
-              sendMessageToUser(u, text),
+              sendMessage(text, u.publicKey, 'text', u.id, uniqueId),
             );
           }
-          // const response = await DataStore.save(
-          //   new MessageModel({
-          //     userID: authedUserState.authedUser.id,
-          //     chatroomID: chatRoom.id,
-          //     content: text,
-          //     messageType: 'text',
-          //     status: 'SENT',
-          //     replyToMessageId: replyToMessage ? replyToMessage.id : null,
-          //   }),
-          // );
+
           setReplyToMessage(undefined);
-          // updateLastMessage(response);
-        }}
-        onMic={() => {
-          Toast.show({
-            type: 'success',
-            text1: 'Hello',
-            text2: 'This is some something 👋',
-          });
         }}
         onCamera={data => {
           sendFile(data);
@@ -631,11 +451,9 @@ export default ChatRoomScreen;
 
 const styles = StyleSheet.create({
   page: {
-    // backgroundColor: Theme.colors.white,
     ...Theme.styles.screen,
   },
   list: {
-    //flexDirection: 'column-reverse',
     ...Theme.styles.screen,
   },
   loadingIndicator: {

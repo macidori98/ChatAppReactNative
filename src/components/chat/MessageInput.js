@@ -172,7 +172,7 @@ const MessageInput = props => {
           )} */}
           {props.replyToMessage && (
             <View style={styles.imageContainer}>
-              <Text>{props.replyToMessage.content}</Text>
+              <Text style={styles.reply}>{props.replyToMessage.content}</Text>
               <TouchableOpacity
                 style={styles.cancelContainer}
                 onPress={() => {
@@ -281,6 +281,7 @@ const styles = StyleSheet.create({
     height: 80,
     width: '100%',
     marginTop: Theme.values.margins.marginSmall,
+    marginStart: Theme.values.margins.marginSmall,
   },
   textInput: {
     ...Theme.styles.screen,
@@ -300,6 +301,9 @@ const styles = StyleSheet.create({
     height: Theme.values.roundButton.height,
     borderRadius: Theme.values.roundButton.width / 2,
     ...Theme.styles.center,
+  },
+  reply: {
+    width: '80%',
   },
   inputContainer: {
     flexDirection: 'row',
