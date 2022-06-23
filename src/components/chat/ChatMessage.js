@@ -1,7 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {DataStore, Storage} from 'aws-amplify';
+import {updateMessage} from 'api/Requests';
+import {DataStore} from 'aws-amplify';
 import {S3Image} from 'aws-amplify-react-native/dist/Storage';
-import {Message, User} from 'models';
+import {Message} from 'models';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
   Dimensions,
@@ -10,14 +10,11 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Share from 'react-native-share';
 import Icon from 'react-native-vector-icons/Ionicons';
-import RNFetchBlob from 'rn-fetch-blob';
 import Theme from 'theme/Theme';
-import {box} from 'tweetnacl';
 import {UseState} from 'types/CommonTypes';
 import {ChatMessageProps} from 'types/ComponentPropsTypes';
-import {decrypt, stringToUint8Array} from 'utils/crypto';
+import {decryptMessage as decryptMsg, onShare} from 'utils/Utils';
 
 /**
  * @param {ChatMessageProps} props
@@ -33,14 +30,7 @@ const ChatMessage = props => {
 
   useEffect(() => {
     const decryptMessage = async () => {
-      const secretKey = await AsyncStorage.getItem('SECRET_KEY');
-      const senderUserPublicKey = (await DataStore.query(User, message.userID))
-        .publicKey;
-      const sharedKey = box.before(
-        stringToUint8Array(senderUserPublicKey),
-        stringToUint8Array(secretKey),
-      );
-      const decryptedText = await decrypt(sharedKey, message.content);
+      const decryptedText = await decryptMsg(message);
       setDecryptedContent(decryptedText);
     };
 
@@ -53,6 +43,7 @@ const ChatMessage = props => {
     const subscription = DataStore.observe(Message, message.id).subscribe(
       msg => {
         if (msg.opType === 'UPDATE' && msg.model === Message) {
+          console.log('update', msg.element.status);
           setMessage(existingMessage => {
             return {...existingMessage, ...msg.element};
           });
@@ -65,11 +56,7 @@ const ChatMessage = props => {
 
   const setAsRead = useCallback(() => {
     if (!props.isMine && message.status !== 'READ') {
-      DataStore.save(
-        Message.copyOf(props.message, update => {
-          update.status = 'READ';
-        }),
-      );
+      updateMessage(props.message);
     }
   }, [message, props]);
 
@@ -100,7 +87,7 @@ const ChatMessage = props => {
             onLongPress={() => {
               props.onLongPress(message);
             }}
-            onPress={props.onImageFullScreen}
+            onPress={() => props.onImageFullScreen(decryptedContent)}
             style={styles.imageContainer}>
             {decryptedContent && (
               <S3Image style={styles.image} imgKey={decryptedContent} />
@@ -125,11 +112,23 @@ const ChatMessage = props => {
       case 'video':
         return (
           <TouchableOpacity
+            onPress={() => {
+              onShare(decryptedContent, message);
+            }}
             onLongPress={() => {
               props.onLongPress(message);
             }}>
             <View>
-              {decryptedContent && <Text>{decryptedContent ?? ''}</Text>}
+              {decryptedContent && (
+                <Text
+                  style={{
+                    color: props.isMine
+                      ? Theme.colors.black
+                      : Theme.colors.white,
+                  }}>
+                  {decryptedContent ?? ''}
+                </Text>
+              )}
               {props.isMine && message.status !== 'SENT' && (
                 <View style={styles.readStatusContainer}>
                   <Icon
@@ -214,37 +213,12 @@ const ChatMessage = props => {
           </TouchableOpacity>
         );
       case 'application':
-        const onShare = async () => {
-          const fs = RNFetchBlob.fs;
-          let imagePath;
-          try {
-            const url = await Storage.get(decryptedContent);
-            const data = await RNFetchBlob.config({
-              fileCache: true,
-            }).fetch('GET', url);
-            imagePath = data.path();
-            const base64data = await data.readFile('base64');
-
-            /**
-             * @type {import('react-native-share').ShareOptions}
-             */
-            const shareOptions = {
-              title: 'Share',
-              message: 'Share file',
-              url: `data:${message.base64type};base64,${base64data}`,
-            };
-            await Share.open(shareOptions);
-          } catch (error) {
-            console.log(error);
-          }
-          fs.unlink(imagePath);
-        };
         const textColor = props.isMine
           ? Theme.colors.black
           : Theme.colors.white;
 
         return (
-          <TouchableOpacity onPress={onShare}>
+          <TouchableOpacity onPress={() => onShare(decryptedContent, message)}>
             <View>
               <View style={styles.docsContainer}>
                 <View style={{...Theme.styles.center}}>

@@ -397,9 +397,10 @@ const ChatRoomScreen = props => {
                   }}
                   message={item}
                   isMine={item.userID === authedUserState.authedUser.id}
-                  onImageFullScreen={() => {
+                  onImageFullScreen={content => {
                     navigation.navigate('FullScreen', {
-                      imageId: item.content,
+                      imageId: content,
+                      message: item,
                     });
                   }}
                 />

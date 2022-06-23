@@ -539,3 +539,29 @@ export const deleteMessageDatabase = async message => {
     m.messageIdentifier('eq', message.messageIdentifier),
   );
 };
+
+/**
+ * @param {Message} message
+ * @returns {Promise<void>}
+ */
+export const updateMessage = async message => {
+  // const latestMessages = await DataStore.query(Message, msg =>
+  //   msg.messageIdentifier('eq', message.messageIdentifier),
+  // );
+
+  // for (const msg of latestMessages) {
+  //   await DataStore.save(
+  //     Message.copyOf(msg, update => {
+  //       update.status = 'READ';
+  //     }),
+  //   );
+  // }
+
+  await DataStore.save(
+    Message.copyOf(message, update => {
+      update.status = 'READ';
+    }),
+  );
+
+  return;
+};

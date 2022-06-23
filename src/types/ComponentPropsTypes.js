@@ -28,7 +28,7 @@ import {Asset} from 'react-native-image-picker';
  * @typedef {Object} ChatMessageProps
  * @property {Message} message
  * @property {boolean} isMine
- * @property {()=>void} onImageFullScreen
+ * @property {(content: string)=>void} onImageFullScreen
  * @property {(message: Message)=>void} onLongPress
  */
 

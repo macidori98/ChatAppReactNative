@@ -1,6 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getUserById} from 'api/Requests';
+import {Storage} from 'aws-amplify';
 import {Message} from 'models';
+import Share from 'react-native-share';
+import RNFetchBlob from 'rn-fetch-blob';
 import {box} from 'tweetnacl';
 import {decrypt, encrypt, stringToUint8Array} from 'utils/crypto';
 
@@ -57,4 +60,34 @@ export const decryptMessage = async message => {
   );
   const decryptedText = await decrypt(sharedKey, message.content);
   return decryptedText;
+};
+
+/**
+ * @param {string} decryptedContent
+ * @param {Message} message
+ */
+export const onShare = async (decryptedContent, message) => {
+  const fs = RNFetchBlob.fs;
+  let imagePath;
+  try {
+    const url = await Storage.get(decryptedContent);
+    const data = await RNFetchBlob.config({
+      fileCache: true,
+    }).fetch('GET', url);
+    imagePath = data.path();
+    const base64data = await data.readFile('base64');
+
+    /**
+     * @type {import('react-native-share').ShareOptions}
+     */
+    const shareOptions = {
+      saveToFiles: true,
+      title: 'Share',
+      url: `data:${message.base64type};base64,${base64data}`,
+    };
+    await Share.open(shareOptions);
+  } catch (error) {
+    console.log(error);
+  }
+  fs.unlink(imagePath);
 };
