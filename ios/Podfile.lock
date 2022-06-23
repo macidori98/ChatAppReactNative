@@ -365,14 +365,14 @@ PODS:
     - React-Core
   - RNCAsyncStorage (1.17.6):
     - React-Core
-  - RNCPicker (2.4.1):
+  - RNCPicker (2.4.2):
     - React-Core
   - RNPermissions (3.3.1):
     - React-Core
   - RNScreens (3.13.1):
     - React-Core
     - React-RCTImage
-  - RNShare (7.6.2):
+  - RNShare (7.6.4):
     - React-Core
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
@@ -616,10 +616,10 @@ SPEC CHECKSUMS:
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNAWSCognito: b967f462350ac749f2ff36426f84cdbf5689f576
   RNCAsyncStorage: 86050d31a1cdc564876f68d8e342688b29f9b186
-  RNCPicker: abc646b53a3d28ccfa3232c927a0ca52e0cf024d
+  RNCPicker: 0250e95ad170569a96f5b0555cdd5e65b9084dca
   RNPermissions: 7ad8d93b004e6bc85c89e27a102afcde90e07efa
   RNScreens: 40a2cb40a02a609938137a1e0acfbf8fc9eebf19
-  RNShare: da0fd52f08c7b9f1ca31aef98a4890e98fc2c4c5
+  RNShare: 4406f61af043027b695c3a0b8f39e2c2bdacde12
   Yoga: d6b6a80659aa3e91aaba01d0012e7edcbedcbecd
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 

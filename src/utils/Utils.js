@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getUserById} from 'api/Requests';
 import {Storage} from 'aws-amplify';
+import {Logger} from 'helpers/Logger';
 import {Message} from 'models';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -52,14 +53,19 @@ export const encryptText = (text, publicKey, secretKey) => {
  * @returns {Promise<string>}
  */
 export const decryptMessage = async message => {
-  const secretKey = await AsyncStorage.getItem('SECRET_KEY');
-  const senderUserPublicKey = (await getUserById(message.userID)).publicKey;
-  const sharedKey = box.before(
-    stringToUint8Array(senderUserPublicKey),
-    stringToUint8Array(secretKey),
-  );
-  const decryptedText = await decrypt(sharedKey, message.content);
-  return decryptedText;
+  try {
+    const secretKey = await AsyncStorage.getItem('SECRET_KEY');
+    const senderUserPublicKey = (await getUserById(message.userID)).publicKey;
+    const sharedKey = box.before(
+      stringToUint8Array(senderUserPublicKey),
+      stringToUint8Array(secretKey),
+    );
+    const decryptedText = await decrypt(sharedKey, message.content);
+    return decryptedText;
+  } catch (error) {
+    Logger.log(error);
+    return undefined;
+  }
 };
 
 /**
