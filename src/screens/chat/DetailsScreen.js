@@ -79,7 +79,7 @@ const DetailsScreen = props => {
     );
 
     if (response.success) {
-      ToastHelper.showSuccess('Successfully left the room');
+      ToastHelper.showSuccess(Translations.strings.successLeaveGroup());
       props.navigation.reset({routes: [{name: 'Home'}]});
     } else {
       ToastHelper.showError(response.error);
@@ -130,8 +130,8 @@ const DetailsScreen = props => {
       <>
         {getInteractiveDialog(
           isLeaveDialogShown,
-          'Leave',
-          'Are you sure about leaving the room?',
+          Translations.strings.leave(),
+          Translations.strings.leavingConfirmation(),
           leaveRoom,
           () => {
             setIsLeaveDialogShown(false);
@@ -162,7 +162,7 @@ const DetailsScreen = props => {
                   onChangeGroupName(groupNameRef.current);
                 } else {
                   ToastHelper.showError(
-                    'You have to enter at least 8 charachters',
+                    Translations.strings.lessCharacterError(),
                   );
                 }
 
@@ -233,11 +233,11 @@ const DetailsScreen = props => {
 
     return [
       {
-        title: 'Admin',
+        title: Translations.strings.admin(),
         data: [data.Admin],
       },
       {
-        title: 'Conversation members',
+        title: Translations.strings.conversationMembers(),
         data: members,
       },
     ];
@@ -246,7 +246,7 @@ const DetailsScreen = props => {
   const getSections = () => {
     return [
       {
-        title: 'Conversation members',
+        title: Translations.strings.conversationMembers(),
         data: users,
       },
     ];
@@ -281,8 +281,8 @@ const DetailsScreen = props => {
     <View style={Theme.styles.screen}>
       {getSimpleDialog(
         isDialogShown,
-        'warning',
-        'you have to enter at least 8 characters',
+        Translations.strings.warning(),
+        Translations.strings.lessCharacterError(),
         () => {
           setIsDialogShown(false);
         },
@@ -290,8 +290,8 @@ const DetailsScreen = props => {
       {isDeleteDialogShown &&
         getInteractiveDialog(
           isDeleteDialogShown,
-          'Delete',
-          `Are you sure you want to delete ${userRef.current.userName} from the group?`,
+          Translations.strings.delete(),
+          Translations.strings.deletePersonFromGroup(userRef.current.userName),
           () => {
             removeUserFromRoom(userRef.current);
             userRef.current = undefined;
@@ -301,7 +301,7 @@ const DetailsScreen = props => {
             userRef.current = undefined;
             setIsDeleteDialogShown(false);
           },
-          'Delete',
+          Translations.strings.delete(),
         )}
       {!isLoading && (
         <SectionList

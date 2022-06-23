@@ -4,6 +4,7 @@ import {ChatRoom, ChatRoomUser, User} from 'models';
 import React, {useCallback, useLayoutEffect, useState} from 'react';
 import {Text, TouchableOpacity} from 'react-native';
 import {useSelector} from 'react-redux';
+import {Translations} from 'translations/Translations';
 import {UseState} from 'types/CommonTypes';
 import {CreateGroupScreenProps} from 'types/NavigationTypes';
 
@@ -36,7 +37,7 @@ const CreateGroupScreen = props => {
       const roomChatRoom = await DataStore.save(
         new ChatRoom({
           newMessages: 0,
-          groupName: 'new group',
+          groupName: Translations.strings.newGroup(),
           Admin: authedUserState.authedUser,
           groupImage:
             'https://www.creativefabrica.com/wp-content/uploads/2019/02/Group-Icon-by-Kanggraphic-580x386.jpg',
@@ -68,24 +69,22 @@ const CreateGroupScreen = props => {
     [authedUserState?.authedUser, props.navigation],
   );
 
+  const getHeaderRightOption = useCallback(() => {
+    return (
+      <TouchableOpacity onPress={() => onPress(selectedUsers)}>
+        <Text>
+          {Translations.strings.saveGroup()}{' '}
+          {selectedUsers.length > 0 ? `(${selectedUsers.length})` : ''}
+        </Text>
+      </TouchableOpacity>
+    );
+  }, [onPress, selectedUsers]);
+
   useLayoutEffect(() => {
     props.navigation.setOptions({
-      headerRight: () => {
-        return (
-          <TouchableOpacity onPress={() => onPress(selectedUsers)}>
-            <Text>
-              Save group{' '}
-              {selectedUsers.length > 0 ? `(${selectedUsers.length})` : ''}
-            </Text>
-          </TouchableOpacity>
-        );
-      },
+      headerRight: getHeaderRightOption,
     });
-  }, [onPress, props.navigation, selectedUsers]);
-
-  // useEffect(() => {
-  //   Logger.log(selectedUsers);
-  // }, [selectedUsers]);
+  }, [getHeaderRightOption, props.navigation]);
 
   return (
     <UsersList

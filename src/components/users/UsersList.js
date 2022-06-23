@@ -40,7 +40,7 @@ const UsersList = props => {
             props.onNewGroupPress ? (
               <NewGroupButton
                 onPress={props.onNewGroupPress}
-                title="New group"
+                title={Translations.strings.newGroup()}
                 iconName="people-outline"
               />
             ) : undefined

@@ -125,7 +125,7 @@ const ChatRoomScreen = props => {
               </Text>
               {minutes < 10 && (
                 <Text style={{...styles.text, color: prop.tintColor}}>
-                  Online
+                  {Translations.strings.online()}
                 </Text>
               )}
               {minutes >= 10 && (
@@ -318,8 +318,8 @@ const ChatRoomScreen = props => {
     <SafeAreaView style={styles.page}>
       {getSimpleDialog(
         isDialogShown,
-        'warning',
-        'You have to set your keypair from settings',
+        Translations.strings.warning(),
+        Translations.strings.setKeyPair(),
         () => {
           setIsDialogShown(false);
         },
@@ -329,8 +329,8 @@ const ChatRoomScreen = props => {
         <>
           {getInteractiveDialog(
             isDeleteDialogShown,
-            'Delete',
-            'Are you sure you want to delete the message?',
+            Translations.strings.delete(),
+            Translations.strings.deleteConfirmation(),
             () => {
               deleteMessage();
               setIsDeleteDialogShown(false);
@@ -338,7 +338,7 @@ const ChatRoomScreen = props => {
             () => {
               setIsDeleteDialogShown(false);
             },
-            'Delete',
+            Translations.strings.delete(),
           )}
           {sending && (
             <View style={{...styles.loadingIndicator, width: `${sending}%`}} />
@@ -351,7 +351,7 @@ const ChatRoomScreen = props => {
                   setReplyToMessage(messageRef.current);
                   actionSheetRef.current?.hide();
                 }}>
-                <Text>Reply</Text>
+                <Text>{Translations.strings.reply()}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -360,7 +360,7 @@ const ChatRoomScreen = props => {
                   setIsDeleteDialogShown(true);
                   actionSheetRef.current?.hide();
                 }}>
-                <Text>Delete</Text>
+                <Text>{Translations.strings.delete()}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -368,7 +368,7 @@ const ChatRoomScreen = props => {
                   actionSheetRef.current?.hide();
                 }}
                 style={styles.actionButtonStyle}>
-                <Text>Cancel</Text>
+                <Text>{Translations.strings.cancel()}</Text>
               </TouchableOpacity>
             </View>
           </ActionSheet>

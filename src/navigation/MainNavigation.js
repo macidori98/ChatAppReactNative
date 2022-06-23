@@ -76,7 +76,7 @@ const MainStackNavigation = () => (
       component={CreateGroupScreen}
       options={() => ({
         headerBackTitleVisible: false,
-        title: 'Create group',
+        title: Translations.strings.createGroup(),
       })}
     />
     <Stack.Screen
@@ -84,7 +84,7 @@ const MainStackNavigation = () => (
       component={DetailsScreen}
       options={() => ({
         headerBackTitleVisible: false,
-        title: 'Details screen',
+        title: Translations.strings.detailsScreen(),
       })}
     />
     <Stack.Screen
