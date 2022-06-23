@@ -1,10 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getUserById} from 'api/Requests';
 import {Storage} from 'aws-amplify';
+import {SECRET_KEY} from 'helpers/Constants';
 import {Logger} from 'helpers/Logger';
 import {Message} from 'models';
 import Share from 'react-native-share';
 import RNFetchBlob from 'rn-fetch-blob';
+import {Translations} from 'translations/Translations';
 import {box} from 'tweetnacl';
 import {decrypt, encrypt, stringToUint8Array} from 'utils/crypto';
 
@@ -14,19 +16,19 @@ import {decrypt, encrypt, stringToUint8Array} from 'utils/crypto';
  */
 export const getStatusText = minutes => {
   if (minutes < 60) {
-    return `Online ${minutes} minutes ago`;
+    return `${Translations.strings.online()} ${minutes} ${Translations.strings.minutesAgo()}`;
   }
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
-    return `Online ${hours} hours ago`;
+    return `${Translations.strings.online()} ${hours} ${Translations.strings.hoursAgo()}`;
   }
   const days = Math.floor(hours / 24);
   if (days < 24) {
-    return `Online ${days} days ago`;
+    return `${Translations.strings.online()} ${days} ${Translations.strings.daysAgo()}`;
   }
   const months = Math.floor(days / 30);
   if (months < 12) {
-    return `Online ${months} months ago`;
+    return `${Translations.strings.online()} ${months} ${Translations.strings.monthsAgo()}`;
   }
 };
 
@@ -54,7 +56,7 @@ export const encryptText = (text, publicKey, secretKey) => {
  */
 export const decryptMessage = async message => {
   try {
-    const secretKey = await AsyncStorage.getItem('SECRET_KEY');
+    const secretKey = await AsyncStorage.getItem(SECRET_KEY);
     const senderUserPublicKey = (await getUserById(message.userID)).publicKey;
     const sharedKey = box.before(
       stringToUint8Array(senderUserPublicKey),
@@ -88,7 +90,7 @@ export const onShare = async (decryptedContent, message) => {
      */
     const shareOptions = {
       saveToFiles: true,
-      title: 'Share',
+      title: Translations.strings.share(),
       url: `data:${message.base64type};base64,${base64data}`,
     };
     await Share.open(shareOptions);

@@ -14,6 +14,7 @@ import MessageInput from 'components/chat/MessageInput';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import ConversationPersonImage from 'components/ConversationPersonImage';
 import {getInteractiveDialog, getSimpleDialog} from 'helpers/AlertHelper';
+import {SECRET_KEY} from 'helpers/Constants';
 import {getFileBlob} from 'helpers/GalleryHelper';
 import {ChatRoom, Message, Message as MessageModel, User} from 'models';
 import moment from 'moment';
@@ -124,7 +125,7 @@ const ChatRoomScreen = props => {
               </Text>
               {minutes < 10 && (
                 <Text style={{...styles.text, color: prop.tintColor}}>
-                  Online
+                  {Translations.strings.online()}
                 </Text>
               )}
               {minutes >= 10 && (
@@ -148,7 +149,7 @@ const ChatRoomScreen = props => {
 
   useEffect(() => {
     const getSecretKey = async () => {
-      const secretKeyValue = await AsyncStorage.getItem('SECRET_KEY');
+      const secretKeyValue = await AsyncStorage.getItem(SECRET_KEY);
       setSecretKey(secretKeyValue);
     };
 
@@ -317,8 +318,8 @@ const ChatRoomScreen = props => {
     <SafeAreaView style={styles.page}>
       {getSimpleDialog(
         isDialogShown,
-        'warning',
-        'You have to set your keypair from settings',
+        Translations.strings.warning(),
+        Translations.strings.setKeyPair(),
         () => {
           setIsDialogShown(false);
         },
@@ -328,8 +329,8 @@ const ChatRoomScreen = props => {
         <>
           {getInteractiveDialog(
             isDeleteDialogShown,
-            'Delete',
-            'Are you sure you want to delete the message?',
+            Translations.strings.delete(),
+            Translations.strings.deleteConfirmation(),
             () => {
               deleteMessage();
               setIsDeleteDialogShown(false);
@@ -337,7 +338,7 @@ const ChatRoomScreen = props => {
             () => {
               setIsDeleteDialogShown(false);
             },
-            'Delete',
+            Translations.strings.delete(),
           )}
           {sending && (
             <View style={{...styles.loadingIndicator, width: `${sending}%`}} />
@@ -350,7 +351,7 @@ const ChatRoomScreen = props => {
                   setReplyToMessage(messageRef.current);
                   actionSheetRef.current?.hide();
                 }}>
-                <Text>Reply</Text>
+                <Text>{Translations.strings.reply()}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -359,7 +360,7 @@ const ChatRoomScreen = props => {
                   setIsDeleteDialogShown(true);
                   actionSheetRef.current?.hide();
                 }}>
-                <Text>Delete</Text>
+                <Text>{Translations.strings.delete()}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -367,7 +368,7 @@ const ChatRoomScreen = props => {
                   actionSheetRef.current?.hide();
                 }}
                 style={styles.actionButtonStyle}>
-                <Text>Cancel</Text>
+                <Text>{Translations.strings.cancel()}</Text>
               </TouchableOpacity>
             </View>
           </ActionSheet>

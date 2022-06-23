@@ -88,5 +88,35 @@ export const Translations = {
     startChat: () => getText('startChat'),
     changeName: () => getText('changeName'),
     enterName: () => getText('enterName'),
+    createGroup: () => getText('createGroup'),
+    detailsScreen: () => getText('detailsScreen'),
+    online: () => getText('online'),
+    warning: () => getText('warning'),
+    setKeyPair: () => getText('setKeyPair'),
+    delete: () => getText('delete'),
+    deleteConfirmation: () => getText('deleteConfirmation'),
+    reply: () => getText('reply'),
+    saveGroup: () => getText('saveGroup'),
+    successLeaveGroup: () => getText('successLeaveGroup'),
+    leave: () => getText('leave'),
+    leavingConfirmation: () => getText('leavingConfirmation'),
+    lessCharacterError: () => getText('lessCharacterError'),
+    admin: () => getText('admin'),
+    conversationMembers: () => getText('conversationMembers'),
+    /**
+     * @param {string} person
+     * @returns {string}
+     */
+    deletePersonFromGroup: person => {
+      const text = getText('deletePersonFromGroup');
+      return text.replace('{0}', person);
+    },
+    enterValidEmail: () => getText('enterValidEmail'),
+    minutesAgo: () => getText('minutesAgo'),
+    hoursAgo: () => getText('hoursAgo'),
+    daysAgo: () => getText('daysAgo'),
+    monthsAgo: () => getText('monthsAgo'),
+    share: () => getText('share'),
+    newGroup: () => getText('newGroup'),
   },
 };

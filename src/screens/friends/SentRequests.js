@@ -120,7 +120,7 @@ const SentRequests = props => {
     if (reg.test(emailRef.current)) {
       saveUser(emailRef.current);
     } else {
-      ToastHelper.showError('You have to enter a valid email address');
+      ToastHelper.showError(Translations.strings.enterValidEmail());
     }
 
     emailRef.current = undefined;
