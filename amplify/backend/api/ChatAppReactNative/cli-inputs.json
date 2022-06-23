@@ -3,7 +3,7 @@
   "serviceConfiguration": {
     "apiName": "ChatAppReactNative",
     "serviceName": "AppSync",
-    "gqlSchemaPath": "/tmp/amplify-26c6e770-25ec-4759-bfd4-6d29e9815aea/amplify/backend/api/ChatAppReactNative/schema.graphql",
+    "gqlSchemaPath": "/tmp/amplify-42cf4928-b786-4b2f-8ac1-b99d3692b581/amplify/backend/api/ChatAppReactNative/schema.graphql",
     "defaultAuthType": {
       "mode": "API_KEY",
       "keyDescription": "api key description",

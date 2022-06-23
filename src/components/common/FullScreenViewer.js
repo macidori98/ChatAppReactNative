@@ -15,6 +15,7 @@ import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
 import {UseState} from 'types/CommonTypes';
 import {FullScreenProps} from 'types/NavigationTypes';
+import {onShare} from 'utils/Utils';
 
 /**
  * @param {FullScreenProps} props
@@ -45,13 +46,17 @@ const FullScreenViewer = props => {
         </View>
       )}
       {imageUri && (
-        <View style={styles.imageContainer}>
+        <TouchableOpacity
+          style={styles.imageContainer}
+          onPress={() =>
+            onShare(props.route.params.imageId, props.route.params.message)
+          }>
           <Image
             style={styles.image}
             source={{uri: imageUri}}
             defaultSource={Images.loadImage}
           />
-        </View>
+        </TouchableOpacity>
       )}
       <View style={styles.backButtonContainer}>
         <TouchableOpacity

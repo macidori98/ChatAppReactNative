@@ -1,5 +1,5 @@
 import React from 'react';
-import {View} from 'react-native';
+import {Alert, AlertButton, Platform, View} from 'react-native';
 import Dialog from 'react-native-dialog';
 import {Translations} from 'translations/Translations';
 
@@ -57,6 +57,33 @@ export const getInteractiveDialog = (
   thirdLabel,
   onThirdButton,
 ) => {
+  if (Platform.OS === 'ios') {
+    /** @type {AlertButton[]} */
+    const array = [
+      {
+        style: 'cancel',
+        onPress: onCancelPress,
+        text: labelCancel ?? Translations.strings.cancel(),
+      },
+      {
+        style: 'default',
+        onPress: onConfirmPress,
+        text: labelConfirm ?? 'Ok',
+      },
+    ];
+    if (onThirdButton) {
+      array.push({
+        style: 'default',
+        onPress: onThirdButton,
+        text: thirdLabel ?? 'Ok',
+      });
+    }
+    if (visible) {
+      Alert.alert(title, description, array);
+      return <></>;
+    }
+  }
+
   return (
     <View key={`Dialog.${title}`}>
       <Dialog.Container visible={visible}>

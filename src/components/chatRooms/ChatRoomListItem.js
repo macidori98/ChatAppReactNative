@@ -1,10 +1,13 @@
 import ConversationPersonImage from 'components/ConversationPersonImage';
 import MessageBadge from 'components/MessageBadge';
 import {formatDate} from 'helpers/FormattingFunctions';
-import React from 'react';
+import {Message} from 'models';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Theme from 'theme/Theme';
+import {UseState} from 'types/CommonTypes';
 import {ChatRoomListItemProps} from 'types/ComponentPropsTypes';
+import {decryptMessage} from 'utils/Utils';
 
 /**
  * @param {ChatRoomListItemProps} props
@@ -12,6 +15,18 @@ import {ChatRoomListItemProps} from 'types/ComponentPropsTypes';
  */
 const ChatRoomListItem = props => {
   const roomData = props.data;
+  /** @type {UseState<string>} */
+  const [decryptedMessage, setDecryptedMessage] = useState();
+
+  useEffect(() => {
+    /** @param {Message} message */
+    const decryptMsg = async message => {
+      const decryptedMsg = await decryptMessage(message);
+      setDecryptedMessage(decryptedMsg);
+    };
+
+    decryptMsg(roomData.lastMessage);
+  }, [roomData.lastMessage]);
 
   return (
     <>
@@ -21,7 +36,7 @@ const ChatRoomListItem = props => {
             imageSource={
               roomData.groupName
                 ? roomData.groupImage
-                : roomData?.users[0].imageUri
+                : roomData?.users[0]?.imageUri
             }
             imageStyle={styles.image}
           />
@@ -35,7 +50,7 @@ const ChatRoomListItem = props => {
               <Text style={styles.name}>
                 {roomData.groupName
                   ? roomData.groupName
-                  : roomData.users[0].userName}
+                  : roomData.users[0]?.userName}
               </Text>
               {roomData.lastMessage && (
                 <Text style={styles.text}>
@@ -43,9 +58,11 @@ const ChatRoomListItem = props => {
                 </Text>
               )}
             </View>
-            <Text numberOfLines={1} style={styles.text}>
-              {roomData?.lastMessage?.content ?? ''}
-            </Text>
+            {decryptedMessage && (
+              <Text numberOfLines={1} style={styles.text}>
+                {decryptedMessage ?? ''}
+              </Text>
+            )}
           </View>
         </View>
       </TouchableOpacity>

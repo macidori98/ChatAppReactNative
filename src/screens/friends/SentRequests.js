@@ -115,6 +115,7 @@ const SentRequests = props => {
   };
 
   const onConfirmPressSendRequest = () => {
+    // eslint-disable-next-line no-useless-escape
     const reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
     if (reg.test(emailRef.current)) {
       saveUser(emailRef.current);
@@ -136,7 +137,7 @@ const SentRequests = props => {
      * @type {JSX.Element[]}
      */
     const items = [
-      <>
+      <View key={'isAddFriend'}>
         {isAddFriend &&
           getPromptDialog(
             isAddFriend,
@@ -146,8 +147,8 @@ const SentRequests = props => {
             onConfirmPressSendRequest,
             onCancelPressSendRequest,
           )}
-      </>,
-      <>
+      </View>,
+      <View key={'isUserClicked'}>
         {isUserClicked &&
           getInteractiveDialog(
             isUserClicked,
@@ -166,7 +167,7 @@ const SentRequests = props => {
             Translations.strings.cancel(),
             'red',
           )}
-      </>,
+      </View>,
       <Button
         key={Translations.strings.addFriend()}
         title={Translations.strings.addFriend()}

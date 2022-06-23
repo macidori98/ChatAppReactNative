@@ -1,4 +1,4 @@
-import {ChatRoom, User} from 'models';
+import {ChatRoom, Message, User} from 'models';
 
 /**
  * @template T
@@ -24,7 +24,7 @@ import {ChatRoom, User} from 'models';
  * ChatScreen: {id: string},
  * Auth: import('@react-navigation/native').NavigatorScreenParams<AuthenticationNavigationParamList>,
  * UsersScreen: {}, CreateGroupScreen: {data: User[]},
- * Profile: undefined, FullScreen: {imageId: string}, Languages: {},
+ * Profile: undefined, FullScreen: {imageId: string, message: Message}, Languages: {},
  * Friends: {}, UsersProfile: {user: User, currentUser: User},
  * DetailsScreen: {data: ChatRoom}}} MainNavigationParamList
  */
