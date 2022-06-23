@@ -11,6 +11,14 @@ import {UsersListProps} from 'types/ComponentPropsTypes';
  * @returns {JSX.Element}
  */
 const UsersList = props => {
+  const getEmptyList = () => {
+    return (
+      <View style={{...Theme.styles.screen, ...Theme.styles.center}}>
+        <Text>{Translations.strings.emptyList()}</Text>
+      </View>
+    );
+  };
+
   return (
     <View style={{...Theme.styles.screen}}>
       {props.users.length > 0 && (
@@ -27,13 +35,7 @@ const UsersList = props => {
           onEndReached={info => {
             //console.log(info);
           }}
-          ListEmptyComponent={() => {
-            return (
-              <View style={{...Theme.styles.screen, ...Theme.styles.center}}>
-                <Text>{Translations.strings.emptyList()}</Text>
-              </View>
-            );
-          }}
+          ListEmptyComponent={getEmptyList}
           ListHeaderComponent={
             props.onNewGroupPress ? (
               <NewGroupButton

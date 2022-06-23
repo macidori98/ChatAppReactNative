@@ -14,6 +14,7 @@ import MessageInput from 'components/chat/MessageInput';
 import LoadingIndicator from 'components/common/LoadingIndicator';
 import ConversationPersonImage from 'components/ConversationPersonImage';
 import {getInteractiveDialog, getSimpleDialog} from 'helpers/AlertHelper';
+import {SECRET_KEY} from 'helpers/Constants';
 import {getFileBlob} from 'helpers/GalleryHelper';
 import {ChatRoom, Message, Message as MessageModel, User} from 'models';
 import moment from 'moment';
@@ -148,7 +149,7 @@ const ChatRoomScreen = props => {
 
   useEffect(() => {
     const getSecretKey = async () => {
-      const secretKeyValue = await AsyncStorage.getItem('SECRET_KEY');
+      const secretKeyValue = await AsyncStorage.getItem(SECRET_KEY);
       setSecretKey(secretKeyValue);
     };
 

@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getUserById} from 'api/Requests';
 import {Storage} from 'aws-amplify';
+import {SECRET_KEY} from 'helpers/Constants';
 import {Logger} from 'helpers/Logger';
 import {Message} from 'models';
 import Share from 'react-native-share';
@@ -54,7 +55,7 @@ export const encryptText = (text, publicKey, secretKey) => {
  */
 export const decryptMessage = async message => {
   try {
-    const secretKey = await AsyncStorage.getItem('SECRET_KEY');
+    const secretKey = await AsyncStorage.getItem(SECRET_KEY);
     const senderUserPublicKey = (await getUserById(message.userID)).publicKey;
     const sharedKey = box.before(
       stringToUint8Array(senderUserPublicKey),

@@ -66,58 +66,58 @@ const MainStackNavigation = () => (
     <Stack.Screen
       name="UsersScreen"
       component={UsersScreen}
-      options={{
+      options={() => ({
         headerBackTitleVisible: false,
         title: Translations.strings.users(),
-      }}
+      })}
     />
     <Stack.Screen
       name="CreateGroupScreen"
       component={CreateGroupScreen}
-      options={{
+      options={() => ({
         headerBackTitleVisible: false,
         title: 'Create group',
-      }}
+      })}
     />
     <Stack.Screen
       name="DetailsScreen"
       component={DetailsScreen}
-      options={{
+      options={() => ({
         headerBackTitleVisible: false,
         title: 'Details screen',
-      }}
+      })}
     />
     <Stack.Screen
       name="Profile"
       component={ProfileScreen}
-      options={{
+      options={() => ({
         headerBackTitleVisible: false,
         title: Translations.strings.profile(),
-      }}
+      })}
     />
     <Stack.Screen
       name="Languages"
       component={LanguageScreen}
-      options={{
+      options={() => ({
         headerBackTitleVisible: false,
         title: Translations.strings.changeLanguage(),
-      }}
+      })}
     />
     <Stack.Screen
       name="UsersProfile"
       component={UsersProfileScreen}
-      options={{
+      options={() => ({
         headerBackTitleVisible: false,
         title: Translations.strings.profile(),
-      }}
+      })}
     />
     <Stack.Screen
       name="Friends"
       component={BottomNavigation}
-      options={{
+      options={() => ({
         headerBackTitleVisible: false,
         title: Translations.strings.requests(),
-      }}
+      })}
     />
   </Stack.Navigator>
 );

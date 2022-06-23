@@ -13,8 +13,8 @@ const LanguageScreen = props => {
   /**
    * @param {string} item
    */
-  const handleLanguageChange = item => {
-    Translations.initializeTranslations(item);
+  const handleLanguageChange = async item => {
+    await Translations.initializeTranslations(item);
     props.navigation.reset({routes: [{name: 'Home'}]});
   };
 
