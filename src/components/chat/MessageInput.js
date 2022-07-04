@@ -5,7 +5,7 @@ import {
   IOSCameraPermissions,
   IOSStoragePermissions,
 } from 'helpers/PermissionsHelper';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   Dimensions,
   Keyboard,
@@ -30,6 +30,7 @@ import Theme from 'theme/Theme';
 import {Translations} from 'translations/Translations';
 import {UseState} from 'types/CommonTypes';
 import {MessageInputProps} from 'types/ComponentPropsTypes';
+import {decryptMessage} from 'utils/Utils';
 
 /**
  * @param {MessageInputProps} props
@@ -38,8 +39,21 @@ import {MessageInputProps} from 'types/ComponentPropsTypes';
 const MessageInput = props => {
   /** @type {UseState<string>} */
   const [message, setMessage] = useState();
+  /** @type {UseState<string>} */
+  const [decryptedMsg, setDecryptedMsg] = useState();
   /** @type {UseState<boolean>} */
   const [isEmojiSelected, setIsEmojiSelected] = useState(false);
+
+  useEffect(() => {
+    const decrypt = async () => {
+      const msg = await decryptMessage(props.replyToMessage);
+      setDecryptedMsg(msg);
+    };
+
+    if (props.replyToMessage) {
+      decrypt();
+    }
+  }, [props.replyToMessage]);
 
   const sendMessage = () => {
     Keyboard.dismiss();
@@ -170,15 +184,17 @@ const MessageInput = props => {
               </TouchableOpacity>
             </View>
           )} */}
-          {props.replyToMessage && (
+          {props.replyToMessage && decryptedMsg && (
             <View style={styles.imageContainer}>
-              <Text style={styles.reply}>{props.replyToMessage.content}</Text>
+              <Text style={styles.reply}>{decryptedMsg}</Text>
               <TouchableOpacity
                 style={styles.cancelContainer}
                 onPress={() => {
                   props.onCancelReply();
                 }}>
-                <Text style={{color: Theme.colors.primary}}>Cancel</Text>
+                <Text style={{color: Theme.colors.primary}}>
+                  {Translations.strings.cancel()}
+                </Text>
               </TouchableOpacity>
             </View>
           )}

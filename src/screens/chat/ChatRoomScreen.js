@@ -1,3 +1,4 @@
+// @ts-nocheck
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useHeaderHeight} from '@react-navigation/elements';
 import {
@@ -97,9 +98,9 @@ const ChatRoomScreen = props => {
       var imageUri, name, lastOnline, now, duration, minutes;
       if (otherUser) {
         if (otherUser.isGroup === false) {
-          lastOnline = moment.unix(otherUser?.user.lastOnlineAt);
-          imageUri = otherUser?.user.imageUri;
-          name = otherUser?.user.userName;
+          lastOnline = moment.unix(otherUser?.user?.lastOnlineAt);
+          imageUri = otherUser?.user?.imageUri;
+          name = otherUser?.user?.userName;
           now = moment.unix(moment().unix());
           duration = moment.duration(now.diff(lastOnline));
           minutes = Math.floor(duration.asMinutes());
@@ -179,7 +180,7 @@ const ChatRoomScreen = props => {
     } else {
       setOtherUSer({
         isGroup: false,
-        user: chatUsers[0].user,
+        user: chatUsers[0]?.user,
       });
     }
   }, [chatRoom]);
@@ -233,6 +234,22 @@ const ChatRoomScreen = props => {
     [chatRoom],
   );
 
+  /**
+   * @param {string} userId
+   */
+  const getCorrectReplyMessage = useCallback(
+    async userId => {
+      const correctMsg = await DataStore.query(Message, item =>
+        item
+          .messageIdentifier('eq', replyToMessage.messageIdentifier)
+          .forUserId('eq', userId),
+      );
+
+      return correctMsg[0];
+    },
+    [replyToMessage?.messageIdentifier],
+  );
+
   const sendMessage = useCallback(
     /**
      * @param {string} text
@@ -243,13 +260,16 @@ const ChatRoomScreen = props => {
      * @param {string} [base64type]
      */
     async (text, publicKey, messageType, userId, uniqueId, base64type) => {
+      const replyMessage = replyToMessage
+        ? await getCorrectReplyMessage(userId)
+        : undefined;
       const encryptedText = encryptText(text, publicKey, secretKey);
       const response = await saveMessage(
         chatRoom.id,
         encryptedText,
         messageType,
         userId,
-        replyToMessage?.id,
+        replyMessage?.id,
         uniqueId,
         base64type,
       );
@@ -257,7 +277,13 @@ const ChatRoomScreen = props => {
       setSending(undefined);
       updateLastMessage(response);
     },
-    [chatRoom?.id, replyToMessage?.id, secretKey, updateLastMessage],
+    [
+      chatRoom?.id,
+      getCorrectReplyMessage,
+      replyToMessage,
+      secretKey,
+      updateLastMessage,
+    ],
   );
 
   /**
@@ -411,40 +437,42 @@ const ChatRoomScreen = props => {
           />
         </>
       )}
-      <MessageInput
-        onCancelReply={() => {
-          setReplyToMessage(undefined);
-        }}
-        replyToMessage={replyToMessage}
-        onAddFile={data => {
-          sendFile(data);
-        }}
-        onSendMessage={async text => {
-          if (!secretKey) {
-            setIsDialogShown(true);
-            return;
-          }
+      {(otherUser?.user || otherUser?.users) && (
+        <MessageInput
+          onCancelReply={() => {
+            setReplyToMessage(undefined);
+          }}
+          replyToMessage={replyToMessage}
+          onAddFile={data => {
+            sendFile(data);
+          }}
+          onSendMessage={async text => {
+            if (!secretKey) {
+              setIsDialogShown(true);
+              return;
+            }
 
-          const uniqueId = uuidv4();
+            const uniqueId = uuidv4();
 
-          if (otherUser.isGroup) {
-            await Promise.all(
-              [...otherUser.users, authedUserState.authedUser].map(u =>
+            if (otherUser.isGroup) {
+              await Promise.all(
+                [...otherUser.users, authedUserState.authedUser].map(u =>
+                  sendMessage(text, u.publicKey, 'text', u.id, uniqueId),
+                ),
+              );
+            } else if (otherUser.isGroup === false) {
+              await [otherUser.user, authedUserState.authedUser].map(u =>
                 sendMessage(text, u.publicKey, 'text', u.id, uniqueId),
-              ),
-            );
-          } else if (otherUser.isGroup === false) {
-            await [otherUser.user, authedUserState.authedUser].map(u =>
-              sendMessage(text, u.publicKey, 'text', u.id, uniqueId),
-            );
-          }
+              );
+            }
 
-          setReplyToMessage(undefined);
-        }}
-        onCamera={data => {
-          sendFile(data);
-        }}
-      />
+            setReplyToMessage(undefined);
+          }}
+          onCamera={data => {
+            sendFile(data);
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 };
