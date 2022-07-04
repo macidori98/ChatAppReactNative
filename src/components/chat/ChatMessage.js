@@ -43,7 +43,6 @@ const ChatMessage = props => {
     const subscription = DataStore.observe(Message, message.id).subscribe(
       msg => {
         if (msg.opType === 'UPDATE' && msg.model === Message) {
-          console.log('update', msg.element.status);
           setMessage(existingMessage => {
             return {...existingMessage, ...msg.element};
           });
@@ -70,7 +69,8 @@ const ChatMessage = props => {
         Message,
         message.replyToMessageId,
       );
-      setRepliedTo(fetchedMessage.content);
+      const rep = await decryptMsg(fetchedMessage);
+      setRepliedTo(rep);
     }
   }, [message.replyToMessageId]);
 
